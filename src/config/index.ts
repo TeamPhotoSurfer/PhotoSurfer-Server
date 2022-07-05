@@ -20,4 +20,29 @@ export default {
    * MongoDB URI
    */
   mongoURI: process.env.MONGODB_URI as string,
+
+  /**
+   * DB host
+   */
+  host: process.env.DB_HOST,
+
+  /**
+   * DB port
+   */
+  dbPort: parseInt(process.env.DB_PORT as string, 10) as number,
+
+  /**
+   * DB username
+   */
+  username: process.env.DB_USERNAME,
+
+  /**
+   * DB password
+   */
+  password: process.env.DB_PASSWORD,
+
+  /**
+   * DB database
+   */
+  database: process.env.DATABASE
 };
