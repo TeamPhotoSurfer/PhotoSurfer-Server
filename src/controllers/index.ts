@@ -1,4 +1,2 @@
 // controller index file
-export {
-    
-}
+export {};
