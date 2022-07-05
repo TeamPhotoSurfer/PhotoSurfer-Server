@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { ConnectionOptions, createConnection } from 'typeorm';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
-import config from "../config";
+import config from '../config';
 
 const dbLoader = async (): Promise<void> => {
   try {
@@ -17,16 +17,15 @@ const dbLoader = async (): Promise<void> => {
       entities: ['src/entity/**/*.ts'],
       migrations: ['src/migration/**/*.ts'],
       subscribers: ['src/subscriber/**/*.ts'],
-    //   cli: {
-    //     entitiesDir: 'src/entity',
-    //     migrationsDir: 'src/migration',
-    //     subscribersDir: 'src/subscriber',
-    //   },
+      //   cli: {
+      //     entitiesDir: 'src/entity',
+      //     migrationsDir: 'src/migration',
+      //     subscribersDir: 'src/subscriber',
+      //   },
       namingStrategy: new SnakeNamingStrategy(),
     };
     await createConnection(connectionOption);
-    console.log("Mysql Connected ...");
-
+    console.log('Mysql Connected ...');
   } catch (err) {
     console.log('db connection error \n', err);
   }
