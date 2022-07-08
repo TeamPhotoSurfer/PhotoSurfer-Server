@@ -27,4 +27,15 @@ export class PushTag extends CommonEntity{
     
     @Column()
     isDeleted: boolean;
+
+    setPush (push: Push) {
+        this.push = push;
+    }
+
+    constructor(tag: Tag, push: Push){
+        super();
+        this.tag = tag;
+        this.push = push;
+        this.isDeleted = false;
+    }
 }
