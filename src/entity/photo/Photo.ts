@@ -17,12 +17,6 @@ export class Photo extends DateEntity{
         name: 'user_id'
     })
     user: User
-
-    @OneToMany(
-        () => Tag,
-        tag => tag.photo, { cascade: true }
-    )
-    tags: Tag[];
     
     @Column()
     isDeleted: boolean;

@@ -19,16 +19,6 @@ export class Tag extends DateEntity{
     })
     user: User
 
-    @ManyToOne(
-        () => Photo,
-        photo => photo.tags, { onDelete: "CASCADE",orphanedRowAction: "delete" }
-    )
-    @JoinColumn({
-        name: 'photo_id'
-    })
-    photo: Photo
-
-
     @Column({
         type: 'enum',
         enum: TagType
