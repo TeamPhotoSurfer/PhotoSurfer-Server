@@ -1,15 +1,15 @@
 import express, { Request, Response, NextFunction } from "express";
 const app = express();
 import connectDB from "./loaders/db";
-import routes from './routes';
-require('dotenv').config();
+import routes from "./routes";
+require("dotenv").config();
 
 connectDB();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.use(routes);   //라우터 
+app.use(routes); //라우터
 // error handler
 
 interface ErrorType {
@@ -17,8 +17,12 @@ interface ErrorType {
   status: number;
 }
 
-app.use(function (err: ErrorType, req: Request, res: Response, next: NextFunction) {
-
+app.use(function (
+  err: ErrorType,
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   res.locals.message = err.message;
   res.locals.error = req.app.get("env") === "production" ? err : {};
 
