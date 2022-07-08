@@ -1,10 +1,10 @@
 import {Entity, PrimaryGeneratedColumn, Column, Long, ManyToOne, JoinColumn, OneToMany} from "typeorm";
-import { DateEntity } from "../DateEntity";
+import { CommonEntity } from "../CommonEntity";
 import { Tag } from "../tag/Tag";
 import { User } from "../user/User";
 
 @Entity()
-export class Photo extends DateEntity{
+export class Photo extends CommonEntity{
     
     @Column()
     imageURL: string;
