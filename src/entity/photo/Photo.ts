@@ -1,6 +1,6 @@
 import {Entity, PrimaryGeneratedColumn, Column, Long, ManyToOne, JoinColumn, OneToMany} from "typeorm";
 import { CommonEntity } from "../CommonEntity";
-import { Tag } from "../tag/Tag";
+import { Status } from "../Status";
 import { User } from "../user/User";
 
 @Entity()
@@ -18,6 +18,10 @@ export class Photo extends CommonEntity{
     })
     user: User
     
-    @Column()
-    isDeleted: boolean;
+    @Column({
+        type: 'enum',
+        enum: Status,
+        default: Status.ACTIVE
+    })
+    status: string;
 }
