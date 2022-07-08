@@ -44,5 +44,5 @@ export default {
   /**
    * DB database
    */
-  database: process.env.DATABASE,
+  database: process.env.DATABASE
 };
