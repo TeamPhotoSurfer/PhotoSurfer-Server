@@ -1,12 +1,12 @@
 import {Entity, PrimaryGeneratedColumn, Column, Long, ManyToOne, JoinColumn, OneToMany, OneToOne} from "typeorm";
-import { DateEntity } from "../DateEntity";
+import { CommonEntity } from "../CommonEntity";
 import { Photo } from "../photo/Photo";
-import { Tag } from "../tag/Tag";
+import { PushTag } from "../pushtag/PushTag";
 import { User } from "../user/User";
 
 @Entity()
-export class Push extends DateEntity{
-    
+export class Push extends CommonEntity{
+
 
     @Column()
     memo: string;

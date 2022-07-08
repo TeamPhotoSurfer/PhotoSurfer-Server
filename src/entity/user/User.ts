@@ -1,11 +1,11 @@
 import {Entity, PrimaryGeneratedColumn, Column, Long, OneToMany} from "typeorm";
-import { DateEntity } from "../DateEntity";
+import { CommonEntity } from "../CommonEntity";
 import { Photo } from "../photo/Photo";
 import { Tag } from "../tag/Tag";
 import { SocialType } from "./SocialType";
 
 @Entity()
-export class User extends DateEntity{
+export class User extends CommonEntity{
 
     @Column()
     name: string;

@@ -1,6 +1,6 @@
 import {Entity, PrimaryGeneratedColumn, Column, BaseEntity, CreateDateColumn, UpdateDateColumn, Long} from "typeorm";
 
-export class DateEntity extends BaseEntity {
+export class CommonEntity extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: Long;
 
@@ -12,4 +12,4 @@ export class DateEntity extends BaseEntity {
 
 }
 
-export default DateEntity;
+export default CommonEntity;
