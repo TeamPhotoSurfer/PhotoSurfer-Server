@@ -34,10 +34,12 @@ steps:
         run: |
           pwd
           touch .env
+          echo DB_PORT=${{ secrets.DB_PORT }} >> .env
+          echo DATABASE=${{ secrets.DATABASE }} >> .env
+          echo DB_HOST=${{ secrets.DB_HOST }} >> .env
+          echo DB_USERNAME=${{ secrets.DB_USERNAME }} >> .env
+          echo PASSWORD=${{ secrets.PASSWORD }} >> .env
           echo PORT=${{ secrets.PORT }} >> .env
-          echo MONGODB_URI=${{ secrets.MONGODB_URI }} >> .env
-          echo JWT_SECRET=${{ secrets.JWT_SECRET }} >> .env
-          echo JWT_ALGO=${{ secrets.JWT_ALGO }} >> .env
           cat .env
 
       - name: build server files
