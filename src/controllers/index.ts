@@ -1,2 +1,5 @@
-// controller index file
-export {};
+import PushController from "./push/PushController";
+
+export {
+    PushController
+};
