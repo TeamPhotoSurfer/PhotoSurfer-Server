@@ -21,10 +21,10 @@ const createPush = async(pushCreateRequest: PushCreateRequest) => {
                     .where("user.id = :id", {id : pushCreateRequest.userId})
                     .getOne();
         //방법2
-        const user2 = await userRepository 
-                    .find({
-                        id: pushCreateRequest.userId
-                    });
+        // const user2 = await userRepository 
+        //             .find({
+        //                 id: pushCreateRequest.userId
+        //             });
         
         const photo = await photoRepository //TODO : null 확인
                     .createQueryBuilder("photo")

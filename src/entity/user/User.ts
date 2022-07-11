@@ -40,13 +40,12 @@ export class User extends CommonEntity{
     )
     tags: Tag[];
 
-    constructor(name: string, email:string, socialType:SocialType, fcmToken:string, push:boolean, isDeleted:boolean){
+    constructor(name: string, email:string, socialType:SocialType, fcmToken:string, push:boolean){
         super();
         this.name = name;
         this.email = email;
         this.socialType = socialType;
         this.fcmToken = fcmToken;
         this.push = push;
-        this.isDeleted = isDeleted;
     }
 }
