@@ -19,7 +19,7 @@ export class Tag extends CommonEntity{
     @JoinColumn({
         name: 'user_id'
     })
-    user: User
+    userId: Long;
 
     @Column({
         type: 'enum',

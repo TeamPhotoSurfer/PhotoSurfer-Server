@@ -18,7 +18,7 @@ export class PhotoTag extends CommonEntity{
     @JoinColumn({
         name: 'tag_id'
     })
-    tag: Tag
+    tagId: Long;
 
     @ManyToOne(
         () => Photo,
@@ -30,7 +30,7 @@ export class PhotoTag extends CommonEntity{
     @JoinColumn({
         name: 'photo_id'
     })
-    photo: Photo
+    photoId: Long;
     
     @Column({
         type: 'enum',

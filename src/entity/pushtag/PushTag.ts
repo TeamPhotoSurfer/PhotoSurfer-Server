@@ -16,7 +16,7 @@ export class PushTag extends CommonEntity{
     @JoinColumn({
         name: 'tag_id'
     })
-    tag: Tag
+    tagId: Long;
 
     @ManyToOne(
         () => Push, { onDelete: "CASCADE",orphanedRowAction: "delete" }
@@ -24,7 +24,7 @@ export class PushTag extends CommonEntity{
     @JoinColumn({
         name: 'push_id'
     })
-    push: Push
+    pushId: Long;
     
     @Column({
         type: 'enum',
@@ -33,13 +33,13 @@ export class PushTag extends CommonEntity{
     })
     status: string;
 
-    setPush (push: Push) {
-        this.push = push;
-    }
+    // setPush (push: Push) {
+    //     this.push = push;
+    // }
 
-    constructor(tag: Tag, push: Push){
+    constructor(tagId: Long, pushId: Long){
         super();
-        this.tag = tag;
-        this.push = push;
+        this.tagId = tagId;
+        this.pushId = pushId;
     }
 }

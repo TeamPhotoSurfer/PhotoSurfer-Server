@@ -35,13 +35,13 @@ export class User extends CommonEntity{
 
     @OneToMany(
         () => Photo,
-        photo => photo.user, { cascade: true }
+        photo => photo.userId, { cascade: true }
     )
     photos: Photo[];
 
     @OneToMany(
         () => Tag,
-        tag => tag.user
+        tag => tag.userId
     )
     tags: Tag[];
 
