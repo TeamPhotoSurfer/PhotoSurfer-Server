@@ -1,4 +1,7 @@
+import { TagType } from '../entity/tag/TagType';
+
 export interface PhotoPostDTO {
-  name: String;
-  type: String;
+  name: string;
+  tagType: TagType;
+  userId?: number;
 }
