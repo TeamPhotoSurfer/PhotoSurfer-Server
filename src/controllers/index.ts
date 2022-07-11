@@ -1,5 +1,3 @@
 import PushController from "./push/PushController";
-
-export {
-    PushController
-};
+import authController from "./auth/authController";
+export { PushController, authController };
