@@ -1,6 +1,7 @@
 import {Entity, PrimaryGeneratedColumn, Column, Long, OneToMany} from "typeorm";
 import { CommonEntity } from "../CommonEntity";
 import { Photo } from "../photo/Photo";
+import { Status } from "../Status";
 import { Tag } from "../tag/Tag";
 import { SocialType } from "./SocialType";
 
@@ -25,8 +26,12 @@ export class User extends CommonEntity{
     @Column()
     push: boolean;
 
-    @Column()
-    isDeleted: boolean;
+    @Column({
+        type: 'enum',
+        enum: Status,
+        default: Status.ACTIVE
+    })
+    status: string;
 
     @OneToMany(
         () => Photo,
@@ -47,6 +52,5 @@ export class User extends CommonEntity{
         this.socialType = socialType;
         this.fcmToken = fcmToken;
         this.push = push;
-        this.isDeleted = isDeleted;
     }
 }

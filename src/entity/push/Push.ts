@@ -2,6 +2,7 @@ import {Entity, PrimaryGeneratedColumn, Column, Long, ManyToOne, JoinColumn, One
 import { CommonEntity } from "../CommonEntity";
 import { Photo } from "../photo/Photo";
 import { PushTag } from "../pushtag/PushTag";
+import { Status } from "../Status";
 import { User } from "../user/User";
 
 @Entity()
@@ -37,8 +38,12 @@ export class Push extends CommonEntity{
     @Column()
     pushDate: Date;
     
-    @Column({default: false})
-    isDeleted: boolean;
+    @Column({
+        type: 'enum',
+        enum: Status,
+        default: Status.ACTIVE
+    })
+    status: string;
 
     addPushTag (pushTag: PushTag) {
         if(this.pushTags == null){
@@ -54,6 +59,5 @@ export class Push extends CommonEntity{
         this.user = user;
         this.photo = photo;
         this.pushDate = pushDate;
-        this.isDeleted = false;
     }
 }
