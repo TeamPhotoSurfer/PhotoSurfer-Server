@@ -1,6 +1,7 @@
 import {Entity, PrimaryGeneratedColumn, Column, Long, ManyToOne, JoinColumn, OneToMany} from "typeorm";
 import { CommonEntity } from "../CommonEntity";
 import { Photo } from "../photo/Photo";
+import { Status } from "../Status";
 import { Tag } from "../tag/Tag";
 import { User } from "../user/User";
 
@@ -17,7 +18,7 @@ export class PhotoTag extends CommonEntity{
     @JoinColumn({
         name: 'tag_id'
     })
-    tag: Tag
+    tagId: Long;
 
     @ManyToOne(
         () => Photo,
@@ -29,8 +30,12 @@ export class PhotoTag extends CommonEntity{
     @JoinColumn({
         name: 'photo_id'
     })
-    photo: Photo
+    photoId: Long;
     
-    @Column()
-    isDeleted: boolean;
+    @Column({
+        type: 'enum',
+        enum: Status,
+        default: Status.ACTIVE
+    })
+    status: string;
 }

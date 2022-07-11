@@ -2,11 +2,11 @@ import {Entity, PrimaryGeneratedColumn, Column, Long, ManyToOne, JoinColumn, One
 import { CommonEntity } from "../CommonEntity";
 import { Photo } from "../photo/Photo";
 import { PushTag } from "../pushtag/PushTag";
+import { Status } from "../Status";
 import { User } from "../user/User";
 
 @Entity()
 export class Push extends CommonEntity{
-
 
     @Column()
     memo: string;
@@ -18,7 +18,7 @@ export class Push extends CommonEntity{
     @JoinColumn({
         name: 'user_id'
     })
-    user: User
+    userId: Long;
 
     @ManyToOne(
         () => Photo, { onDelete: "CASCADE",orphanedRowAction: "delete" }
@@ -26,34 +26,37 @@ export class Push extends CommonEntity{
     @JoinColumn({
         name: 'photo_id'
     })
-    photo: Photo;
+    photoId: Long;
 
     @OneToMany(
         () => PushTag,
-        pushtag => pushtag.push, { cascade: true }
+        pushtag => pushtag.pushId, { cascade: true }
     )
     pushTags: PushTag[];
     
     @Column()
     pushDate: Date;
     
-    @Column({default: false})
-    isDeleted: boolean;
+    @Column({
+        type: 'enum',
+        enum: Status,
+        default: Status.ACTIVE
+    })
+    status: string;
 
-    addPushTag (pushTag: PushTag) {
-        if(this.pushTags == null){
-            this.pushTags = [];
-        }
-        this.pushTags.push(pushTag);
-        pushTag.setPush(this);
-    }
+    // addPushTag (pushTag: PushTag) {
+    //     if(this.pushTags == null){
+    //         this.pushTags = [];
+    //     }
+    //     this.pushTags.push(pushTag);
+    //     pushTag.setPush(this);
+    // }
 
-    constructor(memo: string, user:User, photo:Photo, pushDate: Date){
+    constructor(memo: string, userId:Long, photoId:Long, pushDate: Date){
         super();
         this.memo = memo;
-        this.user = user;
-        this.photo = photo;
+        this.userId = userId;
+        this.photoId = photoId;
         this.pushDate = pushDate;
-        this.isDeleted = false;
     }
 }

@@ -2,6 +2,7 @@ import {Entity, PrimaryGeneratedColumn, Column, Long, ManyToOne, JoinColumn, One
 import { CommonEntity } from "../CommonEntity";
 import { Photo } from "../photo/Photo";
 import { Push } from "../push/Push";
+import { Status } from "../Status";
 import { Tag } from "../tag/Tag";
 import { User } from "../user/User";
 
@@ -15,7 +16,7 @@ export class PushTag extends CommonEntity{
     @JoinColumn({
         name: 'tag_id'
     })
-    tag: Tag
+    tagId: Long;
 
     @ManyToOne(
         () => Push, { onDelete: "CASCADE",orphanedRowAction: "delete" }
@@ -23,19 +24,22 @@ export class PushTag extends CommonEntity{
     @JoinColumn({
         name: 'push_id'
     })
-    push: Push
+    pushId: Long;
     
-    @Column()
-    isDeleted: boolean;
+    @Column({
+        type: 'enum',
+        enum: Status,
+        default: Status.ACTIVE
+    })
+    status: string;
 
-    setPush (push: Push) {
-        this.push = push;
-    }
+    // setPush (push: Push) {
+    //     this.push = push;
+    // }
 
-    constructor(tag: Tag, push: Push){
+    constructor(tagId: Long, pushId: Long){
         super();
-        this.tag = tag;
-        this.push = push;
-        this.isDeleted = false;
+        this.tagId = tagId;
+        this.pushId = pushId;
     }
 }
