@@ -16,8 +16,8 @@ export class Photo extends CommonEntity{
     @JoinColumn({
         name: 'user_id'
     })
-    user: User
-    
+    userId: Long;
+
     @Column({
         type: 'enum',
         enum: Status,
