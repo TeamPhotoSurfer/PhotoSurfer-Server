@@ -22,13 +22,14 @@ const createPhoto = async (userId: number, location: string, tags: PhotoPostDTO[
 
     //새로운 태그 저장
     let tagId: long;
+
     tags.map(async x => {
       const checkedTag = await tagRepository.findOne({
         name: x.name,
+        userId: userId,
       });
       if (checkedTag) {
         tagId = checkedTag.id as unknown as long;
-        console.log(tagId + 'ch');
         const count: number = checkedTag.addCount as unknown as number;
         tagRepository.update(tagId, {
           addCount: +count + 1,

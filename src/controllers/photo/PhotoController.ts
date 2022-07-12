@@ -17,7 +17,7 @@ const uploadFileToS3 = async (req: Request, res: Response) => {
   const tag: PhotoPostDTO[] = JSON.parse(JSON.stringify(tags));
 
   try {
-    const data = await PhotoService.createPhoto(1, location, tag);
+    const data = await PhotoService.createPhoto(2, location, tag);
 
     res.status(statusCode.OK).send(util.success(statusCode.OK, message.SUCCESS, tags));
   } catch (error) {
