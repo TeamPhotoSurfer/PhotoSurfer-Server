@@ -3,6 +3,6 @@ import PhotoController from '../controllers/photo/PhotoController';
 import { Router } from 'express';
 const router: Router = Router();
 
-router.post('/upload', upload.single('file'), PhotoController.uploadFileToS3);
+router.post('/', upload.single('file'), PhotoController.createPhotoTag);
 
 export default router;

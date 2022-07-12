@@ -10,7 +10,7 @@ import { PushCreateRequest } from '../../interfaces/push/request/PushCreateReque
 import { TagType } from '../../entity/tag/TagType';
 import { long } from 'aws-sdk/clients/cloudfront';
 
-const createPhoto = async (userId: number, location: string, tags: PhotoPostDTO[]) => {
+const createPhotoTag = async (userId: number, location: string, tags: PhotoPostDTO[]) => {
   const userRepository = getRepository(User);
   const photoRepository = getRepository(Photo);
   const tagRepository = getRepository(Tag);
@@ -53,5 +53,5 @@ const createPhoto = async (userId: number, location: string, tags: PhotoPostDTO[
 };
 
 export default {
-  createPhoto,
+  createPhotoTag,
 };
