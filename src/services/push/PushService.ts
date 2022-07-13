@@ -6,7 +6,23 @@ import { Tag } from "../../entity/tag/Tag";
 import { User } from "../../entity/user/User";
 import { PushCreateRequest } from "../../interfaces/push/request/PushCreateRequest";
 
+const test = async(client: any) => {
 
+    try{
+        var testQuery = "Select * from `photo`;";
+
+        var test222 = client.query(testQuery, function (err: any, results:any, fields:any) { // testQuery 실행
+        if (err) {
+            console.log(err);
+        }
+        console.log(results);
+        });
+
+    }catch(error){
+        console.log(error);
+        throw error;
+    }
+}
 
 const createPush = async(pushCreateRequest: PushCreateRequest) => {
     const userRepository = getRepository(User);
@@ -16,6 +32,9 @@ const createPush = async(pushCreateRequest: PushCreateRequest) => {
     const pushTagRepository = getRepository(PushTag);
 
     try{
+       
+        
+
         //방법1
         const user = await userRepository//TODO : null 확인 필요
                     .createQueryBuilder("user")
@@ -72,5 +91,5 @@ const createPush = async(pushCreateRequest: PushCreateRequest) => {
 }
 
 export default {
-    createPush
+    createPush, test
 }
