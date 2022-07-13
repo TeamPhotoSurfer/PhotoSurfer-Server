@@ -4,7 +4,7 @@ import connectDB from "./loaders/db";
 import routes from "./routes";
 require("dotenv").config();
 
-connectDB();
+connectDB;
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());

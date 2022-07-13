@@ -5,8 +5,25 @@ import { PushTag } from "../../entity/pushtag/PushTag";
 import { Tag } from "../../entity/tag/Tag";
 import { User } from "../../entity/user/User";
 import { PushCreateRequest } from "../../interfaces/push/request/PushCreateRequest";
+import connect from "../../loaders/db"
+const mysql = require("mysql");
 
+const createPush = async (pushCreateRequest: PushCreateRequest) => {
+  const userRepository = getRepository(User);
+  const photoRepository = getRepository(Photo);
+  const tagRepository = getRepository(Tag);
+  const pushRepository = getRepository(Push);
 
+  try {
+    //방법1
+    const user = await userRepository //TODO : null 확인 필요
+      .createQueryBuilder("user")
+      .where("user.id = :id", { id: pushCreateRequest.userId })
+      .getOne();
+    //방법2
+    const user2 = await userRepository.find({
+      id: pushCreateRequest.userId,
+    });
 
 const createPush = async(pushCreateRequest: PushCreateRequest) => {
     const userRepository = getRepository(User);
@@ -65,12 +82,47 @@ const createPush = async(pushCreateRequest: PushCreateRequest) => {
         };
         return data;
 
-    }catch(error){
-        console.log(error);
-        throw error;
+    //push에 pushTag 넣기
+    for (const idx in pushTagList) {
+      push.addPushTag(pushTagList[idx]);
     }
-}
+
+    await pushRepository.save(push);
+
+    const data = {
+      id: push.id,
+    };
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+const test = async () => {
+  try {
+    let connection = mysql.createConnection(connect);
+    connection.connect(); // connect database
+
+    const testQuery = "select * from `user`";
+    console.log(testQuery);
+    
+    connection.query(testQuery, (error:any, result:any, field:any) => {
+        console.log(result);
+        
+        if (error) {
+            console.log("Error Execution :", error);
+        }
+        return result;
+    });
+    connection.end(); // de-connect database
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
 
 export default {
-    createPush
-}
+  createPush,
+  test,
+};

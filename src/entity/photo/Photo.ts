@@ -25,3 +25,4 @@ export class Photo extends CommonEntity{
     })
     status: string;
 }
+
