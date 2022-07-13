@@ -18,3 +18,9 @@ export interface LoginUserDTO{
     fcmToken: string;
     push: boolean;
 }
+
+export interface AppleLoginDTO{
+  idKey: string;
+  token: string;
+  social: string;
+}
