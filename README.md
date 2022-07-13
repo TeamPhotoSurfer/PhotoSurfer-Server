@@ -9,7 +9,8 @@
 # 팀 별 역할 분담
 
 <aside>
-📌 민욱 - 로그인, API 구현   
+    
+📌 민욱 - 로그인, API 구현.  
 
 📌 지원 - 푸시알림 , API 구현
 
@@ -88,4 +89,6 @@
 
 [BASEURL : http://3.35.27.148:8000](https://go-photosurfer.notion.site/API-a4b228282bcb49399413efc03552c1d1)
 
+### API 문서 및 로직 구현 진척도
+https://go-photosurfer.notion.site/API-a4b228282bcb49399413efc03552c1d1
 
