@@ -9,8 +9,16 @@ import connection from '../../loaders/db';
 
 const test = async () => {
   connection.connect();
-  const { tesst2 } = await connection.query('SELECT * FROM photo;');
-  return tesst2;
+  const testQuery = 'SELECT * FROM photo;';
+
+  var test222 = connection.query(testQuery, function (err: any, results:any, fields:any) { // testQuery 실행
+    if (err) {
+        console.log(err);
+    }
+    console.log(results);
+    });
+    connection.end(); //꼭!!!!!!!!!!!
+  return test222;
 };
 
 const createPush = async (pushCreateRequest: PushCreateRequest) => {

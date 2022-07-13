@@ -34,7 +34,7 @@ const createPush = async (req: Request, res: Response) => {
 const test = async (req: Request, res: Response) => {
   try {
     const checkFriends = await PushService.test();
-    console.log(test);
+    console.log(checkFriends);
     res.status(statusCode.CREATED).send(util.success(statusCode.CREATED, message.CREATE_PUSH_SUCCESS));
   } catch (err) {
     throw err;
