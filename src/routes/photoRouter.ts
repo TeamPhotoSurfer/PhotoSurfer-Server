@@ -5,4 +5,5 @@ const router: Router = Router();
 
 router.post('/', upload.single('file'), PhotoController.createPhotoTag);
 
+router.get('/', PhotoController.findPhotoById);
 export default router;
