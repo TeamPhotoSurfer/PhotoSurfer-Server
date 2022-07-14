@@ -6,6 +6,6 @@ import PhotoController from '../controllers/PhotoController';
 
 const router: Router = Router();
 
-// router.post('/', upload.single('file'), PhotoController.test);
-router.post('/', PhotoController.test);
+router.post('/', upload.single('file'), PhotoController.createPhotoTag);
+// router.post('/', PhotoController.test);
 export default router;
