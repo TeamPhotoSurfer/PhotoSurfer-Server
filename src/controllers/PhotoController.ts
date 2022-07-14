@@ -13,7 +13,8 @@ const createPhotoTag = async (req: Request, res: Response) => {
   }
   const image: Express.MulterS3.File = req.file as Express.MulterS3.File;
   const { originalname, location } = image;
-  const userId = req.body.user.id;
+  // const userId = req.body.user.id;
+  const userId = 1;
   let tags: PhotoPostDTO[] = JSON.parse(JSON.stringify(req.body.tags));
   try {
     client = await db.connect(req);

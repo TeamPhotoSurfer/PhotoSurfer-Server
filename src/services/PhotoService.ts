@@ -18,7 +18,7 @@ const createPhotoTag = async (client: any, userId: number, imageURL: string, tag
       `
         SELECT *
         FROM tag
-        WHERE name = $1 AND user_id = $2
+        WHERE name = $1 AND user_id = $2 AND is_deleted = false
         `,
       [r.name, userId],
     );
@@ -52,7 +52,8 @@ const getTagByPhotoId = async (client: any, photoId: number, userId: number) => 
     `
     SELECT tag.id, tag.name, tag.tag_type
     FROM photo_tag, tag
-    WHERE photo_tag.photo_id = $1 AND photo_tag.tag_id = tag.id AND tag.user_id = $2
+    WHERE photo_tag.photo_id = $1 AND photo_tag.tag_id = tag.id AND tag.user_id = $2 
+    AND photo_tag.is_deleted = false AND tag.is_deleted = false
     `,
     [photoId, userId],
   );

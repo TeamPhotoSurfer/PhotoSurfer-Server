@@ -5,6 +5,7 @@ const message = {
   INTERNAL_SERVER_ERROR: '서버 내부 오류',
   SUCCESS: '성공',
   CREATE_PUSH_SUCCESS: '푸시 알림 생성 성공',
+  NULL_VALUE_TOKEN: '토큰만료',
 };
 
 export default message;
