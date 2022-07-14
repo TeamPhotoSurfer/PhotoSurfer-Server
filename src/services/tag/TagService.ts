@@ -1,5 +1,4 @@
 import { getConnection, getRepository, Long } from "typeorm";
-import { Tag } from "../../entity/tag/Tag";
 import { TagInfo } from "../../interfaces/tag/TagInfo";
 import { TagNameUpdateDTO } from "../../interfaces/tag/TagNameUpdateDTO";
 import { TagResponseDTO } from "../../interfaces/tag/TagResponseDTO";

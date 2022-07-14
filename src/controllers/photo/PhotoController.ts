@@ -1,14 +1,16 @@
-import message from '../../modules/responseMessage';
-import express, { Request, Response } from 'express';
-import statusCode from '../../modules/statusCode';
-import util from '../../modules/util';
-import { PhotoPostDTO } from '../../DTO/photoDTO';
-import PhotoService from '../../services/photo/PhotoService';
+import message from "../../modules/responseMessage";
+import express, { Request, Response } from "express";
+import statusCode from "../../modules/statusCode";
+import util from "../../modules/util";
+import { PhotoPostDTO } from "../../DTO/photoDTO";
+import PhotoService from "../../services/photo/PhotoService";
 // import FileService from '../services/FileService';
 
 const createPhotoTag = async (req: Request, res: Response) => {
   if (!req.file) {
-    return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.NULL_VALUE));
+    return res
+      .status(statusCode.BAD_REQUEST)
+      .send(util.fail(statusCode.BAD_REQUEST, message.NULL_VALUE));
   }
   const image: Express.MulterS3.File = req.file as Express.MulterS3.File;
   const { originalname, location } = image;
@@ -17,15 +19,50 @@ const createPhotoTag = async (req: Request, res: Response) => {
   const tag: PhotoPostDTO[] = JSON.parse(JSON.stringify(tags));
 
   try {
-    const data = await PhotoService.createPhotoTag(2, location, tag);
+    // const data = await PhotoService.createPhotoTag(2, location, tag);
 
-    res.status(statusCode.OK).send(util.success(statusCode.OK, message.SUCCESS, tags));
+    res
+      .status(statusCode.OK)
+      .send(util.success(statusCode.OK, message.SUCCESS, tags));
   } catch (error) {
     console.log(error);
-    res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
+    res
+      .status(statusCode.INTERNAL_SERVER_ERROR)
+      .send(
+        util.fail(
+          statusCode.INTERNAL_SERVER_ERROR,
+          message.INTERNAL_SERVER_ERROR
+        )
+      );
+  }
+};
+
+/**
+ *  @route DELETE /photo/?id=12&id=23
+ *  @desc Delete Photo
+ *  @access Public
+ */
+
+const deletePhoto = async (req: Request, res: Response) => {
+  const { photoId } = req.params;
+
+  try {
+    await PhotoService.deletePhoto(photoId);
+    res.status(statusCode.NO_CONTENT).send();
+  } catch (error) {
+    console.log(error);
+    res
+      .status(statusCode.INTERNAL_SERVER_ERROR)
+      .send(
+        util.fail(
+          statusCode.INTERNAL_SERVER_ERROR,
+          message.INTERNAL_SERVER_ERROR
+        )
+      );
   }
 };
 
 export default {
   createPhotoTag,
+  deletePhoto,
 };

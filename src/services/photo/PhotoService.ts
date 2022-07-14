@@ -1,57 +1,33 @@
-import { getConnection, getRepository, SimpleConsoleLogger } from 'typeorm';
-import { PhotoPostDTO } from '../../DTO/photoDTO';
-import { Photo } from '../../entity/photo/Photo';
-import { Push } from '../../entity/push/Push';
-import { PushTag } from '../../entity/pushtag/PushTag';
-import { PhotoTag } from '../../entity/phototag/PhotoTag';
-import { Tag } from '../../entity/tag/Tag';
-import { User } from '../../entity/user/User';
-import { PushCreateRequest } from '../../interfaces/push/request/PushCreateRequest';
-import { TagType } from '../../entity/tag/TagType';
-import { long } from 'aws-sdk/clients/cloudfront';
+import connect from "../../loaders/db";
+import connection from "../../loaders/db";
+const mysql = require("mysql");
 
-const createPhotoTag = async (userId: number, location: string, tags: PhotoPostDTO[]) => {
-  const userRepository = getRepository(User);
-  const photoRepository = getRepository(Photo);
-  const tagRepository = getRepository(Tag);
-  const pushRepository = getRepository(Push);
+//Photo 지우기
+const deletePhoto = async (photoId: string) => {
+  connection.connect();
+  const deletePhotoTag = `UPDATE photo SET is_deleted = true WHERE id = ${photoId}`;
+  const deletePhotoTag2 = `SELECT tag_id FROM photo_tag WHERE is_deleted = false`;
 
-  try {
-    const photo = await getConnection().createQueryBuilder().insert().into(Photo).values({ userId: userId, imageURL: location }).execute();
-    const photoId = photo.identifiers[0].id;
-
-    //새로운 태그 저장
-    let tagId: long;
-
-    tags.map(async x => {
-      const checkedTag = await tagRepository.findOne({
-        name: x.name,
-        userId: userId,
-      });
-      if (checkedTag) {
-        tagId = checkedTag.id as unknown as long;
-        const count: number = checkedTag.addCount as unknown as number;
-        tagRepository.update(tagId, {
-          addCount: +count + 1,
-        });
-      } else {
-        x.userId = userId;
-        const result = await getConnection().createQueryBuilder().insert().into(Tag).values(x).execute();
-        tagId = result.identifiers[0].id;
+  connection.query(
+    deletePhotoTag,
+    function (err: any, results: any, fields: any) {
+      if (err) {
+        console.log(err);
       }
-      //비동기처리
-      const data = {
-        tagId,
-        photoId,
-      };
-      await getConnection().createQueryBuilder().insert().into(PhotoTag).values(data).execute();
-    });
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
+      console.log(results);
+      connection.query(
+        deletePhotoTag2,
+        function (err: any, results: any, fields: any) {
+          if (err) {
+            console.log(err);
+            console.log(results);
+            connection.end();
+          }
+        }
+      );
+      return results;
+    }
+  );
 };
 
-export default {
-  createPhotoTag,
-};
+export default { deletePhoto };
