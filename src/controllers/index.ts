@@ -1,5 +1,3 @@
-import PushController from "./push/PushController";
+import photoController from './photoController';
 
-export {
-    PushController
-};
+export { photoController };

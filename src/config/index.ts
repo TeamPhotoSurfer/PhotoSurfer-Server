@@ -19,33 +19,37 @@ export default {
   /**
    * MongoDB URI
    */
-  mongoURI: process.env.MONGODB_URI as string,
-
+  // mongoURI: process.env.MONGODB_URI as string,
+  //
   /**
    * DB host
    */
-  host: process.env.DB_HOST,
+  // host: process.env.DB_HOST,
 
   /**
    * DB port
-   */
-  dbPort: parseInt(process.env.DB_PORT as string, 10) as number,
+  //  */
+  // dbPort: parseInt(process.env.DB_PORT as string, 10) as number,
 
-  /**
-   * DB username
-   */
-  username: process.env.DB_USERNAME,
+  // /**
+  //  * DB username
+  //  */
+  // username: process.env.DB_USERNAME,
 
-  /**
-   * DB password
-   */
+  // /**
+  //  * DB password
+  //  */
+  // password: process.env.DB_PASSWORD,
+
+  // /**
+  //  * DB database
+  //  */
+  // database: process.env.DATABASE,
+
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_DB,
   password: process.env.DB_PASSWORD,
-
-  /**
-   * DB database
-   */
-  database: process.env.DATABASE,
-
   /**
    * S3
    */

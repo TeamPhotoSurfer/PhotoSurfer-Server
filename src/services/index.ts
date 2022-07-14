@@ -1,4 +1,3 @@
-//service index file
-export {
+import photoService from './PhotoService';
 
-}
+export default { photoService };
