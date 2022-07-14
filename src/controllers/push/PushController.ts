@@ -21,10 +21,9 @@ const createPush = async (req: Request, res: Response) => {
   const pushCreateRequest: PushCreateRequest = req.body;
   console.log(pushCreateRequest);
   try {
-    //const data = await ReviewService.createReview(movieId, reviewCreateDto);
-    const data = await PushService.createPush(pushCreateRequest);
+    // const data = await PushService.createPush(pushCreateRequest);
 
-    res.status(statusCode.CREATED).send(util.success(statusCode.CREATED, message.CREATE_PUSH_SUCCESS, data));
+    res.status(statusCode.CREATED).send(util.success(statusCode.CREATED, message.CREATE_PUSH_SUCCESS));
   } catch (error) {
     console.log(error);
     res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
