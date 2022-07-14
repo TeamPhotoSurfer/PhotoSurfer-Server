@@ -1,11 +1,10 @@
 import { Router } from 'express';
 import { PushController } from '../controllers';
-import PhotoRouter from './photoRouter';
+import PhotoRouter from './PhotoRouter';
+const router: Router = Router();
 
-const router = Router();
 
 router.post('/test', PushController.test);
-
 router.use('/photo', PhotoRouter);
 
 export default router;
