@@ -34,6 +34,7 @@ const createPhotoTag = async (req: Request, res: Response) => {
 
 const updatePhotoTag = async (req: Request, res: Response) => {
   let client;
+
   // const userId = req.body.user.id;
   const userId = 1;
   try {
