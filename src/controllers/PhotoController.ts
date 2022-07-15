@@ -34,12 +34,17 @@ const createPhotoTag = async (req: Request, res: Response) => {
 
 const updatePhotoTag = async (req: Request, res: Response) => {
   let client;
+  const tagId: number = req.params.tagId as unknown as number;
 
   // const userId = req.body.user.id;
   const userId = 1;
+  const name: string = req.body.name;
+  const photoIds: number[] = req.body.photoIds;
+
   try {
     client = await db.connect(req);
-    const photo = await photoService.updatePhotoTag(client, userId);
+
+    const photo = await photoService.updatePhotoTag(client, userId, name, photoIds, tagId);
     res.status(statusCode.OK).send(util.success(statusCode.OK, message.SUCCESS));
   } catch (error) {
     console.log(error);

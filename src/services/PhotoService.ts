@@ -60,16 +60,80 @@ const getTagByPhotoId = async (client: any, photoId: number, userId: number) => 
   return convertSnakeToCamel.keysToCamel(rows);
 };
 
-const updatePhotoTag = async (client: any, userId: number) => {
-  const { rows } = await client.query(
+const updatePhotoTag = async (client: any, userId: number, name: string, photoIds: number[], tagId: number) => {
+  console.log(tagId);
+  const { rows: checkedTag } = await client.query(
     `
-    SELECT 
-    FROM 
-    WHERE 
+    SELECT id, is_deleted
+    FROM tag
+    WHERE name = $1 AND user_id = $2
     `,
-    [],
+    [name, userId],
   );
-  return convertSnakeToCamel.keysToCamel(rows);
+  let newTagId;
+  console.log(checkedTag);
+
+  if (!checkedTag[0]) {
+    const { rows } = await client.query(
+      `
+      INSERT INTO tag(name, tag_type, user_id)
+      VALUES ($1, $2, $3)
+      RETURNING *
+      `,
+      [name, 'general', userId],
+    );
+    newTagId = rows[0].id;
+  } else {
+    if (checkedTag[0].is_deleted === false) {
+      newTagId = checkedTag[0].id;
+    } else if (checkedTag[0].is_deleted === true) {
+      const { rows } = await client.query(
+        `
+        UPDATE tag
+        SET is_deleted = false
+        WHERE name = $1 AND user_id = $2
+        RETURNING *
+        `,
+        [name, userId],
+      );
+      console.log(rows[0]);
+      newTagId = checkedTag[0].id;
+    }
+  }
+
+  for (let i of photoIds) {
+    const { rows } = await client.query(
+      `
+      UPDATE photo_tag
+      SET tag_id = $1
+      WHERE photo_id = $2 AND tag_id = $3
+      RETURNING *
+      `,
+      [newTagId, i, tagId],
+    );
+  }
+  console.log(newTagId);
+
+  const { rows: photoTag } = await client.query(
+    `
+    SELECT *
+    FROM photo_tag
+    WHERE tag_id = $1 AND is_deleted = false
+    `,
+    [tagId],
+  );
+  if (!photoTag[0]) {
+    console.log('dkdk');
+    const { rows } = await client.query(
+      `
+      UPDATE tag
+      SET is_deleted = true
+      WHERE id = $1
+      RETURNING *
+      `,
+      [tagId],
+    );
+  }
 };
 
 export default {

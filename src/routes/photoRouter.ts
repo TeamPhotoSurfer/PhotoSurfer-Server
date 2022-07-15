@@ -8,5 +8,5 @@ const router: Router = Router();
 
 router.post('/', upload.single('file'), PhotoController.createPhotoTag);
 
-router.post('/', PhotoController.updatePhotoTag);
+router.post('/:tagId', PhotoController.updatePhotoTag);
 export default router;
