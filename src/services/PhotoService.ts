@@ -1,17 +1,40 @@
-const convertSnakeToCamel3 = require('../modules/convertSnakeToCamel');
+import { PushCreateRequest } from "../interfaces/push/request/PushCreateRequest";
+import dayjs from 'dayjs';
 
-const test = async (client: any) => {
-  const { rows } = await client.query(
+const convertSnakeToCamel3 = require("../modules/convertSnakeToCamel");
+
+const createPush = async (client: any, userId: number, photoId: number, pushCreateRequest: PushCreateRequest) => {
+
+  const { rows : push } = await client.query(
     `
-      INSERT INTO "user" (name, email, social_type)
-      VALUES ($1, $2, $3)
+      INSERT INTO push (memo, push_date, user_id, photo_id)
+      VALUES ($1, $2, $3, $4)
       RETURNING *
-      `,
-    ['dd', 'anam', 'kakao'],
+    `,
+    [pushCreateRequest.memo, new Date(pushCreateRequest.pushDate), userId, photoId],
   );
-  return convertSnakeToCamel3.keysToCamel(rows[0]);
-};
+  console.log(push);
+  
+
+  for(let i of pushCreateRequest.tagIds){
+    const { rows : tags} = await client.query(
+      `
+      UPDATE photo_tag SET is_represent = true
+      WHERE tag_id = $1;
+      `,
+      [i],
+    );
+  }
+  
+  const data = {
+    pushDate : dayjs(push[0].push_date).format("YYYY-MM-DD"),
+    tagIds : pushCreateRequest.tagIds,
+    memo : push[0].memo
+  };
+
+  return data;
+}
 
 export default {
-  test,
+  createPush
 };
