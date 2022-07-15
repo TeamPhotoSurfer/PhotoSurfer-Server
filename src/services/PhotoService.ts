@@ -71,22 +71,19 @@ const updatePhotoTag = async (client: any, userId: number, name: string, photoId
     [name, userId],
   );
   let newTagId;
-  console.log(checkedTag);
-
+  const photoCount = photoIds.length;
   if (!checkedTag[0]) {
     const { rows } = await client.query(
       `
-      INSERT INTO tag(name, tag_type, user_id)
-      VALUES ($1, $2, $3)
+      INSERT INTO tag(name, tag_type, user_id, add_count)
+      VALUES ($1, $2, $3, $4)
       RETURNING *
       `,
-      [name, 'general', userId],
+      [name, 'general', userId, photoCount],
     );
     newTagId = rows[0].id;
   } else {
-    if (checkedTag[0].is_deleted === false) {
-      newTagId = checkedTag[0].id;
-    } else if (checkedTag[0].is_deleted === true) {
+    if (checkedTag[0].is_deleted === true) {
       const { rows } = await client.query(
         `
         UPDATE tag
@@ -96,9 +93,17 @@ const updatePhotoTag = async (client: any, userId: number, name: string, photoId
         `,
         [name, userId],
       );
-      console.log(rows[0]);
-      newTagId = checkedTag[0].id;
     }
+    newTagId = checkedTag[0].id;
+    const { rows } = await client.query(
+      `
+      UPDATE tag
+      SET add_count = add_count + $4
+      WHERE name = $1 AND user_id = $2 AND id = $3
+      RETURNING *
+      `,
+      [name, userId, newTagId, photoCount],
+    );
   }
 
   for (let i of photoIds) {
