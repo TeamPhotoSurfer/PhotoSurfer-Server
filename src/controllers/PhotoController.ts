@@ -32,6 +32,23 @@ const createPhotoTag = async (req: Request, res: Response) => {
   }
 };
 
+const getPhoto = async (req: Request, res: Response) => {
+  let client;
+  // const userId = req.body.user.id;
+  const userId = 1;
+  const photoId: number = req.params.photoId as unknown as number;
+  try {
+    client = await db.connect(req);
+    const photo = await photoService.getPhotoById(client, photoId, userId);
+
+    res.status(statusCode.OK).send(util.success(statusCode.OK, message.SUCCESS, photo));
+  } catch (error) {
+    console.log(error);
+    res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
+  }
+};
+
 export default {
   createPhotoTag,
+  getPhoto,
 };
