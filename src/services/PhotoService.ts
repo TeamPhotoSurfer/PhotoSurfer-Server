@@ -60,7 +60,21 @@ const getTagByPhotoId = async (client: any, photoId: number, userId: number) => 
   return convertSnakeToCamel.keysToCamel(rows);
 };
 
+const updatePhotoTag = async (client: any, userId: number) => {
+  const { rows } = await client.query(
+    `
+    SELECT tag.id, tag.name, tag.tag_type
+    FROM photo_tag, tag
+    WHERE photo_tag.photo_id = $1 AND photo_tag.tag_id = tag.id AND tag.user_id = $2 
+    AND photo_tag.is_deleted = false AND tag.is_deleted = false
+    `,
+    [],
+  );
+  return convertSnakeToCamel.keysToCamel(rows);
+};
+
 export default {
   createPhotoTag,
   getTagByPhotoId,
+  updatePhotoTag,
 };
