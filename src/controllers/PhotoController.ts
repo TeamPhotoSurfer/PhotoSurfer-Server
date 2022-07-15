@@ -44,7 +44,7 @@ const findPhotoByTag = async (req: Request, res: Response) => {
   try {
     client = await db.connect(req);
     const photos = await photoService.findPhotoByTag(client, userId, tagId);
-    const tags = await photoService.getTagsByIds(client, tagId);
+    const tags = await photoService.getTagsByIds(client, tagId, userId);
     const data = {
       tags,
       photos,

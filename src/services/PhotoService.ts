@@ -120,7 +120,7 @@ const findPhotoByTag = async (client: any, userId: number, tagId: string[] | str
   return result;
 };
 
-const getTagsByIds = async (client: any, tagId: string[] | string) => {
+const getTagsByIds = async (client: any, tagId: string[] | string, userId: number) => {
   let tagIds: string[] = [];
   const result = [];
   if (typeof tagId === 'string') {
@@ -138,6 +138,15 @@ const getTagsByIds = async (client: any, tagId: string[] | string) => {
       [i],
     );
     result.push(rows[0]);
+
+    const { rows: searchCount } = await client.query(
+      `
+      UPDATE tag
+      SET search_count = search_count + 1
+      WHERE user_id = $1 AND id = $2
+      `,
+      [userId, i],
+    );
   }
   return result;
 };
