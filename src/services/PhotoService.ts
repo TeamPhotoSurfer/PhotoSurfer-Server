@@ -1,4 +1,6 @@
+import { throws } from 'assert';
 import { ConfigurationServicePlaceholders } from 'aws-sdk/lib/config_service_placeholders';
+import { EventListenerTypes } from 'typeorm/metadata/types/EventListenerTypes';
 import { PhotoPostDTO, PhotoReturnDTO } from '../DTO/photoDTO';
 const convertSnakeToCamel = require('../modules/convertSnakeToCamel');
 
@@ -60,7 +62,65 @@ const getTagByPhotoId = async (client: any, photoId: number, userId: number) => 
   return convertSnakeToCamel.keysToCamel(rows);
 };
 
+const findPhotoByTag = async (client: any, userId: number, tagId: string[] | string) => {
+  if (typeof tagId === 'string') {
+    const { rows } = await client.query(
+      `
+      SELECT photo.id, photo.image_url
+      FROM photo_tag, photo
+      WHERE tag_id = $1 AND photo_tag.is_deleted = false
+      AND photo.id = photo_tag.photo_id AND photo.user_id = $2 AND photo.is_deleted = false
+      `,
+      [tagId, userId],
+    );
+    return convertSnakeToCamel.keysToCamel(rows);
+  }
+
+  const { rows } = await client.query(
+    `
+      SELECT tag_id, photo_id
+      FROM photo_tag, photo
+      WHERE  photo_tag.is_deleted = false
+      AND photo.id = photo_tag.photo_id AND photo.user_id = $1 AND photo.is_deleted = false
+      `,
+    [userId],
+  );
+
+  let arr: number[] = rows.map(x => x.photo_id);
+  arr = [...new Set(arr)];
+
+  for (let i of tagId) {
+    const { rows } = await client.query(
+      `
+      SELECT tag_id, photo_id
+      FROM photo_tag, photo
+      WHERE tag_id = $1 AND photo_tag.is_deleted = false
+      AND photo.id = photo_tag.photo_id AND photo.user_id = $2 AND photo.is_deleted = false
+      `,
+      [i, userId],
+    );
+    console.log(rows);
+    let arr2 = rows.map(x => x.photo_id);
+    arr2 = [...new Set(arr2)];
+    arr = arr.filter(x => arr2.includes(x));
+  }
+
+  const result = [];
+  for (let i of arr) {
+    const { rows } = await client.query(
+      `
+      SELECT id, image_url
+      FROM photo
+      WHERE id = $1
+      `,
+      [i],
+    );
+    result.push(rows[0]);
+  }
+  return result;
+};
 export default {
   createPhotoTag,
   getTagByPhotoId,
+  findPhotoByTag,
 };
