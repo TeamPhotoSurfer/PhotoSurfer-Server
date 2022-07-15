@@ -37,7 +37,47 @@ const createPush = async (client: any, userId: number, photoId: number, pushCrea
   return data;
 }
 
+const getPushDetail = async (client: any, userId: number, pushId: number) => {
+
+  const { rows : push } = await client.query(
+    `
+      SELECT * 
+      FROM push
+      where push.is_deleted = false AND push.id = $1;
+    `,
+    [pushId],
+  );
+  console.log(push[0]);
+  const photoId = push[0].photo_id;
+  
+  const { rows : tags } = await client.query(
+    `
+      SELECT photo_tag.tag_id, tag.name
+      FROM photo_tag, tag
+      where photo_tag.is_deleted = false 
+      AND photo_tag.photo_id = $1 AND photo_tag.is_represent = true
+      AND photo_tag.tag_id = tag.id;
+    `,
+    [photoId],
+  );
+  console.log(tags);
+  const tagReturn = tags.map(x => {
+    return {
+      tagId : x.tag_id,
+      tagName : x.name
+    };
+  });
+  
+  const data = {
+    "pushId" : push[0].id,
+    "pushDate" : dayjs(push[0].push_date).format("YYYY-MM-DD"),
+    "tags" : tagReturn,
+    "memo" : push[0].memo
+  }
+  return data;
+}
 
 export default {
   createPush,
+  getPushDetail
 }
