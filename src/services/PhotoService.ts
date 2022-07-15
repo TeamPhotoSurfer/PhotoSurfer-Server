@@ -1,4 +1,4 @@
-const convertSnakeToCamel3 = require('../modules/convertSnakeToCamel');
+const convertSnakeToCamel3 = require("../modules/convertSnakeToCamel");
 
 const test = async (client: any) => {
   const { rows } = await client.query(
@@ -7,7 +7,7 @@ const test = async (client: any) => {
       VALUES ($1, $2, $3)
       RETURNING *
       `,
-    ['dd', 'anam', 'kakao'],
+    ["dd", "anam", "kakao"]
   );
   return convertSnakeToCamel3.keysToCamel(rows[0]);
 };
