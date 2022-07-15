@@ -43,8 +43,13 @@ const findPhotoByTag = async (req: Request, res: Response) => {
   }
   try {
     client = await db.connect(req);
-    const result = await photoService.findPhotoByTag(client, userId, tagId);
-    res.status(statusCode.OK).send(util.success(statusCode.OK, message.SUCCESS, result));
+    const photos = await photoService.findPhotoByTag(client, userId, tagId);
+    const tags = await photoService.getTagsByIds(client, tagId);
+    const data = {
+      tags,
+      photos,
+    };
+    res.status(statusCode.OK).send(util.success(statusCode.OK, message.SUCCESS, data));
   } catch (error) {
     console.log(error);
     res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));

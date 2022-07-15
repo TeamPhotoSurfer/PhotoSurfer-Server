@@ -119,8 +119,32 @@ const findPhotoByTag = async (client: any, userId: number, tagId: string[] | str
   }
   return result;
 };
+
+const getTagsByIds = async (client: any, tagId: string[] | string) => {
+  let tagIds: string[] = [];
+  const result = [];
+  if (typeof tagId === 'string') {
+    tagIds.push(tagId);
+  } else {
+    tagIds = tagId;
+  }
+  for (let i of tagIds) {
+    const { rows } = await client.query(
+      `
+      SELECT id, name
+      FROM tag
+      WHERE id = $1
+      `,
+      [i],
+    );
+    result.push(rows[0]);
+  }
+  return result;
+};
+
 export default {
   createPhotoTag,
   getTagByPhotoId,
   findPhotoByTag,
+  getTagsByIds,
 };
