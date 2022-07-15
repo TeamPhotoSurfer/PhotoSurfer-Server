@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import photoRouter from '../routes/PhotoRouter';
+import photoRouter from '../routes/photoRouter';
 import pushRouter from '../routes/pushRouter';
 import tagRouter from '../routes/tagRouter';
 
