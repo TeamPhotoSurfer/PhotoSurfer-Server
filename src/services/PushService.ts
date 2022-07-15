@@ -14,20 +14,41 @@ const test = async (client: any) => {
 
 const getLastPush = async (client: any, userId: number) => {
   const date = new Date();
-  const date2 = new Date();
-  date2.setDate(date2.getDate() - 1);
-  console.log(date2);
-  console.log(date.getDate() - 2);
-  console.log(date);
-  const { rows } = await client.query(
-    `SELECT * FROM push WHERE user_id = $1 AND push_date <= $2;`,
-    [userId, date2]
-  );
-  console.log(date.getDate() - 2);
+  date.setDate(date.getDate() - 1);
 
+  const { rows } = await client.query(
+    `SELECT push.id, push.push_date, photo.image_url, push.memo, push.photo_id
+      FROM push, photo
+      WHERE push.user_id = $1
+      AND push.push_date <= $2 AND push.photo_id = photo.id 
+      `,
+    [userId, date]
+  );
+  for (let i of rows) {
+    const photoId = i.photo_id;
+    const { rows: tags } = await client.query(
+      `SELECT tag.name
+          FROM photo_tag, tag
+          WHERE photo_tag.photo_id = $1
+          AND photo_tag.is_represent = true
+          AND photo_tag.tag_id = tag.id
+          `,
+      [photoId]
+    );
+    const result = tags.map((x) => x.name);
+    i.tags = result;
+  }
+
+  let totalCount = rows.length;
+
+  const data = {
+    rows,
+    totalCount,
+  };
+  console.log(totalCount);
   console.log(rows);
 
-  return convertSnakeToCamel3.keysToCamel(rows);
+  return convertSnakeToCamel3.keysToCamel(data);
 };
 
 export default { getLastPush };
