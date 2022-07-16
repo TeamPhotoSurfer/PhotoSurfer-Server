@@ -22,20 +22,25 @@ const getTagNames = async (client: any, userId: number) => {
     [userId]
   );
 
-  var bookmarked = [];
-  var notBookmarked = [];
+  var bookmarked = {
+    "tags" : []
+  };
+  var notBookmarked = {
+    "tags" : []
+  };
 
-  for(let i = 0; i < distinctTags.length ;i++){
+  for(let i = 0; i < distinctTags.length ; i++){
     if(distinctTags[i].bookmark_status == true){
-      bookmarked.push(distinctTags[i]);
+      bookmarked.tags.push(distinctTags[i]);
     }
     else{
-      notBookmarked.push(distinctTags[i]);
+      notBookmarked.tags.push(distinctTags[i]);
     }
   }
   
   const data = {
-    tags: {bookmarked,notBookmarked}
+    bookmarked,
+    notBookmarked
   };
 
   return data;
