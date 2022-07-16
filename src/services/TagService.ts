@@ -183,8 +183,69 @@ const deleteTag = async (
   );
 }
 
+//최근 추가한 태그 => tag테이블에서 user_id & tag_type=general 인거 고르고, order by updated_at desc, limit 6
+//자주 추가한 태그 => tag테이블에서 user_id & tag_type=general 인거 고르고, order by add_count desc, limit 6
+//플랫폼 유형 => 기본 제공 태그 3개 + tag 테이블에서 user_id & tag_type=platform 인거 고르고, order by add_count desc, limit 3
+const getMainTags = async (client: any, userId: number) => {
+  const GENERAL = "general";
+  const PLATFORM = "platform";
+
+  const { rows : recentTags } = await client.query(
+    `
+    SELECT *
+    FROM tag
+    WHERE user_id = $1 AND tag_type = $2
+    ORDER BY updated_at DESC
+    LIMIT 6
+    `,
+    [userId, GENERAL]
+  );
+  const { rows : oftenTags } = await client.query(
+    `
+    SELECT *
+    FROM tag
+    WHERE user_id = $1 AND tag_type = $2
+    ORDER BY add_count DESC
+    LIMIT 6
+    `,
+    [userId, GENERAL]
+  );
+  var platformTagArr = [{"id" : 0, "name" : "블로그"}, {"id" : 0, "name" : "카카오톡"}, {"id" : 0, "name" : "유튜브"}];
+  //TODO : 블로그, 카카오톡, 유튜브 태그 넣어두고 이거 id 각각 변경하기
+  const { rows : platformTags } = await client.query(
+    `
+    SELECT *
+    FROM tag
+    WHERE user_id = $1 AND tag_type = $2
+    ORDER BY add_count DESC
+    LIMIT 3
+    `,
+    [userId, PLATFORM]
+  );
+  platformTags.map(x => platformTagArr.push({"id" : x.id, "name" : x.name}));
+
+  const data = {
+    "recent" : {
+      "tags" : recentTags.map(x => {
+        return {"id" : x.id, "name" : x.name}
+      })
+    },
+    "often" : {
+      "tags" : oftenTags.map(x => {
+        return {"id" : x.id, "name" : x.name}
+      })
+    },
+    "platform" : {
+      "tags" : platformTagArr
+    }
+  };
+
+  return data;
+}
+
 export default {
   getTagNames,
   updateTag,
-  deleteTag
+  deleteTag,
+  getMainTags
 };
