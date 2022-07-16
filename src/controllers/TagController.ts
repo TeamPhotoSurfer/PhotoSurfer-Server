@@ -29,10 +29,10 @@ const getTagNames = async (req: Request, res: Response) => {
 
 /**
  * @route PUT /tag/:tagId
- * @Desc Update tagName
+ * @Desc Update tag
  * @Access public
  */
-const updateTagName = async (req: Request, res: Response) => {
+const updateTag = async (req: Request, res: Response) => {
   const userId = 1; //TODO :  변경하기 (임시로 해둠)
   
   let client;
@@ -41,7 +41,29 @@ const updateTagName = async (req: Request, res: Response) => {
     const tagId : number = req.params.tagId as unknown as number;
     const tagNameUpdateRequest: TagnameUpdateRequest = req.body;
     
-    const result = await tagService.updateTagName(client, userId, tagId, tagNameUpdateRequest);
+    const result = await tagService.updateTag(client, userId, tagId, tagNameUpdateRequest);
+    res.status(statusCode.OK).send(util.success(statusCode.OK, message.SUCCESS,result));
+
+  } catch (error) {
+    console.log(error);
+    res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
+  } 
+}
+
+/**
+ * @route DELETE /tag/:tagId
+ * @Desc Delete tag
+ * @Access public
+ */
+ const deleteTag = async (req: Request, res: Response) => {
+  const userId = 1; //TODO :  변경하기 (임시로 해둠)
+  
+  let client;
+  try{
+    client = await db.connect(req);
+    const tagId : number = req.params.tagId as unknown as number;
+    
+    const result = await tagService.deleteTag(client, userId, tagId);
     res.status(statusCode.OK).send(util.success(statusCode.OK, message.SUCCESS,result));
 
   } catch (error) {
@@ -52,5 +74,6 @@ const updateTagName = async (req: Request, res: Response) => {
 
 export default {
   getTagNames,
-  updateTagName
+  updateTag,
+  deleteTag
 };

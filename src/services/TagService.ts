@@ -29,7 +29,7 @@ const getTagNames = async (client: any, userId: number) => {
 //수정 전 태그가 마지막으로 남은 태그인지 확인 photo_tag에서 tag_id 갯수 세서 1개면 -> tag테이블에서 해당 tag is_deleted = true로 변경하기
 //이미 해당 태그에 존재하는 사진들을 모두 다 새로 생성된 태그로 이동해야 함 -> photo_tag tag_id를 이전 tagId에서 -> 새로 생성한 태그id로 update하기
 
-const updateTagName = async (
+const updateTag = async (
   client: any,
   userId: number,
   tagId: number,
@@ -119,7 +119,51 @@ const updateTagName = async (
   }
 };
 
+//태그명 삭제 
+//photo_tag 테이블에서 해당 tag를 딱 하나 가지고 있던 photo가 존재하면 그 photo_id로 photo 삭제 
+  //-> photo_id로 group by, count(tag_id) = 1 and count(*) = 1 , where is_delted = false 의 photo_id들 받아오기,
+  //=> 해당 photo_id들 photo에서 is_deleted = true로 변경
+//photo_tag 테이블에서 tagId로 해당하는 태그 is_deleted = true로 변경
+//tag 테이블에서 userId, id 로 해당하는 태그 is_deleted = true로 변경
+const deleteTag = async (
+  client: any,
+  userId: number,
+  tagId: number
+) => {
+  const { rows: deletePhoto } = await client.query(
+    `
+    UPDATE photo
+    SET is_deleted = true
+    WHERE id IN (
+      SELECT photo_id
+      FROM photo_tag
+      WHERE is_deleted = false AND tag_id = $1
+      GROUP BY photo_id
+      HAVING count(tag_id) = 1 AND count(*) = 1
+    )
+    `,
+    [tagId]
+  );
+  const { rows: deletePhotoTag } = await client.query(
+    `
+    UPDATE photo_tag
+    SET is_deleted = true
+    WHERE tag_id = $1
+    `,
+    [tagId]
+  );
+  const { rows: deleteTag } = await client.query(
+    `
+    UPDATE tag
+    SET is_deleted = true
+    WHERE id = $1 AND user_id = $2
+    `,
+    [tagId, userId]
+  );
+}
+
 export default {
   getTagNames,
-  updateTagName,
+  updateTag,
+  deleteTag
 };
