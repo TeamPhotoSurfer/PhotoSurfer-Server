@@ -195,7 +195,7 @@ const getMainTags = async (client: any, userId: number) => {
     SELECT *
     FROM tag
     WHERE user_id = $1 AND tag_type = $2
-    ORDER BY updated_at DESC
+    ORDER BY updated_at DESC, name ASC
     LIMIT 6
     `,
     [userId, GENERAL]
@@ -205,7 +205,7 @@ const getMainTags = async (client: any, userId: number) => {
     SELECT *
     FROM tag
     WHERE user_id = $1 AND tag_type = $2
-    ORDER BY add_count DESC
+    ORDER BY add_count DESC, name ASC
     LIMIT 6
     `,
     [userId, GENERAL]
@@ -217,7 +217,7 @@ const getMainTags = async (client: any, userId: number) => {
     SELECT *
     FROM tag
     WHERE user_id = $1 AND tag_type = $2
-    ORDER BY add_count DESC
+    ORDER BY add_count DESC, name ASC
     LIMIT 3
     `,
     [userId, PLATFORM]
@@ -243,9 +243,30 @@ const getMainTags = async (client: any, userId: number) => {
   return data;
 }
 
+const getOftenSearchTags = async (client: any, userId: number) => {
+  const { rows : oftenSearchTags } = await client.query(
+    `
+    SELECT *
+    FROM tag
+    WHERE user_id = $1
+    ORDER BY search_count DESC, name ASC
+    LIMIT 6
+    `,
+    [userId]
+  );
+
+  const data = {
+    "tags" : oftenSearchTags.map(x => {
+      return {"id" : x.id, "name" : x.name}
+    })
+  };
+  return data;
+}
+
 export default {
   getTagNames,
   updateTag,
   deleteTag,
-  getMainTags
+  getMainTags,
+  getOftenSearchTags
 };
