@@ -36,7 +36,7 @@ const updateTagName = async (
   tagNameUpdateRequest: TagnameUpdateRequest
 ) => {
   //수정하려고하는 태그가 이미 존재하는지 확인 (userId, tagName으로 검색) -> 존재하지 않으면 tag 새로 생성 , 태그가 이미 존재하면 해당 tagId 받아옴
-  const { rows: exist } = await client.query(
+  const { rows: checkExist } = await client.query(
     `
     SELECT *
     FROM tag
@@ -45,22 +45,43 @@ const updateTagName = async (
     `,
     [userId, tagNameUpdateRequest.name]
   );
-  console.log(exist[0]);
-  //수정하려고 하는 태그가 이미 존재하는가?
-  let newTagId = exist[0].id;
-
-  if (exist.length < 1) {
-    //존재X
-    //태그 새로 생성
+  console.log(checkExist[0]);
+  let newTagId = 0;
+  if(checkExist.length >= 1){
+    newTagId = checkExist[0].id;
+  }
+  else if (checkExist.length < 1) {
+    //존재X -> 태그 새로 생성
+    const { rows: original } = await client.query(
+      `
+      SELECT *
+      FROM tag
+      WHERE tag.id = $1
+      AND tag.is_deleted = false
+      `,
+      [tagId]
+    );
+    
     const { rows: createPhotoTag } = await client.query(
       `
       INSERT INTO tag
       (name, tag_type, user_id)
-      VALUE ($1, $2, $3);
+      VALUES ($1, $2, $3);
       `,
-      [tagNameUpdateRequest.name, exist[0].tagType, userId]
+      [tagNameUpdateRequest.name, original[0].tag_type, userId]
     );
-    newTagId = createPhotoTag[0].tag_id;
+
+    const { rows: newTag } = await client.query(
+      `
+      SELECT *
+      FROM tag
+      WHERE tag.name = $1 AND tag.user_id = $2
+      AND tag.is_deleted = false
+      `,
+      [tagNameUpdateRequest.name, userId]
+    );
+    
+    newTagId = newTag[0].id;
   }
 
   //수정 전 태그가 마지막으로 남은 태그인지 확인 photo_tag에서 tag_id 갯수 세서 1개면 -> tag테이블에서 해당 tag is_deleted = true로 변경하기
@@ -72,7 +93,7 @@ const updateTagName = async (
     `,
     [tagId]
   );
-  console.log(checkLastTag[0]);
+
   if (checkLastTag.length == 1) {
     const { rows: updateLastTag } = await client.query(
       `
