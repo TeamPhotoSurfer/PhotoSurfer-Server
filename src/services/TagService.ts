@@ -7,19 +7,35 @@ import { TagnameUpdateRequest } from "../interfaces/tag/TagnameUpdateRequest";
 const convertSnakeToCamel = require("../modules/convertSnakeToCamel");
 
 const getTagNames = async (client: any, userId: number) => {
-  const { rows } = await client.query(
+  const { rows : distinctTags } = await client.query(
     `
-    SELECT tag.id, tag.name, tag.bookmark_status, photo.image_url
-    FROM tag, photo_tag, photo
-    WHERE tag.user_id = $1 AND tag.is_deleted = false
-    AND tag.id = photo_tag.tag_id AND photo_tag.is_deleted = false
-    AND photo_tag.photo_id = photo.id AND photo.is_deleted = false
+    SELECT DISTINCT ON (T.id) T.id, T.name, T.bookmark_status, T.image_url
+    FROM (
+      SELECT tag.id, tag.name, tag.bookmark_status, photo.image_url
+      FROM tag, photo_tag, photo
+      WHERE tag.user_id = $1 AND tag.is_deleted = false
+      AND tag.id = photo_tag.tag_id AND photo_tag.is_deleted = false
+      AND photo_tag.photo_id = photo.id AND photo.is_deleted = false
+      ORDER BY tag.name
+    ) T
     `,
     [userId]
   );
-  console.log(rows[0]);
+
+  var bookmarked = [];
+  var notBookmarked = [];
+
+  for(let i = 0; i < distinctTags.length ;i++){
+    if(distinctTags[i].bookmark_status == true){
+      bookmarked.push(distinctTags[i]);
+    }
+    else{
+      notBookmarked.push(distinctTags[i]);
+    }
+  }
+  
   const data = {
-    tags: rows,
+    tags: {bookmarked,notBookmarked}
   };
 
   return data;
