@@ -60,7 +60,43 @@ const getTagByPhotoId = async (client: any, photoId: number, userId: number) => 
   return convertSnakeToCamel.keysToCamel(rows);
 };
 
+const deletedPhotoTag = async (client: any, userId: number, tagId: number, photoIds: number[]) => {
+  for (let i of photoIds) {
+    const { rows } = await client.query(
+      `
+      UPDATE photo_tag
+      SET is_deleted=true
+      WHERE tag_id = $1 AND photo_id = $2
+      RETURNING *
+      `,
+      [tagId, i],
+    );
+  }
+  const { rows } = await client.query(
+    `
+    SELECT *
+    FROM photo_tag
+    WHERE tag_id = $1 AND is_deleted = false
+    `,
+    [tagId],
+  );
+
+  console.log(rows[0]);
+  if (!rows[0]) {
+    const { rows } = await client.query(
+      `
+      UPDATE tag
+      SET is_deleted = true
+      WHERE id = $1
+      RETURNING *
+      `,
+      [tagId],
+    );
+  }
+};
+
 export default {
   createPhotoTag,
   getTagByPhotoId,
+  deletedPhotoTag,
 };
