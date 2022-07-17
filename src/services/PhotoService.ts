@@ -89,17 +89,20 @@ const findPhotoByTag = async (client: any, userId: number, tagId: string[] | str
       `
       SELECT photo.id, photo.image_url
       FROM photo_tag, photo
-      WHERE tag_id = $1 AND photo_tag.is_deleted = false
+      WHERE tag_id = $1 AND photo_tag.is_deleted = false 
       AND photo.id = photo_tag.photo_id AND photo.user_id = $2 AND photo.is_deleted = false
       `,
       [tagId, userId],
     );
+    if (!rows[0]) {
+      throw 404;
+    }
     return convertSnakeToCamel.keysToCamel(rows);
   }
 
   const { rows } = await client.query(
     `
-      SELECT tag_id, photo_id
+      SELECT  photo_id
       FROM photo_tag, photo
       WHERE  photo_tag.is_deleted = false
       AND photo.id = photo_tag.photo_id AND photo.user_id = $1 AND photo.is_deleted = false
@@ -113,63 +116,49 @@ const findPhotoByTag = async (client: any, userId: number, tagId: string[] | str
   for (let i of tagId) {
     const { rows } = await client.query(
       `
-      SELECT tag_id, photo_id
+      SELECT photo_id
       FROM photo_tag, photo
       WHERE tag_id = $1 AND photo_tag.is_deleted = false
       AND photo.id = photo_tag.photo_id AND photo.user_id = $2 AND photo.is_deleted = false
       `,
       [i, userId],
     );
-    console.log(rows);
     let arr2 = rows.map(x => x.photo_id);
     arr2 = [...new Set(arr2)];
     arr = arr.filter(x => arr2.includes(x));
   }
-
-  const result = [];
-  for (let i of arr) {
-    const { rows } = await client.query(
-      `
-      SELECT id, image_url
-      FROM photo
-      WHERE id = $1
-      `,
-      [i],
-    );
-    result.push(rows[0]);
+  if (!arr[0]) {
+    throw 404;
   }
-  return result;
+  const { rows: result } = await client.query(
+    `
+        SELECT id, image_url
+        FROM photo
+        WHERE id in (${arr}) AND user_id = $1
+        `,
+    [userId],
+  );
+
+  return convertSnakeToCamel.keysToCamel(result);
 };
 
 const getTagsByIds = async (client: any, tagId: string[] | string, userId: number) => {
-  let tagIds: string[] = [];
-  const result = [];
-  if (typeof tagId === 'string') {
-    tagIds.push(tagId);
-  } else {
-    tagIds = tagId;
-  }
-  for (let i of tagIds) {
-    const { rows } = await client.query(
-      `
-      SELECT id, name
-      FROM tag
-      WHERE id = $1
-      `,
-      [i],
-    );
-    result.push(rows[0]);
-
-    const { rows: searchCount } = await client.query(
-      `
-      UPDATE tag
-      SET search_count = search_count + 1
-      WHERE user_id = $1 AND id = $2
-      `,
-      [userId, i],
-    );
-  }
-  return result;
+  const { rows: result } = await client.query(
+    `
+        SELECT id, name
+        FROM tag
+        WHERE id in (${tagId})
+        `,
+  );
+  const { rows: searchCount } = await client.query(
+    `
+        UPDATE tag
+        SET search_count = search_count + 1
+        WHERE user_id = $1 AND id in(${tagId})
+        `,
+    [userId],
+  );
+  return convertSnakeToCamel.keysToCamel(result);
 };
 
 export default {
