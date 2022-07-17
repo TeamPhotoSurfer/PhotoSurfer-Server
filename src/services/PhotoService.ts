@@ -60,8 +60,7 @@ const getTagByPhotoId = async (client: any, photoId: number, userId: number) => 
   return convertSnakeToCamel.keysToCamel(rows);
 };
 
-const updatePhotoTag = async (client: any, userId: number, name: string, photoIds: number[], tagId: number) => {
-  console.log(tagId);
+const updatePhotoTag = async (client: any, userId: number, name: string, photoIds: number[], tagId: number, tagType: string) => {
   const { rows: checkedTag } = await client.query(
     `
     SELECT id, is_deleted
@@ -75,11 +74,11 @@ const updatePhotoTag = async (client: any, userId: number, name: string, photoId
   if (!checkedTag[0]) {
     const { rows } = await client.query(
       `
-      INSERT INTO tag(name, tag_type, user_id, add_count)
-      VALUES ($1, $2, $3, $4)
+      INSERT INTO tag(name, tag_type, user_id, add_count, tag_type)
+      VALUES ($1, $2, $3, $4, $5)
       RETURNING *
       `,
-      [name, 'general', userId, photoCount],
+      [name, 'general', userId, photoCount, tagType],
     );
     newTagId = rows[0].id;
   } else {
@@ -88,10 +87,10 @@ const updatePhotoTag = async (client: any, userId: number, name: string, photoId
         `
         UPDATE tag
         SET is_deleted = false
-        WHERE name = $1 AND user_id = $2
+        WHERE name = $1 AND user_id = $2 AND tag_type = $3
         RETURNING *
         `,
-        [name, userId],
+        [name, userId, tagType],
       );
     }
     newTagId = checkedTag[0].id;
@@ -99,22 +98,32 @@ const updatePhotoTag = async (client: any, userId: number, name: string, photoId
       `
       UPDATE tag
       SET add_count = add_count + $4
-      WHERE name = $1 AND user_id = $2 AND id = $3
+      WHERE name = $1 AND user_id = $2 AND id = $3 AND tag_type = $5
       RETURNING *
       `,
-      [name, userId, newTagId, photoCount],
+      [name, userId, newTagId, photoCount, tagType],
     );
   }
 
   for (let i of photoIds) {
+    const { rows: representTag } = await client.query(
+      `
+      SELECT is_represent
+      FROM photo_tag
+      WHERE tag_id = $1 AND is_deleted = false AND photo_id = $2
+      `,
+      [tagId, i],
+    );
+    const represent = representTag[0].is_represent;
+
     const { rows } = await client.query(
       `
       UPDATE photo_tag
-      SET tag_id = $1
+      SET tag_id = $1, is_represent=$4
       WHERE photo_id = $2 AND tag_id = $3
       RETURNING *
       `,
-      [newTagId, i, tagId],
+      [newTagId, i, tagId, represent],
     );
   }
   console.log(newTagId);
