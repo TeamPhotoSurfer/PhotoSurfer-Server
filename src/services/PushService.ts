@@ -60,7 +60,6 @@ const getTodayPush = async (client: any, userId: number) => {
         WHERE photo_tag.photo_id = $1
         AND photo_tag.is_represent = true
         AND photo_tag.tag_id = tag.id
-        ORDER BY push.push_date DESC
         `,
       [photoId]
     );
