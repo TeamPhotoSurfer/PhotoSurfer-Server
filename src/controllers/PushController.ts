@@ -5,6 +5,10 @@ import statusCode from '../modules/statusCode';
 import util from '../modules/util';
 import pushService from '../services/PushService';
 const db = require('../loaders/db');
+const admin = require('firebase-admin');
+const pm = require('../modules/pushMessage');
+const pushAlarm = require('../modules/pushAlarm');
+import dayjs from 'dayjs';
 
 /**
  * @route POST /push
@@ -49,7 +53,49 @@ const getPushDetail = async (req: Request, res: Response) => {
   } 
 }
 
+//푸시알림 테스트
+const pushTest = async (req: Request, res: Response) => {
+  //디바이스의 토큰 값
+  let target_token = [`fngkHv04WEBem5K0SvxQLt:APA91bHSjh67rJqT_L3sr8eDNWcTed0NB-Dl59sPEC3ZzGKI8dJtosBfx2s07aTRJRk7rLCe85XUZI0uWrUXdQg53B-ivU7GC56ZlEUYgsIEAc50X5s3U4pEEg4d0TnHFXm_YG08sLWj`,]
+	
+  pushAlarm.sendPushAlarm(pm.push9title, pm.push9Desc, 'https://foo.bar.pizza-monster.png', target_token);
+}
+
+const pushPlan = async (req: Request, res: Response) => {
+  let client;
+  try {
+    client = await db.connect(req);
+
+    const date1 = new Date();
+    date1.setDate(date1.getDate());
+    date1.setHours(0,0,0,0);
+    
+    const date2 = new Date();
+    date2.setDate(date2.getDate() + 1);
+    date2.setHours(0,0,0,0);
+
+    const plan = await pushService.pushPlan(client, date1, date2);
+    console.log(plan);
+    
+    let token = plan.map(a => a.fcm_token);
+    token = token.filter(function (item) {
+      return item !== null && item !== undefined && item !== '';
+    });
+    
+    const testToken = [`fngkHv04WEBem5K0SvxQLt:APA91bHSjh67rJqT_L3sr8eDNWcTed0NB-Dl59sPEC3ZzGKI8dJtosBfx2s07aTRJRk7rLCe85XUZI0uWrUXdQg53B-ivU7GC56ZlEUYgsIEAc50X5s3U4pEEg4d0TnHFXm_YG08sLWj`,]    
+    pushAlarm.sendPushAlarm(pm.push9title, pm.push9Desc, 'https://foo.bar.pizza-monster.png', testToken);
+    res.status(statusCode.OK).send(util.success(statusCode.OK, message.SUCCESS, plan));
+
+  } catch (error) {
+    console.log(error);
+  } finally {
+    client.release();
+  }
+};
+
 export default {
   createPush,
-  getPushDetail
+  getPushDetail,
+  pushTest,
+  pushPlan
 };
