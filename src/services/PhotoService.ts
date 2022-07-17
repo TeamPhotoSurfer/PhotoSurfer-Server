@@ -74,11 +74,11 @@ const updatePhotoTag = async (client: any, userId: number, name: string, photoId
   if (!checkedTag[0]) {
     const { rows } = await client.query(
       `
-      INSERT INTO tag(name, tag_type, user_id, add_count, tag_type)
-      VALUES ($1, $2, $3, $4, $5)
+      INSERT INTO tag(name, tag_type, user_id, add_count)
+      VALUES ($1, $2, $3, $4)
       RETURNING *
       `,
-      [name, 'general', userId, photoCount, tagType],
+      [name, tagType, userId, photoCount],
     );
     newTagId = rows[0].id;
   } else {
@@ -126,7 +126,6 @@ const updatePhotoTag = async (client: any, userId: number, name: string, photoId
       [newTagId, i, tagId, represent],
     );
   }
-  console.log(newTagId);
 
   const { rows: photoTag } = await client.query(
     `
@@ -137,7 +136,6 @@ const updatePhotoTag = async (client: any, userId: number, name: string, photoId
     [tagId],
   );
   if (!photoTag[0]) {
-    console.log('dkdk');
     const { rows } = await client.query(
       `
       UPDATE tag
