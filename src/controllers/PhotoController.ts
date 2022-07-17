@@ -35,14 +35,17 @@ const test = async (req: Request, res: Response) => {
  *  @access Public
  */
 
-const putPhoto = async (req: Request, res: Response) => {
-  const photoId: any = req.query.id;
+const deletePhoto = async (req: Request, res: Response) => {
+  const photoId: number = req.query.id as unknown as number;
   let client;
+
   try {
     client = await db.connect(req);
 
-    await PhotoService.putPhoto(client, photoId);
-    res.status(statusCode.NO_CONTENT).send();
+    await PhotoService.deletePhoto(client, photoId);
+    res
+      .status(statusCode.OK)
+      .send(util.success(statusCode.OK, message.DELETE_PHOTO_SUCCESS));
   } catch (error) {
     console.log(error);
     res
@@ -58,5 +61,5 @@ const putPhoto = async (req: Request, res: Response) => {
 
 export default {
   test,
-  putPhoto,
+  deletePhoto,
 };
