@@ -38,11 +38,12 @@ const test = async (req: Request, res: Response) => {
 const deletePhoto = async (req: Request, res: Response) => {
   const photoId: number = req.query.id as unknown as number;
   let client;
+  const userId = 1;
 
   try {
     client = await db.connect(req);
 
-    await PhotoService.deletePhoto(client, photoId);
+    await PhotoService.deletePhoto(client, photoId, userId);
     res
       .status(statusCode.OK)
       .send(util.success(statusCode.OK, message.DELETE_PHOTO_SUCCESS));
