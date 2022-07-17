@@ -17,18 +17,32 @@ import dayjs from 'dayjs';
  */
  const createPush = async (req: Request, res: Response) => {
   const userId = 2; //TODO :  변경하기 (임시로 해둠)
-  const {photoId} = req.params;
+  const photoId : number = req.params.photoId as unknown as number;
+
   const pushCreateRequest: PushCreateRequest = req.body;
+  
+  console.log(photoId);
   
   let client;
   try{
     client = await db.connect(req);
-    const result = await pushService.createPush(client, userId, Number(photoId), pushCreateRequest);
+    const result = await pushService.createPush(client, userId, photoId, pushCreateRequest);
     res.status(statusCode.OK).send(util.success(statusCode.OK, message.SUCCESS,result));
 
   } catch (error) {
     console.log(error);
-    res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
+    if(error == 403){
+      res.status(statusCode.FORBIDDEN).send(util.fail(statusCode.FORBIDDEN, message.PUSH_DATE_ERROR));
+    }
+    else if(error == 404){
+      res.status(statusCode.NOT_FOUND).send(util.fail(statusCode.NOT_FOUND, message.NOT_FOUND));
+    }
+    else if(error == 400){
+      res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.PUSH_TAG_ERROR));
+    }
+    else{
+      res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
+    }
   }
 }
 
@@ -82,6 +96,9 @@ const pushPlan = async (req: Request, res: Response) => {
       return item !== null && item !== undefined && item !== '';
     });
     
+    plan.map(x => {
+      pushAlarm.sendPushAlarm('서퍼님, 잊지마세요!', pm.push9Desc, 'https://foo.bar.pizza-monster.png', testToken);
+    })
     const testToken = [`fngkHv04WEBem5K0SvxQLt:APA91bHSjh67rJqT_L3sr8eDNWcTed0NB-Dl59sPEC3ZzGKI8dJtosBfx2s07aTRJRk7rLCe85XUZI0uWrUXdQg53B-ivU7GC56ZlEUYgsIEAc50X5s3U4pEEg4d0TnHFXm_YG08sLWj`,]    
     pushAlarm.sendPushAlarm(pm.push9title, pm.push9Desc, 'https://foo.bar.pizza-monster.png', testToken);
     res.status(statusCode.OK).send(util.success(statusCode.OK, message.SUCCESS, plan));

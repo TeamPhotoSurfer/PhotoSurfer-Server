@@ -1,10 +1,42 @@
 import { PushCreateRequest } from "../interfaces/push/request/PushCreateRequest";
 import dayjs from 'dayjs';
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+
 
 const convertSnakeToCamel = require('../modules/convertSnakeToCamel');
 
 const createPush = async (client: any, userId: number, photoId: number, pushCreateRequest: PushCreateRequest) => {
+  //====에러처리
+  //오늘 날짜보다 이후인지 에러처리
+  const date2 = new Date();
+  date2.setDate(date2.getDate());
+  date2.setHours(0,0,0,0);
+  
+  if(dayjs(pushCreateRequest.pushDate) <= dayjs(date2)){
+    throw 403;
+  }
+  
+  //사진 존재하는지 에러처리
+  const { rows : checkPhotoExist } = await client.query(
+    `
+      SELECT count(*)
+      FROM photo
+      WHERE id = $1 AND user_id = $2 AND is_deleted = false
+    `,
+    [photoId, userId],
+  );
+    console.log(checkPhotoExist[0].count);
+    
+  if(checkPhotoExist[0].count as number <= 0){
+    throw 404;
+  }
 
+  //대표 태그는 무조건 1개~3개로
+  if(!(1<=pushCreateRequest.tagIds.length && pushCreateRequest.tagIds.length<=3)){
+    throw 400;
+  }
+  //====에러처리 끝
+  
   const { rows : push } = await client.query(
     `
       INSERT INTO push (memo, push_date, user_id, photo_id)

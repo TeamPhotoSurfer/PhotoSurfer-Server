@@ -19,7 +19,7 @@ const sendPushAlarm = async (title, body, imageUrl, receiverToken) => {
             'mutable-content': 1,
             alert: {
               title: title,
-              body: body
+              body: body,
             },
           },
         },
