@@ -51,7 +51,7 @@ const createPhotoTag = async (client: any, userId: number, imageURL: string, tag
       const { rows } = await client.query(
         `
         UPDATE tag
-        SET add_count = add_count + 1
+        SET add_count = add_count + 1, updated_at = now()
         WHERE name = $1 AND user_id = $2 AND id = $3
         RETURNING *
         `,
