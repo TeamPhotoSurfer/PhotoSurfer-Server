@@ -1,22 +1,19 @@
-import { Imagebuilder } from "aws-sdk";
-import { arrayBuffer } from "stream/consumers";
-
 const convertSnakeToCamel3 = require("../modules/convertSnakeToCamel");
 
+// 다가오는 알림 조회
 const getComePush = async (client: any, userId: number) => {
   const date = new Date();
   date.setDate(date.getDate() + 1);
-  console.log(date);
 
   const date2 = new Date();
   date2.setDate(date2.getDate() + 5);
-  console.log(date2);
 
   const { rows } = await client.query(
     `SELECT push.id, push.push_date, photo.image_url, push.memo, push.photo_id
     FROM push, photo
     WHERE push.user_id = $1
-    AND $2 <= push.push_date AND push.push_date <= $3 AND push.photo_id = photo.id 
+    AND $2 <= push.push_date AND push.push_date <= $3 AND push.photo_id = photo.id
+    ORDER BY push.push_date DESC
     `,
     [userId, date, date2]
   );
@@ -41,8 +38,6 @@ const getComePush = async (client: any, userId: number) => {
     rows,
     totalCount,
   };
-  console.log(totalCount);
-  console.log(rows);
 
   return convertSnakeToCamel3.keysToCamel(data);
 };
