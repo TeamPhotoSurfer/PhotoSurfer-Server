@@ -13,6 +13,8 @@ const createPhotoTag = async (client: any, userId: number, imageURL: string, tag
   );
   const photoId: number = rows[0].id;
   let tagId: number;
+
+  //in으로 리팩 가능할듯
   for (let r of tags) {
     const { rows: checkedTag } = await client.query(
       `
@@ -61,17 +63,17 @@ const getTagByPhotoId = async (client: any, photoId: number, userId: number) => 
 };
 
 const deletedPhotoTag = async (client: any, userId: number, tagId: number, photoIds: number[]) => {
-  for (let i of photoIds) {
-    const { rows } = await client.query(
-      `
-      UPDATE photo_tag
-      SET is_deleted=true
-      WHERE tag_id = $1 AND photo_id = $2
-      RETURNING *
-      `,
-      [tagId, i],
-    );
+  const { rows: deleteRow } = await client.query(
+    `
+    UPDATE photo_tag
+    SET is_deleted=true
+    WHERE tag_id = $1 AND photo_id in (${photoIds})
+    RETURNING *
+    `,
+    [tagId],
+  );
 
+  for (let i of photoIds) {
     //사진에 태그가 안남았을 때
     const { rows: tag } = await client.query(
       `
@@ -104,7 +106,6 @@ const deletedPhotoTag = async (client: any, userId: number, tagId: number, photo
     [tagId],
   );
 
-  console.log(rows[0]);
   if (!rows[0]) {
     const { rows } = await client.query(
       `
