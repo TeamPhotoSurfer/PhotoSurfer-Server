@@ -20,7 +20,8 @@ const getLastPush = async (client: any, userId: number) => {
     `SELECT push.id, push.push_date, photo.image_url, push.memo, push.photo_id
       FROM push, photo
       WHERE push.user_id = $1
-      AND push.push_date <= $2 AND push.photo_id = photo.id 
+      AND push.push_date <= $2 AND push.photo_id = photo.id
+      ORDER BY push.push_date ASC
       `,
     [userId, date]
   );
@@ -45,8 +46,6 @@ const getLastPush = async (client: any, userId: number) => {
     rows,
     totalCount,
   };
-  console.log(totalCount);
-  console.log(rows);
 
   return convertSnakeToCamel3.keysToCamel(data);
 };
