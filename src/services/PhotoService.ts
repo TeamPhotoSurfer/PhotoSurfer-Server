@@ -71,7 +71,30 @@ const deletedPhotoTag = async (client: any, userId: number, tagId: number, photo
       `,
       [tagId, i],
     );
+
+    //사진에 태그가 안남았을 때
+    const { rows: tag } = await client.query(
+      `
+      SELECT *
+      FROM photo_tag
+      WHERE photo_id = $1 AND is_deleted = false
+      `,
+      [i],
+    );
+    if (!tag[0]) {
+      const { rows } = await client.query(
+        `
+        UPDATE photo
+        SET is_deleted=true
+        WHERE id = $1
+        RETURNING *
+        `,
+        [i],
+      );
+    }
   }
+
+  //태그에 사진이 하나도 안남았을 때
   const { rows } = await client.query(
     `
     SELECT *
