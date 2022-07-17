@@ -15,18 +15,18 @@ const createPhotoTag = async (client: any, userId: number, imageURL: string, tag
   );
   const photoId: number = rows[0].id;
   let tagId: number;
+
   for (let r of tags) {
+    //이미 존재하는 태그인지, 존재하는데 삭제되었는지, 있는지
     const { rows: checkedTag } = await client.query(
       `
         SELECT *
         FROM tag
-        WHERE name = $1 AND user_id = $2 AND is_deleted = false
+        WHERE name = $1 AND user_id = $2
         `,
       [r.name, userId],
     );
-    if (checkedTag[0]) {
-      tagId = checkedTag[0].id;
-    } else {
+    if (!checkedTag[0]) {
       const { rows: newTag } = await client.query(
         `
         INSERT INTO tag(name, tag_type, user_id)
@@ -36,6 +36,27 @@ const createPhotoTag = async (client: any, userId: number, imageURL: string, tag
         [r.name, r.tagType, userId],
       );
       tagId = newTag[0].id;
+    } else {
+      if (checkedTag[0].is_deleted === true) {
+        const { rows } = await client.query(
+          `
+          UPDATE tag
+          SET is_deleted = false
+          WHERE name = $1 AND user_id = $2
+          `,
+          [r.name, userId],
+        );
+      }
+      tagId = checkedTag[0].id;
+      const { rows } = await client.query(
+        `
+        UPDATE tag
+        SET add_count = add_count + 1
+        WHERE name = $1 AND user_id = $2 AND id = $3
+        RETURNING *
+        `,
+        [r.name, userId, tagId],
+      );
     }
     const { rows } = await client.query(
       `
