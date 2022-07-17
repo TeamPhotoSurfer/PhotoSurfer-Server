@@ -1,3 +1,5 @@
+import { convertDateForm } from "../modules/convertDateForm";
+
 const convertSnakeToCamel3 = require("../modules/convertSnakeToCamel");
 
 const test = async (client: any) => {
@@ -15,6 +17,7 @@ const test = async (client: any) => {
 const getLastPush = async (client: any, userId: number) => {
   const date = new Date();
   date.setDate(date.getDate() - 1);
+  date.setHours(0, 0, 0, 0);
 
   const { rows } = await client.query(
     `SELECT push.id, push.push_date, photo.image_url, push.memo, push.photo_id
@@ -41,9 +44,10 @@ const getLastPush = async (client: any, userId: number) => {
   }
 
   let totalCount = rows.length;
+  rows.map((x) => (x.push_date = convertDateForm(x.push_date)));
 
   const data = {
-    rows,
+    push: convertSnakeToCamel3.keysToCamel(rows),
     totalCount,
   };
 
