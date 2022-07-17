@@ -23,7 +23,7 @@ const getTodayPush = async (client: any, userId: number) => {
     FROM push, photo
     WHERE push.user_id = $1
     AND $2 <= push.push_date AND push.push_date < $3 AND push.photo_id = photo.id 
-    ORDER BY push.push_date DESC
+    ORDER BY push.push_date ASC
     `,
     [userId, date, date2]
   );
@@ -47,7 +47,7 @@ const getTodayPush = async (client: any, userId: number) => {
     FROM push, photo
     WHERE push.user_id = $1
     AND $2 <= push.push_date AND push.push_date < $3 AND push.photo_id = photo.id 
-    ORDER BY push.push_date DESC
+    ORDER BY push.push_date ASC
     `,
     [userId, date2, date3]
   );
