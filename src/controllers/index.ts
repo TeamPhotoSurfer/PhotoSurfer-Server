@@ -1,3 +1,4 @@
-import photoController from './photoController';
+import photoController from "./PhotoController";
+import TagController from "./TagController";
 
-export { photoController };
+export { photoController, TagController };
