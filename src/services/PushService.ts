@@ -1,12 +1,16 @@
-const convertSnakeToCamel3 = require("../modules/convertSnakeToCamel");
+import { convertDateForm } from "../modules/convertDateForm";
+
+const convertSnakeToCamel = require("../modules/convertSnakeToCamel");
 
 // 다가오는 알림 조회
 const getComePush = async (client: any, userId: number) => {
   const date = new Date();
   date.setDate(date.getDate() + 1);
+  date.setHours(0, 0, 0, 0);
 
   const date2 = new Date();
   date2.setDate(date2.getDate() + 5);
+  date2.setHours(0, 0, 0, 0);
 
   const { rows } = await client.query(
     `SELECT push.id, push.push_date, photo.image_url, push.memo, push.photo_id
@@ -33,13 +37,14 @@ const getComePush = async (client: any, userId: number) => {
   }
 
   let totalCount = rows.length;
+  rows.map((x) => (x.push_date = convertDateForm(x.push_date)));
 
   const data = {
-    rows,
+    push: convertSnakeToCamel.keysToCamel(rows),
     totalCount,
   };
 
-  return convertSnakeToCamel3.keysToCamel(data);
+  return convertSnakeToCamel.keysToCamel(data);
 };
 
 export default { getComePush };
