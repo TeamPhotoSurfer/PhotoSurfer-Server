@@ -63,12 +63,31 @@ const getTagByPhotoId = async (client: any, photoId: number, userId: number) => 
 const getPhotoById = async (client: any, photoId: number, userId: number) => {
   const { rows } = await client.query(
     `
-    SELECT id, image_url
+    SELECT photo.id as photoId, image_url
     FROM photo
-    WHERE id = $1
+    WHERE photo.id = $1 AND photo.is_deleted = false AND photo.user_id = $2
     `,
-    [photoId],
+    [photoId, userId],
   );
+
+  if (!rows[0]) {
+    throw 404;
+  }
+  const { rows: push } = await client.query(
+    `
+    SELECT id
+    FROM push
+    WHERE photo_id = $1 AND user_id = $2 AND is_deleted = false
+    `,
+    [photoId, userId],
+  );
+
+  let pushId;
+  if (!push[0]) {
+    pushId = null;
+  } else {
+    pushId = push[0].id;
+  }
 
   const { rows: tag } = await client.query(
     `
@@ -81,9 +100,10 @@ const getPhotoById = async (client: any, photoId: number, userId: number) => {
     [photoId, userId],
   );
   const data = {
-    id: rows[0].id,
+    id: rows[0].photoid,
     imageUrl: rows[0].image_url,
     tags: tag,
+    push: pushId,
   };
   return convertSnakeToCamel.keysToCamel(data);
 };
