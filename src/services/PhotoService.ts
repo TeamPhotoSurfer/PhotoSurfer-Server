@@ -83,6 +83,55 @@ const getTagByPhotoId = async (client: any, photoId: number, userId: number) => 
   return convertSnakeToCamel.keysToCamel(rows);
 };
 
+const getPhotoById = async (client: any, photoId: number, userId: number) => {
+  const { rows } = await client.query(
+    `
+    SELECT photo.id as photoId, image_url
+    FROM photo
+    WHERE photo.id = $1 AND photo.is_deleted = false AND photo.user_id = $2
+    `,
+    [photoId, userId],
+  );
+
+  if (!rows[0]) {
+    throw 404;
+  }
+  const { rows: push } = await client.query(
+    `
+    SELECT id
+    FROM push
+    WHERE photo_id = $1 AND user_id = $2 AND is_deleted = false
+    `,
+    [photoId, userId],
+  );
+
+  let pushId;
+  if (!push[0]) {
+    pushId = null;
+  } else {
+    pushId = push[0].id;
+  }
+
+  const { rows: tag } = await client.query(
+    `
+    SELECT tag.id, tag.name
+    FROM photo, photo_tag, tag
+    WHERE photo.id = $1 AND photo.user_id = $2 AND photo.is_deleted = false
+    AND photo.id = photo_tag.photo_id AND photo_tag.is_deleted = false
+    AND photo_tag.tag_id = tag.id AND tag.is_deleted = false
+    `,
+    [photoId, userId],
+  );
+  const data = {
+    id: rows[0].photoid,
+    imageUrl: rows[0].image_url,
+    tags: tag,
+    push: pushId,
+  };
+  return convertSnakeToCamel.keysToCamel(data);
+};
+
+
 const findPhotoByTag = async (client: any, userId: number, tagId: string[] | string) => {
   if (typeof tagId === 'string') {
     const { rows } = await client.query(
@@ -166,4 +215,5 @@ export default {
   getTagByPhotoId,
   findPhotoByTag,
   getTagsByIds,
+  getPhotoById,
 };
