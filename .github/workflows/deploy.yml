@@ -85,14 +85,13 @@ jobs:
           aws-access-key-id: ${{ secrets.AWSAccessKeyId }}
           aws-secret-access-key: ${{ secrets.AWSSecretKey }}
           aws-region: ap-northeast-2
-          source_dir: '/home/runner/work/PhotoSurfer-Server/PhotoSurfer-Server'
 
       - name: upload to S3
-        run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://photosurfer-build/deploy/$GITHUB_SHA.zip
+        run: aws s3 cp --region ap-northeast-2 /home/runner/work/PhotoSurfer-Server/PhotoSurfer-Server ./$GITHUB_SHA.zip s3://photosurfer-build/deploy/$GITHUB_SHA.zip
 
       - name: deploy with AWS codeDeploy
         run: aws deploy create-deployment
           --application-name photosurfer-codedeploy
-          --deployment-config-name CodeDeployDefault.OneAtATime
+          --deployment-config-name CodeDeployDefault.AllAtOnce
           --deployment-group-name GROUP
           --s3-location bucket=photosurfer-build,bundleType=zip,key=deploy/$GITHUB_SHA.zip
