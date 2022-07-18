@@ -25,7 +25,6 @@ const createPush = async (client: any, userId: number, photoId: number, pushCrea
     `,
     [photoId, userId],
   );
-    console.log(checkPhotoExist[0].count);
     
   if(checkPhotoExist[0].count as number <= 0){
     throw 404;
@@ -77,7 +76,9 @@ const getPushDetail = async (client: any, userId: number, pushId: number) => {
     `,
     [pushId],
   );
-  console.log(push[0]);
+  if(!push[0]){
+    throw 404;
+  }
   const photoId = push[0].photo_id;
   
   const { rows : tags } = await client.query(
