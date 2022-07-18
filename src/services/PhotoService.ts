@@ -4,14 +4,19 @@ import { EventListenerTypes } from 'typeorm/metadata/types/EventListenerTypes';
 import { PhotoPostDTO, PhotoReturnDTO } from '../DTO/photoDTO';
 const convertSnakeToCamel = require('../modules/convertSnakeToCamel');
 
-const createPhotoTag = async (client: any, userId: number, imageURL: string, tags: PhotoPostDTO[]) => {
+const createPhotoTag = async (
+  client: any,
+  userId: number,
+  imageURL: string,
+  tags: PhotoPostDTO[]
+) => {
   const { rows } = await client.query(
     `
     INSERT INTO photo (user_id, image_url)
     VALUES ($1, $2)
     RETURNING *
     `,
-    [userId, imageURL],
+    [userId, imageURL]
   );
   const photoId: number = rows[0].id;
   let tagId: number;
@@ -24,7 +29,7 @@ const createPhotoTag = async (client: any, userId: number, imageURL: string, tag
         FROM tag
         WHERE name = $1 AND user_id = $2
         `,
-      [r.name, userId],
+      [r.name, userId]
     );
     if (!checkedTag[0]) {
       const { rows: newTag } = await client.query(
@@ -33,7 +38,7 @@ const createPhotoTag = async (client: any, userId: number, imageURL: string, tag
         VALUES ($1, $2, $3)
         RETURNING *
         `,
-        [r.name, r.tagType, userId],
+        [r.name, r.tagType, userId]
       );
       tagId = newTag[0].id;
     } else {
@@ -64,13 +69,17 @@ const createPhotoTag = async (client: any, userId: number, imageURL: string, tag
       VALUES ($1, $2)
       RETURNING *
       `,
-      [tagId, photoId],
+      [tagId, photoId]
     );
   }
   return convertSnakeToCamel.keysToCamel(photoId);
 };
 
-const getTagByPhotoId = async (client: any, photoId: number, userId: number) => {
+const getTagByPhotoId = async (
+  client: any,
+  photoId: number,
+  userId: number
+) => {
   const { rows } = await client.query(
     `
     SELECT tag.id, tag.name, tag.tag_type
@@ -78,7 +87,7 @@ const getTagByPhotoId = async (client: any, photoId: number, userId: number) => 
     WHERE photo_tag.photo_id = $1 AND photo_tag.tag_id = tag.id AND tag.user_id = $2 
     AND photo_tag.is_deleted = false AND tag.is_deleted = false
     `,
-    [photoId, userId],
+    [photoId, userId]
   );
   return convertSnakeToCamel.keysToCamel(rows);
 };
