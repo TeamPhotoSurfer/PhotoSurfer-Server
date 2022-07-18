@@ -83,6 +83,83 @@ const getTagByPhotoId = async (client: any, photoId: number, userId: number) => 
   return convertSnakeToCamel.keysToCamel(rows);
 };
 
+const addPhotoTag = async (client: any, userId: number, photoId: string[] | string, name: string, type: string) => {
+  const { rows: checkedTag } = await client.query(
+    `
+    SELECT id, is_deleted
+    FROM tag
+    WHERE name = $1 AND user_id = $2 AND is_deleted = false
+    `,
+    [name, userId],
+  );
+  let tagId;
+  const photoCount = photoId.length;
+  if (!checkedTag[0]) {
+    const { rows: newTag } = await client.query(
+      `
+        INSERT INTO tag(name, tag_type, user_id, add_count)
+        VALUES ($1, $2, $3, $4)
+        RETURNING *
+        `,
+      [name, type, userId, photoCount],
+    );
+    tagId = newTag[0].id;
+  } else {
+    if (checkedTag[0].is_deleted === true) {
+      const { rows } = await client.query(
+        `
+        UPDATE tag
+        SET is_deleted = false
+        WHERE name = $1 AND user_id = $2 AND tag_type = $3
+        RETURNING *
+        `,
+        [name, userId, type],
+      );
+    }
+    tagId = checkedTag[0].id;
+    const { rows } = await client.query(
+      `
+      UPDATE tag
+      SET add_count = add_count + $4, updated_at = now()
+      WHERE name = $1 AND user_id = $2 AND id = $3 AND tag_type = $5
+      RETURNING *
+      `,
+      [name, userId, tagId, photoCount, type],
+    );
+  }
+
+  //이미 사진에 속해있는 태그인 경우
+  const { rows } = await client.query(
+    `
+      SELECT *
+      FROM photo_tag
+      WHERE photo_id in (${photoId}) AND tag_id = $1
+      `,
+    [tagId],
+  );
+
+  if (rows[0]) {
+    throw 400;
+  }
+
+  for (let i of photoId) {
+    const { rows } = await client.query(
+      `
+        INSERT INTO photo_tag(tag_id, photo_id)
+        VALUES ($1, $2)
+        RETURNING *
+        `,
+      [tagId, i],
+    );
+  }
+
+  const data = {
+    tagId,
+    name,
+  };
+  return convertSnakeToCamel.keysToCamel(data);
+}
+
 const getPhotoById = async (client: any, photoId: number, userId: number) => {
   const { rows } = await client.query(
     `
@@ -213,6 +290,7 @@ const getTagsByIds = async (client: any, tagId: string[] | string, userId: numbe
 export default {
   createPhotoTag,
   getTagByPhotoId,
+  addPhotoTag,
   findPhotoByTag,
   getTagsByIds,
   getPhotoById,
