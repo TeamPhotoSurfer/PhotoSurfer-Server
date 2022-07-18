@@ -130,7 +130,11 @@ const addPhotoTag = async (client: any, userId: number, photoId: string[] | stri
     );
   }
 
-  return convertSnakeToCamel.keysToCamel(tagId);
+  const data = {
+    tagId,
+    name,
+  };
+  return convertSnakeToCamel.keysToCamel(data);
 };
 
 export default {

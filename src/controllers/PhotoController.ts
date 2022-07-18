@@ -40,9 +40,9 @@ const addPhotoTag = async (req: Request, res: Response) => {
   const { name, type } = req.body;
   try {
     client = await db.connect(req);
-    const photo = await photoService.addPhotoTag(client, userId, photoId, name, type);
+    const tag = await photoService.addPhotoTag(client, userId, photoId, name, type);
 
-    res.status(statusCode.OK).send(util.success(statusCode.OK, message.SUCCESS));
+    res.status(statusCode.OK).send(util.success(statusCode.OK, message.SUCCESS, tag));
   } catch (error) {
     console.log(error);
     if (error == 400) {
