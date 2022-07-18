@@ -47,7 +47,7 @@ const getTagNames = async (client: any, userId: number) => {
 };
 
 //수정하려고하는 태그가 이미 존재하는지 확인 (userId, tagName으로 검색) -> 존재하지 않으면 tag 새로 생성 , 태그가 이미 존재하면 해당 tagId 받아옴
-//수정 전 태그가 마지막으로 남은 태그인지 확인 photo_tag에서 tag_id 갯수 세서 1개면 -> tag테이블에서 해당 tag is_deleted = true로 변경하기
+//tag테이블에서 수정전 original tag is_deleted = true로 변경하기
 //이미 해당 태그에 존재하는 사진들을 모두 다 새로 생성된 태그로 이동해야 함 -> photo_tag tag_id를 이전 tagId에서 -> 새로 생성한 태그id로 update하기
 
 const updateTag = async (
@@ -56,75 +56,77 @@ const updateTag = async (
   tagId: number,
   tagNameUpdateRequest: TagnameUpdateRequest
 ) => {
+  //플랫폼태그인지 확인 후 에러처리
+  const { rows: original } = await client.query(
+    `
+    SELECT *
+    FROM tag
+    WHERE tag.id = $1
+    AND tag.is_deleted = false
+    `,
+    [tagId]
+  );
+  if(!original[0]){
+    throw 404;
+  }
+  if(original[0].tag_type != 'general'){
+    throw 400;
+  }
   //수정하려고하는 태그가 이미 존재하는지 확인 (userId, tagName으로 검색) -> 존재하지 않으면 tag 새로 생성 , 태그가 이미 존재하면 해당 tagId 받아옴
+  //수정하려고 하는 태그가 이미 존재하는 경우, 대표태그 성격을 따라가기 / 수정하려고 하는 태그가 존재하지 않으면 대표태그는 false
+  var new_is_represent: boolean = false;
+
   const { rows: checkExist } = await client.query(
     `
     SELECT *
     FROM tag
     WHERE tag.user_id = $1 AND tag.name = $2
-    AND tag.is_deleted = false
     `,
     [userId, tagNameUpdateRequest.name]
   );
-  console.log(checkExist[0]);
+  console.log(checkExist);
+  
   let newTagId = 0;
   if(checkExist.length >= 1){
     newTagId = checkExist[0].id;
+    if(checkExist[0].is_deleted){ //이미 지워진 태그였으면 is_deleted = false로(살리기) / 있는 태그면 그대로 / 존재하지 않은 태그면 새로 생성하기
+      const { rows: updateExistTag } = await client.query(
+        `
+        UPDATE tag
+        SET is_deleted = false
+        WHERE tag_id = $1
+        `,
+        [checkExist[0].tag_id]
+      );
+    }
   }
-  else if (checkExist.length < 1) {
-    //존재X -> 태그 새로 생성
-    const { rows: original } = await client.query(
-      `
-      SELECT *
-      FROM tag
-      WHERE tag.id = $1
-      AND tag.is_deleted = false
-      `,
-      [tagId]
-    );
+  
+  if (checkExist.length < 1) { //없으면 새로 생성
+    //존재X -> 태그 새로 생성 
     
     const { rows: createPhotoTag } = await client.query(
       `
       INSERT INTO tag
       (name, tag_type, user_id)
-      VALUES ($1, $2, $3);
+      VALUES ($1, $2, $3)
+      RETURNING *;
       `,
-      [tagNameUpdateRequest.name, original[0].tag_type, userId]
-    );
-
-    const { rows: newTag } = await client.query(
-      `
-      SELECT *
-      FROM tag
-      WHERE tag.name = $1 AND tag.user_id = $2
-      AND tag.is_deleted = false
-      `,
-      [tagNameUpdateRequest.name, userId]
+      [tagNameUpdateRequest.name, "general", userId] //무조건 일반태그만 수정 가능
     );
     
-    newTagId = newTag[0].id;
+    newTagId = createPhotoTag[0].id;
+    console.log(newTagId);
   }
 
-  //수정 전 태그가 마지막으로 남은 태그인지 확인 photo_tag에서 tag_id 갯수 세서 1개면 -> tag테이블에서 해당 tag is_deleted = true로 변경하기
-  const { rows: checkLastTag } = await client.query(
+  //수정 전 태그 Tag테이블에서 is_deleted = true로 변경하기 (태그 앨범에서는 한번에 다 변경되기 때문에 갯수를 체크할 필요 없음)
+  const { rows: updateLastTag } = await client.query(
     `
-    SELECT *
-    FROM photo_tag
-    where tag_id = $1 AND is_deleted = false
+    UPDATE tag
+    SET is_deleted = true
+    WHERE id = $1
     `,
     [tagId]
   );
-
-  if (checkLastTag.length == 1) {
-    const { rows: updateLastTag } = await client.query(
-      `
-      UPDATE tag
-      SET is_deleted = true
-      WHERE tag_id = $1
-      `,
-      [checkLastTag[0].tag_id]
-    );
-  }
 
   //이미 해당 태그에 존재하는 사진들을 모두 다 새로 생성된 태그로 이동해야 함 -> photo_tag tag_id를 이전 tagId에서 -> 새로 생성한 태그id로 update하기
   if (tagId !== newTagId) {
@@ -138,10 +140,68 @@ const updateTag = async (
     );
     console.log(updateAllTag[0]);
   }
+
+  //중복 데이터 처리
+  //다 바꾸고 중복이면 하나 날리고, is_represent가 true인 것만 남기기
+  //리스트 다 받아와서 싹 다 지우고, is_represent OR 연산해서 하나 삽입하기
+  const { rows: checkDuplicate } = await client.query(
+    `
+    SELECT tag_id, photo_id
+    FROM photo_tag
+    GROUP BY tag_id, photo_id
+    HAVING count(*) > 1 
+    `,
+  );
+  console.log(checkDuplicate);
+
+  const { rows: duplicateData } = await client.query(
+    `
+    SELECT *
+    FROM photo_tag
+    WHERE tag_id = $1 AND photo_id = $2
+    `,
+    [checkDuplicate[0].tag_id, checkDuplicate[0].photo_id]
+  );
+  console.log(duplicateData);
+  
+  //DELETE하기
+  const deleteIds = duplicateData.map(x => x.id);
+  for(let i = 0; i < deleteIds.length ; i++){
+    const { rows: deleteData } = await client.query(
+      `
+      DELETE FROM photo_tag
+      WHERE id = $1
+      `,
+      [deleteIds[i]]
+    );
+  }
+
+  //OR연산해서 is_represent 값 가져오기, created_at 가장 오래된 것 가져오기
+  var new_is_represent : boolean = false;
+  var new_created_at = duplicateData[0].created_at;
+
+  for(let i = 0; i < duplicateData.length; i++){
+    new_is_represent = new_is_represent || duplicateData[i].is_represent;
+    console.log(new_created_at + " /// " + duplicateData[i].created_at);
+    
+    if(dayjs(new_created_at) > dayjs(duplicateData[0].created_at)){
+        new_created_at = duplicateData[0].created_at;
+    }
+  }
+
+  //하나 Insert하기
+  const { rows: insertData } = await client.query(
+    `
+    INSERT INTO photo_tag
+    (created_at, updated_at, tag_id, photo_id, is_represent)
+    VALUES ($1, $2, $3, $4, $5)
+    `,
+    [new_created_at, new Date(), duplicateData[0].tag_id, duplicateData[0].photo_id, new_is_represent]
+  );
 };
 
-//태그명 삭제 
-//photo_tag 테이블에서 해당 tag를 딱 하나 가지고 있던 photo가 존재하면 그 photo_id로 photo 삭제 
+//태그명 삭제
+//photo_tag 테이블에서 해당 tag를 딱 하나 가지고 있던 photo가 존재하면 그 photo_id로 photo 삭제
   //-> photo_id로 group by, count(tag_id) = 1 and count(*) = 1 , where is_delted = false 의 photo_id들 받아오기,
   //=> 해당 photo_id들 photo에서 is_deleted = true로 변경
 //photo_tag 테이블에서 tagId로 해당하는 태그 is_deleted = true로 변경
