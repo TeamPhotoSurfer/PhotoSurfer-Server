@@ -8,5 +8,5 @@ const router: Router = Router();
 
 router.post('/', upload.single('file'), PhotoController.createPhotoTag);
 
-router.delete('/:tagId', PhotoController.deletePhotoTag);
+router.delete('/tag/:tagId', PhotoController.deletePhotoTag);
 export default router;
