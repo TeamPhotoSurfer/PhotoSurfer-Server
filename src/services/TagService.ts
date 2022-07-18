@@ -154,50 +154,53 @@ const updateTag = async (
   );
   console.log(checkDuplicate);
 
-  const { rows: duplicateData } = await client.query(
-    `
-    SELECT *
-    FROM photo_tag
-    WHERE tag_id = $1 AND photo_id = $2
-    `,
-    [checkDuplicate[0].tag_id, checkDuplicate[0].photo_id]
-  );
-  console.log(duplicateData);
-  
-  //DELETE하기
-  const deleteIds = duplicateData.map(x => x.id);
-  for(let i = 0; i < deleteIds.length ; i++){
-    const { rows: deleteData } = await client.query(
+  if(checkDuplicate){
+    const { rows: duplicateData } = await client.query(
       `
-      DELETE FROM photo_tag
-      WHERE id = $1
+      SELECT *
+      FROM photo_tag
+      WHERE tag_id = $1 AND photo_id = $2
       `,
-      [deleteIds[i]]
+      [checkDuplicate[0].tag_id, checkDuplicate[0].photo_id]
+    );
+    console.log(duplicateData);
+    
+    //DELETE하기
+    const deleteIds = duplicateData.map(x => x.id);
+    for(let i = 0; i < deleteIds.length ; i++){
+      const { rows: deleteData } = await client.query(
+        `
+        DELETE FROM photo_tag
+        WHERE id = $1
+        `,
+        [deleteIds[i]]
+      );
+    }
+  
+    //OR연산해서 is_represent 값 가져오기, created_at 가장 오래된 것 가져오기
+    var new_is_represent : boolean = false;
+    var new_created_at = duplicateData[0].created_at;
+  
+    for(let i = 0; i < duplicateData.length; i++){
+      new_is_represent = new_is_represent || duplicateData[i].is_represent;
+      console.log(new_created_at + " /// " + duplicateData[i].created_at);
+      
+      if(dayjs(new_created_at) > dayjs(duplicateData[0].created_at)){
+          new_created_at = duplicateData[0].created_at;
+      }
+    }
+  
+    //하나 Insert하기
+    const { rows: insertData } = await client.query(
+      `
+      INSERT INTO photo_tag
+      (created_at, updated_at, tag_id, photo_id, is_represent)
+      VALUES ($1, $2, $3, $4, $5)
+      `,
+      [new_created_at, new Date(), duplicateData[0].tag_id, duplicateData[0].photo_id, new_is_represent]
     );
   }
-
-  //OR연산해서 is_represent 값 가져오기, created_at 가장 오래된 것 가져오기
-  var new_is_represent : boolean = false;
-  var new_created_at = duplicateData[0].created_at;
-
-  for(let i = 0; i < duplicateData.length; i++){
-    new_is_represent = new_is_represent || duplicateData[i].is_represent;
-    console.log(new_created_at + " /// " + duplicateData[i].created_at);
-    
-    if(dayjs(new_created_at) > dayjs(duplicateData[0].created_at)){
-        new_created_at = duplicateData[0].created_at;
-    }
-  }
-
-  //하나 Insert하기
-  const { rows: insertData } = await client.query(
-    `
-    INSERT INTO photo_tag
-    (created_at, updated_at, tag_id, photo_id, is_represent)
-    VALUES ($1, $2, $3, $4, $5)
-    `,
-    [new_created_at, new Date(), duplicateData[0].tag_id, duplicateData[0].photo_id, new_is_represent]
-  );
+  
 };
 
 //태그명 삭제
@@ -295,9 +298,9 @@ const getMainTags = async (client: any, userId: number) => {
         return {"id" : x.id, "name" : x.name}
       })
     },
-    "platform" : {
-      "tags" : platformTagArr
-    }
+    // "platform" : {
+    //   "tags" : platformTagArr
+    // }
   };
 
   return data;
