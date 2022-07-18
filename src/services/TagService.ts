@@ -9,9 +9,9 @@ const convertSnakeToCamel = require("../modules/convertSnakeToCamel");
 const getTagNames = async (client: any, userId: number) => {
   const { rows : distinctTags } = await client.query(
     `
-    SELECT DISTINCT ON (T.id) T.id, T.name, T.bookmark_status, T.image_url
+    SELECT DISTINCT ON (T.id) T.id, T.name, T.bookmark_status, T.image_url, T.tag_type
     FROM (
-      SELECT tag.id, tag.name, tag.bookmark_status, photo.image_url
+      SELECT tag.id, tag.name, tag.bookmark_status, photo.image_url, tag.tag_type
       FROM tag, photo_tag, photo
       WHERE tag.user_id = $1 AND tag.is_deleted = false
       AND tag.id = photo_tag.tag_id AND photo_tag.is_deleted = false
