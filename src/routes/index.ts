@@ -1,12 +1,13 @@
-import { Router } from 'express';
-import photoRouter from '../routes/photoRouter';
-import pushRouter from '../routes/pushRouter';
-import tagRouter from '../routes/tagRouter';
+
+import { Router } from "express";
+import PhotoRouter from "./photoRouter";
+import PushRouter from "./pushRouter";
+import TagRouter from "./tagRouter";
 
 const router: Router = Router();
 
-router.use('/photo', photoRouter);
-router.use('/push', pushRouter);
-router.use('/tag', tagRouter);
+router.use("/photo", PhotoRouter);
+router.use("/push", PushRouter);
+router.use("/tag", TagRouter);
 
 export default router;

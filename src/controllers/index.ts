@@ -1,3 +1,6 @@
-import photoController from './PhotoController';
+import photoController from "./PhotoController";
+import PushController from "./PushController";
 
-export { photoController };
+import TagController from "./TagController";
+
+export { photoController, PushController, TagController };
