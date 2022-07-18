@@ -82,9 +82,12 @@ jobs:
       - name: AWS configure credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
+          args: --acl public-read --follow-symlinks --delete
+        env:
           aws-access-key-id: ${{ secrets.AWSAccessKeyId }}
           aws-secret-access-key: ${{ secrets.AWSSecretKey }}
           aws-region: ap-northeast-2
+          source_dir: '/home/runner/work/PhotoSurfer-Server/PhotoSurfer-Server'
 
       - name: upload to S3
         run: aws s3 cp --region ap-northeast-2 /home/runner/work/PhotoSurfer-Server/PhotoSurfer-Server ./$GITHUB_SHA.zip s3://photosurfer-build/deploy/$GITHUB_SHA.zip
