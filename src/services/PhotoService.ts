@@ -355,9 +355,100 @@ const getTagsByIds = async (client: any, tagId: string[] | string, userId: numbe
   return convertSnakeToCamel.keysToCamel(result);
 };
 
+
+const updatePhotoTag = async (client: any, userId: number, name: string, photoIds: number[], tagId: number, tagType: string) => {
+  const { rows: checkedTag } = await client.query(
+    `
+    SELECT id, is_deleted
+    FROM tag
+    WHERE name = $1 AND user_id = $2
+    `,
+    [name, userId],
+  );
+  let newTagId;
+  const photoCount = photoIds.length;
+  if (!checkedTag[0]) {
+    const { rows } = await client.query(
+      `
+      INSERT INTO tag(name, tag_type, user_id, add_count)
+      VALUES ($1, $2, $3, $4)
+      RETURNING *
+      `,
+      [name, tagType, userId, photoCount],
+    );
+    newTagId = rows[0].id;
+  } else {
+    if (checkedTag[0].is_deleted === true) {
+      const { rows } = await client.query(
+        `
+        UPDATE tag
+        SET is_deleted = false
+        WHERE name = $1 AND user_id = $2 AND tag_type = $3
+        RETURNING *
+        `,
+        [name, userId, tagType],
+      );
+    }
+    newTagId = checkedTag[0].id;
+    const { rows } = await client.query(
+      `
+      UPDATE tag
+      SET add_count = add_count + $4
+      WHERE name = $1 AND user_id = $2 AND id = $3 AND tag_type = $5
+      RETURNING *
+      `,
+      [name, userId, newTagId, photoCount, tagType],
+    );
+  }
+
+  for (let i of photoIds) {
+    const { rows: representTag } = await client.query(
+      `
+      SELECT is_represent
+      FROM photo_tag
+      WHERE tag_id = $1 AND is_deleted = false AND photo_id = $2
+      `,
+      [tagId, i],
+    );
+    const represent = representTag[0].is_represent;
+
+    const { rows } = await client.query(
+      `
+      UPDATE photo_tag
+      SET tag_id = $1, is_represent=$4
+      WHERE photo_id = $2 AND tag_id = $3
+      RETURNING *
+      `,
+      [newTagId, i, tagId, represent],
+    );
+  }
+
+  const { rows: photoTag } = await client.query(
+    `
+    SELECT *
+    FROM photo_tag
+    WHERE tag_id = $1 AND is_deleted = false
+    `,
+    [tagId],
+  );
+  if (!photoTag[0]) {
+    const { rows } = await client.query(
+      `
+      UPDATE tag
+      SET is_deleted = true
+      WHERE id = $1
+      RETURNING *
+      `,
+      [tagId],
+    );
+  }
+};
+
+
 export default {
   createPhotoTag,
   getTagByPhotoId,
+  updatePhotoTag,
   deletedPhotoTag,
   addPhotoTag,
   findPhotoByTag,

@@ -126,8 +126,30 @@ const deletePhotoTag = async (req: Request, res: Response) => {
     res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
   }
 };
+
+const updatePhotoTag = async (req: Request, res: Response) => {
+  let client;
+  const tagId: number = req.params.tagId as unknown as number;
+
+  // const userId = req.body.user.id;
+  const userId = 1;
+  const { name, tagType } = req.body;
+  const photoIds: number[] = req.body.photoIds;
+
+  try {
+    client = await db.connect(req);
+
+    const photo = await photoService.updatePhotoTag(client, userId, name, photoIds, tagId, tagType);
+    res.status(statusCode.OK).send(util.success(statusCode.OK, message.SUCCESS));
+      } catch (error) {
+    console.log(error);
+    res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
+  }
+};
+
 export default {
   createPhotoTag,
+  updatePhotoTag,
   deletePhotoTag,
   addPhotoTag,
   getPhoto,
