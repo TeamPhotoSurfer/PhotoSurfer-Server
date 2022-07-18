@@ -15,7 +15,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.15.1]
+        node-version: [17.3.0]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
@@ -56,24 +56,23 @@ jobs:
       - name: build server files
         working-directory: ./
         run: |
-          yarn
+
+         rm .env
+         touch .env
+         echo PORT=${{ secrets.PORT }} >> .env
+         echo DB_USER=${{ secrets.DB_USER }} >> .env
+         echo DB_HOST=${{ secrets.DB_HOST }} >> .env
+         echo DB_DB=${{ secrets.DB_DB }} >> .env
+         echo DB_PASSWORD=${{ secrets.DB_PASSWORD }} >> .env
+         echo JWT_SECRET=${{ secrets.JWT_SECRET }} >> .env
+         echo JWT_ALGO=${{ secrets.JWT_ALGO }} >> .env
+         echo S3_ACCESS_KEY=${{ secrets.S3_ACCESS_KEY }} >> .env
+         echo S3_SECRET_KEY=${{ secrets.S3_SECRET_KEY }} >> .env
+         echo BUCKET_NAME=${{ secrets.BUCKET_NAME }} >> .env
+         echo AWSAccessKeyId=${{ secrets.AWSAccessKeyId }} >> .env
+         echo AWSSecretKey=${{ secrets.AWSSecretKey }} >> .env
+        
           yarn run build
-
-#          rm .env
-#          touch .env
-#          echo PORT=${{ secrets.PORT }} >> .env
-#          echo DB_USER=${{ secrets.DB_USER }} >> .env
-#          echo DB_HOST=${{ secrets.DB_HOST }} >> .env
-#          echo DB_DB=${{ secrets.DB_DB }} >> .env
-#          echo DB_PASSWORD=${{ secrets.DB_PASSWORD }} >> .env
-#          echo JWT_SECRET=${{ secrets.JWT_SECRET }} >> .env
-#          echo JWT_ALGO=${{ secrets.JWT_ALGO }} >> .env
-#          echo S3_ACCESS_KEY=${{ secrets.S3_ACCESS_KEY }} >> .env
-#          echo S3_SECRET_KEY=${{ secrets.S3_SECRET_KEY }} >> .env
-#          echo BUCKET_NAME=${{ secrets.BUCKET_NAME }} >> .env
-#          echo AWSAccessKeyId=${{ secrets.AWSAccessKeyId }} >> .env
-#          echo AWSSecretKey=${{ secrets.AWSSecretKey }} >> .env
-
 
       - name: zip file
         run: zip -r photosurfer.zip ./dist ./scripts ./appspec.yml ./.env ./package.json
@@ -86,11 +85,11 @@ jobs:
           aws-region: ap-northeast-2
 
       - name: upload to S3
-        run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://${{ secrets.BUCKET_NAME }}/photosurfer/
+        run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://photosurfer-build/deploy/
 
       - name: deploy with AWS codeDeploy
         run: aws deploy create-deployment
           --application-name photosurfer-codedeploy
           --deployment-config-name CodeDeployDefault.OneAtATime
           --deployment-group-name GROUP
-          --s3-location bucket=${{ secrets.BUCKET_NAME }},bundleType=zip,key=photosurfer/$GITHUB_SHA.zip
+          --s3-location bucket=photosurfer-build,bundleType=zip,key=deploy/$GITHUB_SHA.zip
