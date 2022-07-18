@@ -57,20 +57,20 @@ jobs:
         working-directory: ./
         run: |
 
-         rm .env
-         touch .env
-         echo PORT=${{ secrets.PORT }} >> .env
-         echo DB_USER=${{ secrets.DB_USER }} >> .env
-         echo DB_HOST=${{ secrets.DB_HOST }} >> .env
-         echo DB_DB=${{ secrets.DB_DB }} >> .env
-         echo DB_PASSWORD=${{ secrets.DB_PASSWORD }} >> .env
-         echo JWT_SECRET=${{ secrets.JWT_SECRET }} >> .env
-         echo JWT_ALGO=${{ secrets.JWT_ALGO }} >> .env
-         echo S3_ACCESS_KEY=${{ secrets.S3_ACCESS_KEY }} >> .env
-         echo S3_SECRET_KEY=${{ secrets.S3_SECRET_KEY }} >> .env
-         echo BUCKET_NAME=${{ secrets.BUCKET_NAME }} >> .env
-         echo AWSAccessKeyId=${{ secrets.AWSAccessKeyId }} >> .env
-         echo AWSSecretKey=${{ secrets.AWSSecretKey }} >> .env
+        #  rm .env
+        #  touch .env
+        #  echo PORT=${{ secrets.PORT }} >> .env
+        #  echo DB_USER=${{ secrets.DB_USER }} >> .env
+        #  echo DB_HOST=${{ secrets.DB_HOST }} >> .env
+        #  echo DB_DB=${{ secrets.DB_DB }} >> .env
+        #  echo DB_PASSWORD=${{ secrets.DB_PASSWORD }} >> .env
+        #  echo JWT_SECRET=${{ secrets.JWT_SECRET }} >> .env
+        #  echo JWT_ALGO=${{ secrets.JWT_ALGO }} >> .env
+        #  echo S3_ACCESS_KEY=${{ secrets.S3_ACCESS_KEY }} >> .env
+        #  echo S3_SECRET_KEY=${{ secrets.S3_SECRET_KEY }} >> .env
+        #  echo BUCKET_NAME=${{ secrets.BUCKET_NAME }} >> .env
+        #  echo AWSAccessKeyId=${{ secrets.AWSAccessKeyId }} >> .env
+        #  echo AWSSecretKey=${{ secrets.AWSSecretKey }} >> .env
         
           yarn run build
 
