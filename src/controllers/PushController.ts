@@ -7,13 +7,13 @@ import PushService from "../services/PushService";
 const db = require("../loaders/db");
 
 /**
+<<<<<<< HEAD
  *  @route GET /push/come
  *  @desc READ Push
  *  @access Public
  */
 // 다가오는 알림 조회
 const getComePush = async (req: Request, res: Response) => {
-  
   const error = validationResult(req);
   if (!error.isEmpty()) {
     return res

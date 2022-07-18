@@ -20,6 +20,7 @@ const getComePush = async (client: any, userId: number) => {
     ORDER BY push.push_date ASC
     `,
     [userId, date, date2]
+
   );
   for (let i of rows) {
     const photoId = i.photo_id;
