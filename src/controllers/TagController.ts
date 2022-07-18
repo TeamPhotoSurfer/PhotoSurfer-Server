@@ -11,7 +11,7 @@ const db = require("../loaders/db");
  *  @desc PUT Tag Bookmark
  *  @access Public
  */
-const bookmarkAdd = async (req: Request, res: Response) => {
+const addBookmark = async (req: Request, res: Response) => {
   const error = validationResult(req);
   if (!error.isEmpty()) {
     return res
@@ -24,7 +24,7 @@ const bookmarkAdd = async (req: Request, res: Response) => {
 
   try {
     client = await db.connect(req);
-    await TagService.bookmarkAdd(client, userId, tagId);
+    await TagService.addBookmark(client, userId, tagId);
 
     res
       .status(statusCode.OK)
@@ -52,7 +52,7 @@ const bookmarkAdd = async (req: Request, res: Response) => {
  *  @desc DELETE Tag Bookmark
  *  @access Public
  */
-const bookmarkDelete = async (req: Request, res: Response) => {
+const deleteBookmark = async (req: Request, res: Response) => {
   const error = validationResult(req);
   if (!error.isEmpty()) {
     return res
@@ -66,7 +66,7 @@ const bookmarkDelete = async (req: Request, res: Response) => {
 
   try {
     client = await db.connect(req);
-    await TagService.bookmarkDelete(client, userId, tagId);
+    await TagService.deleteBookmark(client, userId, tagId);
 
     return res
       .status(statusCode.OK)
@@ -90,6 +90,6 @@ const bookmarkDelete = async (req: Request, res: Response) => {
 };
 
 export default {
-  bookmarkAdd,
-  bookmarkDelete,
+  addBookmark,
+  deleteBookmark,
 };

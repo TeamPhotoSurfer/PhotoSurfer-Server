@@ -4,6 +4,6 @@ import { TagController } from "../controllers";
 
 const router: Router = Router();
 
-router.put("/bookmark/:tagId", TagController.bookmarkAdd)
-router.delete("/bookmark/:tagId", TagController.bookmarkDelete)
+router.put("/bookmark/:tagId", TagController.addBookmark);
+router.delete("/bookmark/:tagId", TagController.deleteBookmark);
 export default router;
