@@ -31,6 +31,11 @@ const bookmarkAdd = async (req: Request, res: Response) => {
       .send(util.success(statusCode.OK, message.UPDATE_BOOKMARK_SUCCESS));
   } catch (error) {
     console.log(error);
+    if (error == 400) {
+      return res
+        .status(statusCode.BAD_REQUEST)
+        .send(util.fail(statusCode.BAD_REQUEST, message.BOOKMARK_ADD_ERROR));
+    }
     res
       .status(statusCode.INTERNAL_SERVER_ERROR)
       .send(
@@ -68,6 +73,11 @@ const bookmarkDelete = async (req: Request, res: Response) => {
       .send(util.success(statusCode.OK, message.DELETE_BOOKMARK_SUCCESS));
   } catch (error) {
     console.log(error);
+    if (error == 400) {
+      return res
+        .status(statusCode.BAD_REQUEST)
+        .send(util.fail(statusCode.BAD_REQUEST, message.BOOKMARK_DELETE_ERROR));
+    }
     res
       .status(statusCode.INTERNAL_SERVER_ERROR)
       .send(
