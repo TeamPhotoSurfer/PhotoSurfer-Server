@@ -40,9 +40,9 @@ const deletePhotoTag = async (req: Request, res: Response) => {
   const userId = 1;
   try {
     client = await db.connect(req);
-    const photo = await photoService.deletedPhotoTag(client, userId, tagId, photoIds);
+    const tag = await photoService.deletedPhotoTag(client, userId, tagId, photoIds);
 
-    res.status(statusCode.OK).send(util.success(statusCode.OK, message.SUCCESS));
+    res.status(statusCode.OK).send(util.success(statusCode.OK, message.SUCCESS, tag));
   } catch (error) {
     console.log(error);
     res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));

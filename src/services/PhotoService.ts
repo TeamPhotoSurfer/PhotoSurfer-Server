@@ -72,7 +72,7 @@ const deletedPhotoTag = async (client: any, userId: number, tagId: number, photo
     `,
     [tagId],
   );
-
+  let countDeletedPhoto = 0;
   for (let i of photoIds) {
     //사진에 태그가 안남았을 때
     const { rows: tag } = await client.query(
@@ -93,6 +93,7 @@ const deletedPhotoTag = async (client: any, userId: number, tagId: number, photo
         `,
         [i],
       );
+      countDeletedPhoto++;
     }
   }
 
@@ -117,6 +118,7 @@ const deletedPhotoTag = async (client: any, userId: number, tagId: number, photo
       [tagId],
     );
   }
+  return { countDeletedPhoto };
 };
 
 export default {
