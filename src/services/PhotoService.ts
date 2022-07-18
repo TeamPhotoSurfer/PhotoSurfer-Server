@@ -61,19 +61,11 @@ const getTagByPhotoId = async (client: any, photoId: number, userId: number) => 
 };
 
 const addPhotoTag = async (client: any, userId: number, photoId: string[] | string, name: string, type: string) => {
-  let tagIds: string[] = [];
-  const result = [];
-  if (typeof photoId === 'string') {
-    tagIds.push(photoId);
-  } else {
-    tagIds = photoId;
-  }
-
   const { rows: checkedTag } = await client.query(
     `
     SELECT id, is_deleted
     FROM tag
-    WHERE name = $1 AND userId = $2 AND is_deleted = false
+    WHERE name = $1 AND user_id = $2 AND is_deleted = false
     `,
     [name, userId],
   );
@@ -105,7 +97,7 @@ const addPhotoTag = async (client: any, userId: number, photoId: string[] | stri
     const { rows } = await client.query(
       `
       UPDATE tag
-      SET add_count = add_count + $4
+      SET add_count = add_count + $4, updated_at = now()
       WHERE name = $1 AND user_id = $2 AND id = $3 AND tag_type = $5
       RETURNING *
       `,
@@ -113,31 +105,32 @@ const addPhotoTag = async (client: any, userId: number, photoId: string[] | stri
     );
   }
 
-  for (let i of photoId) {
-    const { rows } = await client.query(
-      `
-      UPDATE photo_tag
-      SET tag_id = $1, is_represent=$4
-      WHERE photo_id = $2 AND tag_id = $3
-      RETURNING *
-      `,
-      [tagId, i, tagId, false],
-    );
-  }
-
+  //이미 사진에 속해있는 태그인 경우
   const { rows } = await client.query(
     `
-    UPDATE photo_tag
-    SET tag_id = $1, is_represent = false
-    WHERE tag_id AND photo_id in (${photoId})
-    RETURNING *
-    `,
+      SELECT *
+      FROM photo_tag
+      WHERE photo_id in (${photoId}) AND tag_id = $1
+      `,
     [tagId],
   );
 
-  //이미 존재하는 태그인지 확인
+  if (rows[0]) {
+    throw 400;
+  }
 
-  return convertSnakeToCamel.keysToCamel(rows);
+  for (let i of photoId) {
+    const { rows } = await client.query(
+      `
+        INSERT INTO photo_tag(tag_id, photo_id)
+        VALUES ($1, $2)
+        RETURNING *
+        `,
+      [tagId, i],
+    );
+  }
+
+  return convertSnakeToCamel.keysToCamel(tagId);
 };
 
 export default {
