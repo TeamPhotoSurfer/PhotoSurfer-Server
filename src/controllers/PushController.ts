@@ -7,12 +7,13 @@ import PushService from "../services/PushService";
 const db = require("../loaders/db");
 
 /**
- *  @route GET /push/today
+<<<<<<< HEAD
+ *  @route GET /push/come
  *  @desc READ Push
  *  @access Public
  */
-// 임박한 목록 조회
-const getTodayPush = async (req: Request, res: Response) => {
+// 다가오는 알림 조회
+const getComePush = async (req: Request, res: Response) => {
   const error = validationResult(req);
   if (!error.isEmpty()) {
     return res
@@ -24,7 +25,7 @@ const getTodayPush = async (req: Request, res: Response) => {
   let client;
   try {
     client = await db.connect(req);
-    const data = await PushService.getTodayPush(client, userId);
+    const data = await PushService.getComePush(client, userId);
     if (!data) {
       return res
         .status(statusCode.NOT_FOUND)
@@ -32,11 +33,11 @@ const getTodayPush = async (req: Request, res: Response) => {
     }
     res
       .status(statusCode.OK)
-      .send(util.success(statusCode.OK, message.GET_TODAY_PUSH, data));
+      .send(util.success(statusCode.OK, message.GET_COME_PUSH, data));
   } catch (error) {
     console.log(error);
     throw error;
   }
 };
 
-export default { getTodayPush };
+export default { getComePush };

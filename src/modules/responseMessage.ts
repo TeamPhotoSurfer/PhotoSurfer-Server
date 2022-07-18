@@ -6,6 +6,8 @@ const message = {
   SUCCESS: "성공",
   CREATE_PUSH_SUCCESS: "푸시 알림 생성 성공",
   NULL_VALUE_TOKEN: "토큰만료",
+
+  GET_COME_PUSH: "다가오는 알림 생성 성공",
   GET_TODAY_PUSH: "임박한 알림 조회",
 
   DELETE_BOOKMARK_SUCCESS: "즐겨찾기 취소 성공",
