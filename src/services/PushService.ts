@@ -92,12 +92,36 @@ const getPushDetail = async (client: any, userId: number, pushId: number) => {
     [photoId],
   );
   console.log(tags);
-  const tagReturn = tags.map(x => {
-    return {
-      tagId : x.tag_id,
-      tagName : x.name
-    };
-  });
+  var tagReturn: any;
+  //isRepresent = true 인 것이 0개이면 -> 태그들 중에서 created_at, limit 3으로 세 개 추가하기
+  if(tags.length == 0){
+    const { rows : tagsNotRepresent } = await client.query(
+      `
+        SELECT photo_tag.tag_id, tag.name
+        FROM photo_tag, tag
+        where photo_tag.is_deleted = false 
+        AND photo_tag.photo_id = $1
+        AND photo_tag.tag_id = tag.id
+        ORDER BY photo_tag.created_at
+        LIMIT 3;
+      `,
+      [photoId],
+    );
+    tagReturn = tagsNotRepresent.map(x => {
+      return {
+        tagId : x.tag_id,
+        tagName : x.name
+      };
+    });
+  }
+  else{
+    tagReturn = tags.map(x => {
+      return {
+        tagId : x.tag_id,
+        tagName : x.name
+      };
+    });
+  }
   
   const data = {
     "pushId" : push[0].id,
