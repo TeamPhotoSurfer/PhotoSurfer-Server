@@ -1,8 +1,8 @@
-const _ = require('lodash');
+const _ = require("lodash");
 
-const toCamel = s => {
-  return s.replace(/([-_][a-z])/gi, $1 => {
-    return $1.toUpperCase().replace('-', '').replace('_', '');
+const toCamel = (s) => {
+  return s.replace(/([-_][a-z])/gi, ($1) => {
+    return $1.toUpperCase().replace("-", "").replace("_", "");
   });
 };
 
@@ -11,20 +11,20 @@ const isArray = function (a) {
 };
 
 const isObject = function (o) {
-  return o === Object(o) && !isArray(o) && typeof o !== 'function';
+  return o === Object(o) && !isArray(o) && typeof o !== "function";
 };
 
 const keysToCamel = function (o) {
   if (isObject(o)) {
     const n = {};
 
-    Object.keys(o).forEach(k => {
+    Object.keys(o).forEach((k) => {
       n[toCamel(k)] = o[k];
     });
 
     return n;
   } else if (isArray(o)) {
-    return o.map(i => {
+    return o.map((i) => {
       return keysToCamel(i);
     });
   }
@@ -35,13 +35,13 @@ const keysToSnake = function (o) {
   if (isObject(o)) {
     const n = {};
 
-    Object.keys(o).forEach(k => {
+    Object.keys(o).forEach((k) => {
       n[_.snakeCase(k)] = o[k];
     });
 
     return n;
   } else if (isArray(o)) {
-    return o.map(i => {
+    return o.map((i) => {
       return _.snakeCase(i);
     });
   }
