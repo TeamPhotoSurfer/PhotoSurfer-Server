@@ -57,7 +57,7 @@ jobs:
         working-directory: ./
         run: |
 
-        #  rm .env
+         rm .env
          touch .env
          echo PORT=${{ secrets.PORT }} >> .env
          echo DB_USER=${{ secrets.DB_USER }} >> .env
