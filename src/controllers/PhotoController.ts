@@ -22,12 +22,81 @@ const createPhotoTag = async (req: Request, res: Response) => {
     const tag = await photoService.getTagByPhotoId(client, photo, userId);
     const data = {
       id: photo,
-      imageURL: location,
+      imageUrl: location,
       tag,
     };
     res.status(statusCode.OK).send(util.success(statusCode.OK, message.SUCCESS, data));
   } catch (error) {
     console.log(error);
+    if (error === 404) {
+      return res.status(statusCode.NOT_FOUND).send(util.fail(statusCode.NOT_FOUND, message.NOT_FOUND));
+    }
+    res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
+  }
+};
+const findPhotoByTag = async (req: Request, res: Response) => {
+  let client;
+  // const userId = req.body.user.id;
+  const userId = 1;
+  const tagId = req.query.id as string;
+
+  if (!tagId) {
+    return res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
+  }
+  try {
+    client = await db.connect(req);
+    const photos = await photoService.findPhotoByTag(client, userId, tagId);
+    const tags = await photoService.getTagsByIds(client, tagId, userId);
+    const data = {
+      tags,
+      photos,
+    };
+    res.status(statusCode.OK).send(util.success(statusCode.OK, message.SUCCESS, data));
+    } catch (error) {
+    console.log(error);
+    if (error === 404) {
+      return res.status(statusCode.NOT_FOUND).send(util.fail(statusCode.NOT_FOUND, message.NOT_FOUND));
+    }
+    res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
+  }
+};
+    
+
+const getPhoto = async (req: Request, res: Response) => {
+  let client;
+  // const userId = req.body.user.id;
+  const userId = 1;
+  const photoId: number = req.params.photoId as unknown as number;
+  try {
+    client = await db.connect(req);
+    const photo = await photoService.getPhotoById(client, photoId, userId);
+
+    res.status(statusCode.OK).send(util.success(statusCode.OK, message.SUCCESS, photo));
+  } catch (error) {
+    console.log(error);
+    if (error === 404) {
+      return res.status(statusCode.NOT_FOUND).send(util.fail(statusCode.NOT_FOUND, message.NOT_FOUND));
+    }
+    res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
+  }
+};
+
+const addPhotoTag = async (req: Request, res: Response) => {
+  let client;
+  // const userId = req.body.user.id;
+  const userId = 1;
+  const photoId = req.query.id as string;
+  const { name, type } = req.body;
+  try {
+    client = await db.connect(req);
+    const tag = await photoService.addPhotoTag(client, userId, photoId, name, type);
+
+    res.status(statusCode.OK).send(util.success(statusCode.OK, message.SUCCESS, tag));
+  } catch (error) {
+    console.log(error);
+    if (error == 400) {
+      return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.BAD_REQUEST));
+    }
     res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
   }
 };
@@ -51,4 +120,7 @@ const deletePhotoTag = async (req: Request, res: Response) => {
 export default {
   createPhotoTag,
   deletePhotoTag,
+  addPhotoTag,
+  getPhoto,
+  findPhotoByTag,
 };

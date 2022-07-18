@@ -7,6 +7,10 @@ import PhotoController from '../controllers/PhotoController';
 const router: Router = Router();
 
 router.post('/', upload.single('file'), PhotoController.createPhotoTag);
+router.get('/:photoId', PhotoController.getPhoto);
 
 router.delete('/tag/:tagId', PhotoController.deletePhotoTag);
+router.post('/tag', PhotoController.addPhotoTag);
+router.get('/tag', PhotoController.findPhotoByTag);
+
 export default router;
