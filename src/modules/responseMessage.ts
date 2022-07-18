@@ -7,6 +7,12 @@ const message = {
   CREATE_PUSH_SUCCESS: "푸시 알림 생성 성공",
   NULL_VALUE_TOKEN: "토큰만료",
   GET_TODAY_PUSH: "임박한 알림 조회",
+
+  DELETE_BOOKMARK_SUCCESS: "즐겨찾기 취소 성공",
+  UPDATE_BOOKMARK_SUCCESS: "즐겨찾기 추가 성공",
+
+  BOOKMARK_ADD_ERROR: "북마크 추가 실패",
+  BOOKMARK_DELETE_ERROR: "북마크 삭제 실패",
 };
 
 export default message;
