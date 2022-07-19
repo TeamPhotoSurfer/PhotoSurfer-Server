@@ -1,8 +1,8 @@
 
 import { Router } from "express";
 import PhotoRouter from "./photoRouter";
-import PushRouter from "./pushRouter";
-import TagRouter from "./tagRouter";
+import PushRouter from "./PushRouter";
+import TagRouter from "./TagRouter";
 
 const router: Router = Router();
 
