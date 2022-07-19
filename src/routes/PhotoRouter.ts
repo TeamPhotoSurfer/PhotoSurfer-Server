@@ -9,7 +9,7 @@ router.post('/', upload.single('file'), PhotoController.createPhotoTag);
 
 router.get('/search', PhotoController.findPhotoByTag);
 router.post('/menu/tag', PhotoController.addPhotoTag);
-
+router.get('/tag', PhotoController.getTag);
 router.put('/menu/tag/:tagId', PhotoController.updatePhotoTag);
 router.delete('/menu/tag/:tagId', PhotoController.deletePhotoTag);
 router.get('/detail/:photoId', PhotoController.getPhoto);
