@@ -449,6 +449,11 @@ const updatePhotoTag = async (client: any, userId: number, name: string, photoId
       [tagId],
     );
   }
+  const data = {
+    id: newTagId,
+    name,
+  };
+  return data;
 };
 
 export default {
