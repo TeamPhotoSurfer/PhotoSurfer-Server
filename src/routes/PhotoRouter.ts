@@ -8,7 +8,7 @@ const router: Router = Router();
 router.post('/', upload.single('file'), PhotoController.createPhotoTag);
 
 router.post('/tag', PhotoController.addPhotoTag);
-router.get('/tag', PhotoController.findPhotoByTag);
+router.get('/search', PhotoController.findPhotoByTag);
 router.get('/:photoId', PhotoController.getPhoto);
 router.put('/tag/:tagId', PhotoController.updatePhotoTag);
 router.delete('/tag/:tagId', PhotoController.deletePhotoTag);
