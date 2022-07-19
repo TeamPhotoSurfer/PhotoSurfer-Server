@@ -11,7 +11,7 @@ const getToken = userId => {
   const token = jwt.sign(
     payload,
     config.jwtSecret,
-    { expiresIn: 360000 }, //배포할 때 0 지우세요.
+    { expiresIn: 36000000000 }, //배포할 때 0 지우세요.
   );
   return token;
 };
