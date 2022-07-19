@@ -1,4 +1,4 @@
-import { PushCreateRequest } from "../interfaces/push/request/PushCreateRequest";
+import { PushCreateRequest } from '../interfaces/push/request/PushCreateRequest';
 import { throws } from 'assert';
 import { ConfigurationServicePlaceholders } from 'aws-sdk/lib/config_service_placeholders';
 import { EventListenerTypes } from 'typeorm/metadata/types/EventListenerTypes';
@@ -7,19 +7,14 @@ import dayjs from 'dayjs';
 
 const convertSnakeToCamel = require('../modules/convertSnakeToCamel');
 
-const createPhotoTag = async (
-  client: any,
-  userId: number,
-  imageURL: string,
-  tags: PhotoPostDTO[]
-) => {
+const createPhotoTag = async (client: any, userId: number, imageURL: string, tags: PhotoPostDTO[]) => {
   const { rows } = await client.query(
     `
     INSERT INTO photo (user_id, image_url)
     VALUES ($1, $2)
     RETURNING *
     `,
-    [userId, imageURL]
+    [userId, imageURL],
   );
   const photoId: number = rows[0].id;
   let tagId: number;
@@ -32,7 +27,7 @@ const createPhotoTag = async (
         FROM tag
         WHERE name = $1 AND user_id = $2
         `,
-      [r.name, userId]
+      [r.name, userId],
     );
     if (!checkedTag[0]) {
       const { rows: newTag } = await client.query(
@@ -41,7 +36,7 @@ const createPhotoTag = async (
         VALUES ($1, $2, $3)
         RETURNING *
         `,
-        [r.name, r.tagType, userId]
+        [r.name, r.tagType, userId],
       );
       tagId = newTag[0].id;
     } else {
@@ -72,17 +67,13 @@ const createPhotoTag = async (
       VALUES ($1, $2)
       RETURNING *
       `,
-      [tagId, photoId]
+      [tagId, photoId],
     );
   }
   return convertSnakeToCamel.keysToCamel(photoId);
 };
 
-const getTagByPhotoId = async (
-  client: any,
-  photoId: number,
-  userId: number
-) => {
+const getTagByPhotoId = async (client: any, photoId: number, userId: number) => {
   const { rows } = await client.query(
     `
     SELECT tag.id, tag.name, tag.tag_type
@@ -90,7 +81,7 @@ const getTagByPhotoId = async (
     WHERE photo_tag.photo_id = $1 AND photo_tag.tag_id = tag.id AND tag.user_id = $2 
     AND photo_tag.is_deleted = false AND tag.is_deleted = false
     `,
-    [photoId, userId]
+    [photoId, userId],
   );
   return convertSnakeToCamel.keysToCamel(rows);
 };
@@ -152,7 +143,7 @@ const deletedPhotoTag = async (client: any, userId: number, tagId: number, photo
     );
   }
   return { countDeletedPhoto };
-}
+};
 
 const addPhotoTag = async (client: any, userId: number, photoId: string[] | string, name: string, type: string) => {
   const { rows: checkedTag } = await client.query(
@@ -229,7 +220,7 @@ const addPhotoTag = async (client: any, userId: number, photoId: string[] | stri
     name,
   };
   return convertSnakeToCamel.keysToCamel(data);
-}
+};
 
 const getPhotoById = async (client: any, photoId: number, userId: number) => {
   const { rows } = await client.query(
@@ -278,7 +269,6 @@ const getPhotoById = async (client: any, photoId: number, userId: number) => {
   };
   return convertSnakeToCamel.keysToCamel(data);
 };
-
 
 const findPhotoByTag = async (client: any, userId: number, tagId: string[] | string) => {
   if (typeof tagId === 'string') {
@@ -357,7 +347,6 @@ const getTagsByIds = async (client: any, tagId: string[] | string, userId: numbe
   );
   return convertSnakeToCamel.keysToCamel(result);
 };
-
 
 const updatePhotoTag = async (client: any, userId: number, name: string, photoIds: number[], tagId: number, tagType: string) => {
   const { rows: checkedTag } = await client.query(
@@ -447,6 +436,18 @@ const updatePhotoTag = async (client: any, userId: number, name: string, photoId
   }
 };
 
+const getTag = async (client: any, userId: number) => {
+  const { rows } = await client.query(
+    `
+    SELECT id, name
+    FROM tag
+    WHERE is_deleted = false AND user_id = $1
+    `,
+    [userId],
+  );
+  return convertSnakeToCamel.keysToCamel(rows);
+};
+
 export default {
   updatePhotoTag,
   deletedPhotoTag,
@@ -456,4 +457,5 @@ export default {
   getPhotoById,
   createPhotoTag,
   getTagByPhotoId,
+  getTag,
 };
