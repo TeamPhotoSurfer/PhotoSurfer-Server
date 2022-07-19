@@ -1,12 +1,7 @@
 import { Router } from 'express';
-import PhotoRouter from './PhotoRouter';
+import PhotoRouter from './photoRouter';
 import PushRouter from './PushRouter';
 import TagRouter from './TagRouter';
-
-import { Router } from "express";
-import PhotoRouter from "./photoRouter";
-import PushRouter from "./PushRouter";
-import TagRouter from "./TagRouter";
 
 const router: Router = Router();
 
