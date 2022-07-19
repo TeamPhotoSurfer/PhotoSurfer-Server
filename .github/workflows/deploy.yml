@@ -87,7 +87,7 @@ jobs:
           aws-region: ap-northeast-2
 
       - name: upload to S3
-        run: aws s3 cp --region ap-northeast-2 /home/runner/work/PhotoSurfer-Server/PhotoSurfer-Server ./$GITHUB_SHA.zip s3://photosurfer-build/deploy/$GITHUB_SHA.zip
+        run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://photosurfer-build/deploy/$GITHUB_SHA.zip
 
       - name: deploy with AWS codeDeploy
         run: aws deploy create-deployment
