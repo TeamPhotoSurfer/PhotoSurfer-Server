@@ -4,10 +4,10 @@
 name: deploy
 
 on:
-#   workflow_dispatch:
+  #   workflow_dispatch:
 
   push:
-    branches: [deploy-test]
+    branches: [develop]
 
 jobs:
   build:
@@ -48,12 +48,11 @@ jobs:
           echo AWSAccessKeyId=${{ secrets.AWSAccessKeyId }} >> .env
           echo AWSSecretKey=${{ secrets.AWSSecretKey }} >> .env
 
-#       - name: test
-#         working-directory: ./
-#         run: |
-#           yarn
-#           yarn test
-
+      #       - name: test
+      #         working-directory: ./
+      #         run: |
+      #           yarn
+      #           yarn test
       - name: build server files
         working-directory: ./
         run: |
@@ -73,11 +72,11 @@ jobs:
         #  echo BUCKET_NAME=${{ secrets.BUCKET_NAME }} >> .env
         #  echo AWSAccessKeyId=${{ secrets.AWSAccessKeyId }} >> .env
         #  echo AWSSecretKey=${{ secrets.AWSSecretKey }} >> .env
-        
-          # yarn run build
+
+        # yarn run build
 
       - name: zip file
-        run: zip -r ./$GITHUB_SHA.zip ./dist ./scripts ./appspec.yml ./.env ./package.json
+        run: zip -r ./$GITHUB_SHA.zip ./dist ./scripts ./appspec.yml ./.env ./paduckage.json
 
       - name: AWS configure credentials
         uses: aws-actions/configure-aws-credentials@v1
