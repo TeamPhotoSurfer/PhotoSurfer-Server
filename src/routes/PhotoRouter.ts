@@ -6,11 +6,11 @@ import PhotoController from '../controllers/PhotoController';
 const router: Router = Router();
 
 router.post('/', upload.single('file'), PhotoController.createPhotoTag);
-router.get('/', PhotoController.findPhotoByTag);
-
-router.post('/tag', PhotoController.addPhotoTag);
+router.get('/search', PhotoController.findPhotoByTag);
 router.get('/:photoId', PhotoController.getPhoto);
-router.put('/tag/:tagId', PhotoController.updatePhotoTag);
-router.delete('/tag/:tagId', PhotoController.deletePhotoTag);
+router.post('/menu/tag', PhotoController.addPhotoTag);
+
+router.put('/menu/tag/:tagId', PhotoController.updatePhotoTag);
+router.delete('/menu/tag/:tagId', PhotoController.deletePhotoTag);
 
 export default router;
