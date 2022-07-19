@@ -87,11 +87,11 @@ jobs:
           aws-region: ap-northeast-2
 
       - name: upload to S3
-        run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://photosurfer-build/$GITHUB_SHA.zip
+        run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip /home/runner/work/PhotoSurfer-Server/PhotoSurfer-Server s3://photosurfer-build/$GITHUB_SHA.zip
 
       - name: deploy with AWS codeDeploy
         run: aws deploy create-deployment
           --application-name photosurfer-codedeploy
           --deployment-config-name CodeDeployDefault.AllAtOnce
           --deployment-group-name GROUP
-          --s3-location bucket=photosurfer-build,bundleType=zip,key=deploy/$GITHUB_SHA.zip
+          --s3-location bucket=photosurfer-build/$GITHUB_SHA.zip,bundleType=zip,key=deploy/$GITHUB_SHA.zip
