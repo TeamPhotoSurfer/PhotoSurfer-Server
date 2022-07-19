@@ -135,23 +135,24 @@ const pushPlan = async (req: Request, res: Response) => {
       return item !== null && item !== undefined && item !== "";
     });
 
+    //const testToken = `dr232n68QDWFQ1BY1fGEdh:APA91bGLSZmnD7EAjdseO68fjHXjy9ti2wM7_E6TiruyfgUnqjc5vnhcAeugoetFBGIvEf6QiuXH9KmwcZ2RznuoaEZm9MXHVHG2HtL3OeogyFR1JuBPxPnhjPrPe8wXRR9CtspjE8b8`;
+
     plan.map((x) => {
-      pushAlarm.sendPushAlarm(
-        "서퍼님, 잊지마세요!",
-        pm.push9Desc,
-        "https://foo.bar.pizza-monster.png",
-        testToken
-      );
+      
+      if((x.fcm_token !== null && x.fcm_token !== undefined && x.fcm_token !== "")){
+        const testToken = [];
+        testToken.push(x.fcm_token);
+        pushAlarm.sendPushAlarm(
+          "서퍼님, 잊지마세요!",
+          x.photo_tag,
+          x.memo,
+          x.image_url,
+          testToken,
+          x.photo_id
+        );
+      }
     });
-    const testToken = [
-      `fngkHv04WEBem5K0SvxQLt:APA91bHSjh67rJqT_L3sr8eDNWcTed0NB-Dl59sPEC3ZzGKI8dJtosBfx2s07aTRJRk7rLCe85XUZI0uWrUXdQg53B-ivU7GC56ZlEUYgsIEAc50X5s3U4pEEg4d0TnHFXm_YG08sLWj`,
-    ];
-    pushAlarm.sendPushAlarm(
-      pm.push9title,
-      pm.push9Desc,
-      "https://foo.bar.pizza-monster.png",
-      testToken
-    );
+
     res
       .status(statusCode.OK)
       .send(util.success(statusCode.OK, message.SUCCESS, plan));

@@ -152,7 +152,7 @@ const getPushDetail = async (client: any, userId: number, pushId: number) => {
 const pushPlan = async (client, date1, date2) => {
   const { rows: tokenAndImage } = await client.query(
     ` 
-          SELECT u.fcm_token, photo.id, photo.image_url, push.id as pushId
+          SELECT u.fcm_token, photo.id, photo.image_url, push.id as pushId, push.memo
           FROM push, "user" u, photo
           WHERE $1 <= push.push_date AND push.push_date < $2 AND push.is_deleted = false
           AND push.user_id = u.id AND photo.user_id = u.id 
@@ -173,8 +173,6 @@ const pushPlan = async (client, date1, date2) => {
           AND photo_tag.tag_id = tag.id AND tag.is_deleted = false
           `
   );
-  //console.log(tags);
-  //이 태그들 중에서 is_represent가 true인거 넣기
 
   const tagMap = new Map<number, Array<string>>();
   tags.map((x) => {
@@ -182,20 +180,53 @@ const pushPlan = async (client, date1, date2) => {
       var arr = [];
       arr.push(x.name);
       tagMap.set(x.photo_id, arr);
-    } else {
+    } else if(tagMap.get(x.photo_id).length < 3 ){
       var arr: any[] = tagMap.get(x.photo_id);
       arr.push(x.name);
       tagMap.set(x.photo_id, arr);
     }
   });
-  //console.log(tagMap);
+  console.log("+++"+tagMap);
+
+  //photo의 태그 갯수가 0개면 orderby created_at, limit 3하기
+  for(let i = 0; i < photoIds.length ; i++){
+    if(typeof tagMap.get(photoIds[i]) === "undefined"){
+      console.log("대표태그없음");
+      const { rows: tagsNotRepresent } = await client.query(
+        `
+          SELECT photo_tag.tag_id, tag.name
+          FROM photo_tag, tag
+          where photo_tag.is_deleted = false 
+          AND photo_tag.photo_id = $1
+          AND photo_tag.tag_id = tag.id
+          ORDER BY photo_tag.created_at
+          LIMIT 3;
+        `,
+        [photoIds[i]]
+      );
+
+      var arr = [];
+      tagsNotRepresent.map(x => {
+        arr.push(x.name);
+      })
+      tagMap.set(photoIds[i],arr);
+    }
+  }
+  
 
   const data = tokenAndImage.map((x) => {
+    var tagString: string = "";
+    tagMap.get(x.id).map(y => {
+      tagString += "#" + y;
+      tagString += " ";
+    })
     return {
       push_id: x.pushid,
       fcm_token: x.fcm_token,
       photo_id: x.id,
-      photo_tag: tagMap.get(x.id),
+      photo_tag: tagString,
+      image_url: x.image_url,
+      memo: x.memo
     };
   });
 

@@ -1,16 +1,17 @@
 const admin = require('firebase-admin');
 
-const sendPushAlarm = async (title, body, imageUrl, receiverToken) => {
+const sendPushAlarm = async (title, photoTag, memo, imageUrl, receiverToken, photoId) => {
   if (!receiverToken.length) {
     return 0;
   }
   try {
     const message = {
       android: {
-        notification: {
-          title: title,
-          body: body,
-          imageUrl: imageUrl
+        data: {
+          "title": title,
+          "body": photoTag + "\n" + memo,
+          "imageUrl": imageUrl,
+          "photoId" : String(photoId)
         },
       },
       apns: {
@@ -18,17 +19,20 @@ const sendPushAlarm = async (title, body, imageUrl, receiverToken) => {
           aps: {
             'mutable-content': 1,
             alert: {
-              title: title,
-              body: body,
+              "title": title,
+              "body": photoTag + "\n" + memo,
+              "imageUrl": imageUrl,
+              "photoId" : String(photoId)
             },
           },
         },
         fcm_options: {
-          image: imageUrl
+          "image": imageUrl
         }
       },
-      tokens: receiverToken,
+      "tokens": receiverToken,
     };
+    console.log(message);
 
     admin
       .messaging()
