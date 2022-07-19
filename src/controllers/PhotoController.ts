@@ -139,8 +139,8 @@ const updatePhotoTag = async (req: Request, res: Response) => {
   try {
     client = await db.connect(req);
 
-    const photo = await photoService.updatePhotoTag(client, userId, name, photoIds, tagId, tagType);
-    res.status(statusCode.OK).send(util.success(statusCode.OK, message.SUCCESS));
+    const tag = await photoService.updatePhotoTag(client, userId, name, photoIds, tagId, tagType);
+    res.status(statusCode.OK).send(util.success(statusCode.OK, message.SUCCESS, tag));
   } catch (error) {
     console.log(error);
     res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
