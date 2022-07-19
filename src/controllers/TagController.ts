@@ -15,7 +15,7 @@ const db = require('../loaders/db');
  */
 //태그 조회하기 ->
 const getTagNames = async (req: Request, res: Response) => {
-  const userId = 1; //TODO :  변경하기 (임시로 해둠)
+  const userId = req.body.user.id;
 
   let client;
   try {
@@ -36,7 +36,7 @@ const getTagNames = async (req: Request, res: Response) => {
  * @Access public
  */
 const updateTag = async (req: Request, res: Response) => {
-  const userId = 1; //TODO :  변경하기 (임시로 해둠)
+  const userId = req.body.user.id;
 
   let client;
   try {
@@ -66,7 +66,7 @@ const updateTag = async (req: Request, res: Response) => {
  * @Access public
  */
 const deleteTag = async (req: Request, res: Response) => {
-  const userId = 1; //TODO :  변경하기 (임시로 해둠)
+  const userId = req.body.user.id;
 
   let client;
   try {
@@ -89,7 +89,7 @@ const deleteTag = async (req: Request, res: Response) => {
  * @Access public
  */
 const getMainTags = async (req: Request, res: Response) => {
-  const userId = 1; //TODO :  변경하기 (임시로 해둠)
+  const userId = req.body.user.id;
 
   let client;
   try {
@@ -110,7 +110,7 @@ const getMainTags = async (req: Request, res: Response) => {
  * @Access public
  */
 const getOftenSearchTags = async (req: Request, res: Response) => {
-  const userId = 1; //TODO :  변경하기 (임시로 해둠)
+  const userId = req.body.user.id;
 
   let client;
   try {
@@ -136,7 +136,7 @@ const addBookmark = async (req: Request, res: Response) => {
     return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.NULL_VALUE));
   }
   let client;
-  const userId = 1;
+  const userId = req.body.user.id;
   const tagId: number = req.params.tagId as unknown as number;
 
   try {
@@ -167,7 +167,7 @@ const deleteBookmark = async (req: Request, res: Response) => {
   }
 
   let client;
-  const userId = 1;
+  const userId = req.body.user.id;
   const tagId: number = req.params.tagId as unknown as number;
 
   try {

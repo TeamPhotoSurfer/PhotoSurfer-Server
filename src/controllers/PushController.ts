@@ -18,7 +18,7 @@ import PushService from '../services/PushService';
  * @Access public
  */
 const createPush = async (req: Request, res: Response) => {
-  const userId = 2; //TODO :  변경하기 (임시로 해둠)
+  const userId = req.body.user.id;
   const photoId: number = req.params.photoId as unknown as number;
 
   const pushCreateRequest: PushCreateRequest = req.body;
@@ -52,7 +52,7 @@ const createPush = async (req: Request, res: Response) => {
  * @Access public
  */
 const getPushDetail = async (req: Request, res: Response) => {
-  const userId = 2; //TODO :  변경하기 (임시로 해둠)
+  const userId = req.body.user.id;
   const pushId: number = req.params.pushId as unknown as number;
 
   let client;
@@ -125,7 +125,7 @@ const getLastPush = async (req: Request, res: Response) => {
   if (!error.isEmpty()) {
     return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.NULL_VALUE));
   }
-  const userId = 10;
+  const userId = req.body.user.id;
 
   let client;
   try {
@@ -154,7 +154,7 @@ const getComePush = async (req: Request, res: Response) => {
   if (!error.isEmpty()) {
     return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.NULL_VALUE));
   }
-  const userId = 10;
+  const userId = req.body.user.id;
 
   let client;
   try {
@@ -183,7 +183,7 @@ const getTodayPush = async (req: Request, res: Response) => {
   if (!error.isEmpty()) {
     return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.NULL_VALUE));
   }
-  const userId = 10;
+  const userId = req.body.user.id;
 
   let client;
   try {
