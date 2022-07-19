@@ -56,4 +56,6 @@ export default {
   s3AccessKey: process.env.S3_ACCESS_KEY as string,
   s3SecretKey: process.env.S3_SECRET_KEY as string,
   bucketName: process.env.BUCKET_NAME as string,
+  jwtSecret: process.env.JWT_SECRET as string,
+  jwtAlgo: process.env.JWT_ALGO as string,
 };
