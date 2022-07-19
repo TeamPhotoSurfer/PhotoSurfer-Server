@@ -456,6 +456,17 @@ const updatePhotoTag = async (client: any, userId: number, name: string, photoId
   return data;
 };
 
+const getTag = async (client: any, userId: number) => {
+  const { rows } = await client.query(
+    `
+    SELECT id, name
+    FROM tag
+    WHERE is_deleted = false AND user_id = $1
+    `,
+    [userId],
+  );
+  return convertSnakeToCamel.keysToCamel(rows);
+};
 export default {
   updatePhotoTag,
   deletedPhotoTag,
@@ -465,4 +476,5 @@ export default {
   getPhotoById,
   createPhotoTag,
   getTagByPhotoId,
+  getTag,
 };

@@ -148,6 +148,20 @@ const updatePhotoTag = async (req: Request, res: Response) => {
     client.release();
   }
 };
+const getTag = async (req: Request, res: Response) => {
+  let client;
+  // const userId = req.body.user.id;
+  const userId = 1;
+  try {
+    client = await db.connect(req);
+
+    const tag = await photoService.getTag(client, userId);
+    res.status(statusCode.OK).send(util.success(statusCode.OK, message.SUCCESS, tag));
+  } catch (error) {
+    console.log(error);
+    res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
+  }
+};
 
 export default {
   createPhotoTag,
@@ -156,4 +170,5 @@ export default {
   addPhotoTag,
   getPhoto,
   findPhotoByTag,
+  getTag,
 };
