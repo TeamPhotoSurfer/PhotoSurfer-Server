@@ -125,7 +125,7 @@ const getLastPush = async (req: Request, res: Response) => {
   if (!error.isEmpty()) {
     return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.NULL_VALUE));
   }
-  const userId = 1;
+  const userId = 10;
 
   let client;
   try {
@@ -154,7 +154,7 @@ const getComePush = async (req: Request, res: Response) => {
   if (!error.isEmpty()) {
     return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.NULL_VALUE));
   }
-  const userId = 1;
+  const userId = 10;
 
   let client;
   try {
@@ -183,7 +183,7 @@ const getTodayPush = async (req: Request, res: Response) => {
   if (!error.isEmpty()) {
     return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.NULL_VALUE));
   }
-  const userId = 1;
+  const userId = 10;
 
   let client;
   try {
