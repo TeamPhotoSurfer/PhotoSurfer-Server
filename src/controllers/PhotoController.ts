@@ -13,12 +13,14 @@ const createPhotoTag = async (req: Request, res: Response) => {
   }
   const image: Express.MulterS3.File = req.file as Express.MulterS3.File;
   const { originalname, location } = image;
-  // const userId = req.body.user.id;
-  const userId = 1;
+  const userId = req.body.user.id;
+  console.log(userId);
+
   let tags: PhotoPostDTO[] = JSON.parse(JSON.stringify(req.body.tags));
   try {
     client = await db.connect(req);
     const photo = await photoService.createPhotoTag(client, userId, location, tags);
+    console.log(photo);
     const tag = await photoService.getTagByPhotoId(client, photo, userId);
     const data = {
       id: photo,
@@ -38,8 +40,8 @@ const createPhotoTag = async (req: Request, res: Response) => {
 };
 const findPhotoByTag = async (req: Request, res: Response) => {
   let client;
-  // const userId = req.body.user.id;
-  const userId = 1;
+  const userId = req.body.user.id;
+
   const tagId = req.query.id as string;
 
   if (!tagId) {
@@ -67,8 +69,7 @@ const findPhotoByTag = async (req: Request, res: Response) => {
 
 const getPhoto = async (req: Request, res: Response) => {
   let client;
-  // const userId = req.body.user.id;
-  const userId = 1;
+  const userId = req.body.user.id;
   const photoId: number = req.params.photoId as unknown as number;
   try {
     client = await db.connect(req);
@@ -88,8 +89,7 @@ const getPhoto = async (req: Request, res: Response) => {
 
 const addPhotoTag = async (req: Request, res: Response) => {
   let client;
-  // const userId = req.body.user.id;
-  const userId = 1;
+  const userId = req.body.user.id;
   const photoId = req.query.id as string;
   const { name, type } = req.body;
   try {
@@ -112,8 +112,7 @@ const deletePhotoTag = async (req: Request, res: Response) => {
   let client;
   const tagId: number = req.params.tagId as unknown as number;
   const photoIds: number[] = req.body.photoIds;
-  // const userId = req.body.user.id;
-  const userId = 1;
+  const userId = req.body.user.id;
   try {
     client = await db.connect(req);
     const tag = await photoService.deletedPhotoTag(client, userId, tagId, photoIds);
@@ -130,9 +129,7 @@ const deletePhotoTag = async (req: Request, res: Response) => {
 const updatePhotoTag = async (req: Request, res: Response) => {
   let client;
   const tagId: number = req.params.tagId as unknown as number;
-
-  // const userId = req.body.user.id;
-  const userId = 1;
+  const userId = req.body.user.id;
   const { name, tagType } = req.body;
   const photoIds: number[] = req.body.photoIds;
 
@@ -150,8 +147,7 @@ const updatePhotoTag = async (req: Request, res: Response) => {
 };
 const getTag = async (req: Request, res: Response) => {
   let client;
-  // const userId = req.body.user.id;
-  const userId = 1;
+  const userId = req.body.user.id;
   try {
     client = await db.connect(req);
 

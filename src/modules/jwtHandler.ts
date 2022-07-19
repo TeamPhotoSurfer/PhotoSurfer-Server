@@ -1,17 +1,19 @@
-import { JwtPayloadInfo } from "../interfaces/common/JwtPayloadInfo";
-import jwt from "jsonwebtoken";
-import config from "../config";
+import { JwtPayloadInfo } from '../interfaces/common/JwtPayloadInfo';
+import jwt from 'jsonwebtoken';
+import config from '../config';
 
-const getToken = (userId: string) => {
-  const payload: JwtPayloadInfo = {
+const getToken = userId => {
+  const payload = {
     user: {
       id: userId,
     },
   };
-  const socialToken: string = jwt.sign(payload, config.jwtSecret, {
-    expiresIn: "720h",
-  });
-  return socialToken;
+  const token = jwt.sign(
+    payload,
+    config.jwtSecret,
+    { expiresIn: 360000 }, //배포할 때 0 지우세요.
+  );
+  return token;
 };
 
 // module.exports = { getToken };
