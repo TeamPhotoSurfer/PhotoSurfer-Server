@@ -15,8 +15,8 @@ const createPhotoTag = async (req: Request, res: Response) => {
   const { originalname, location } = image;
   const userId = req.body.user.id;
   console.log(userId);
-  const tag = req.body.tag;
-  if (!tag || !userId || !location) {
+  const tag = req.body.tags;
+  if (!tag) {
     return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.BAD_REQUEST));
   }
   let tags: PhotoPostDTO[] = JSON.parse(JSON.stringify(tag));
