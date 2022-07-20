@@ -100,7 +100,7 @@ const addPhotoTag = async (req: Request, res: Response) => {
   } catch (error) {
     console.log(error);
     if (error === 400) {
-      return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.BAD_REQUEST));
+      return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.ALREADY_EXIST_TAG));
     } else if (error === 404) {
       return res.status(statusCode.NOT_FOUND).send(util.fail(statusCode.NOT_FOUND, message.NOT_FOUND));
     }
@@ -169,32 +169,23 @@ const getTag = async (req: Request, res: Response) => {
  *  @access Public
  */
 
- const deletePhoto = async (req: Request, res: Response) => {
+const deletePhoto = async (req: Request, res: Response) => {
   const photoId: number = req.query.id as unknown as number;
   let client;
   const userId = req.body.user.id;
-  
+
   try {
     client = await db.connect(req);
 
     await photoService.deletePhoto(client, photoId, userId);
-    res
-      .status(statusCode.OK)
-      .send(util.success(statusCode.OK, message.DELETE_PHOTO_SUCCESS));
+    res.status(statusCode.OK).send(util.success(statusCode.OK, message.DELETE_PHOTO_SUCCESS));
   } catch (error) {
     console.log(error);
-    if(error == 400){
+    if (error == 400) {
       return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.PHOTO_DELETE_ERROR));
     }
-    res
-      .status(statusCode.INTERNAL_SERVER_ERROR)
-      .send(
-        util.fail(
-          statusCode.INTERNAL_SERVER_ERROR,
-          message.INTERNAL_SERVER_ERROR
-        )
-      );
-  }finally {
+    res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
+  } finally {
     client.release();
   }
 };
