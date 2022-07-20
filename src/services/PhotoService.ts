@@ -371,6 +371,17 @@ const getTagsByIds = async (client: any, tagId: string[] | string, userId: numbe
 };
 
 const updatePhotoTag = async (client: any, userId: number, name: string, photoIds: number[], tagId: number, tagType: string) => {
+  const { rows: existTag } = await client.query(
+    `
+    SELECT id
+    FROM tag
+    WHERE id = $1 AND user_id = $2
+    `,
+    [tagId, userId],
+  );
+  if (!existTag[0]) {
+    throw 400;
+  }
   const { rows: checkedTag } = await client.query(
     `
     SELECT id, is_deleted
@@ -379,6 +390,7 @@ const updatePhotoTag = async (client: any, userId: number, name: string, photoId
     `,
     [name, userId],
   );
+
   let newTagId;
   const photoCount = photoIds.length;
   if (!checkedTag[0]) {
@@ -498,11 +510,11 @@ const deletePhoto = async (client: any, photoId: number, userId: number) => {
     AND user_id = $1
     AND is_deleted = false;
     `,
-    [userId]
+    [userId],
   );
-  
+
   if (!checkPhotoExist[0]) {
-    console.log("사진 삭제 에러");
+    console.log('사진 삭제 에러');
     throw 400;
   }
 
@@ -512,7 +524,7 @@ const deletePhoto = async (client: any, photoId: number, userId: number) => {
     WHERE id in (${photoId})
     AND user_id = $1;
     `,
-    [userId]
+    [userId],
   );
 
   const { rows } = await client.query(
@@ -521,29 +533,29 @@ const deletePhoto = async (client: any, photoId: number, userId: number) => {
     WHERE photo_id in (${photoId});
     `,
   );
-    
-    // 푸시 알림 삭제
-    const { rows: push } = await client.query(
-      `UPDATE push
+
+  // 푸시 알림 삭제
+  const { rows: push } = await client.query(
+    `UPDATE push
       SET is_deleted = true
       WHERE photo_id in (${photoId});
       `,
-    );
-  
+  );
+
   for (let i of rows) {
     const { rows: photoTag } = await client.query(
       `SELECT *
     FROM photo_tag
     WHERE tag_id = $1
     AND is_deleted = false;`,
-      [i.tag_id, userId]
+      [i.tag_id, userId],
     );
     if (photoTag.length == 0) {
       const { rows: tag } = await client.query(
         `UPDATE tag
         SET is_deleted = true
         WHERE id = $1;`,
-        [i.tag_id]
+        [i.tag_id],
       );
     }
   }
@@ -560,5 +572,5 @@ export default {
   createPhotoTag,
   getTagByPhotoId,
   getTag,
-  deletePhoto
+  deletePhoto,
 };

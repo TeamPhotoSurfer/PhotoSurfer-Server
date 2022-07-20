@@ -7,6 +7,7 @@ const message = {
   SUCCESS: '성공',
   CREATE_PUSH_SUCCESS: '푸시 알림 생성 성공',
   ALREADY_EXIST_TAG: '이미 존재하는 태그입니다',
+  NOT_EXIST_TAG: '존재하지 않는 태그입니다',
   NULL_VALUE_TOKEN: '토큰만료',
 
   GET_COME_PUSH: '다가오는 알림 생성 성공',
