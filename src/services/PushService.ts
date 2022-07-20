@@ -30,7 +30,7 @@ const createPush = async (
     `,
     [userId, photoId]
   );
-  if(checkPushExist[0]){
+  if (checkPushExist[0]) {
     throw 409;
   }
 
@@ -356,6 +356,7 @@ const getTodayPush = async (client: any, userId: number) => {
     `,
     [userId, today, tomorrow]
   );
+  
   for (let i of rows) {
     const photoId = i.photo_id;
     const { rows: tags } = await client.query(
@@ -369,11 +370,9 @@ const getTodayPush = async (client: any, userId: number) => {
     );
     const result = tags.map((x) => x.name);
     i.tags = result;
-    const data = {
-      push: i,
-    };
-    todayPush.push(data);
+    todayPush.push(convertSnakeToCamel.keysToCamel(rows));
   }
+  
   //다가오는 알림 "내일"
   const { rows: pushTomorrow } = await client.query(
     `SELECT push.id, push.push_date, photo.image_url, push.memo, push.photo_id
@@ -399,9 +398,11 @@ const getTodayPush = async (client: any, userId: number) => {
     const result = tags.map((x) => x.name);
     i.tags = result;
     const data = {
-      push: i,
+      push: i
     };
-    tomorrowPush.push(data);
+    console.log(result);
+    
+   const asd =convertSnakeToCamel.keysToCamel(tomorrowPush.push(convertSnakeToCamel.keysToCamel(data)));
   }
 
   //지난 알림목록 개수
@@ -438,8 +439,8 @@ const getTodayPush = async (client: any, userId: number) => {
   pushTomorrow.map((x) => (x.push_date = convertDateForm(x.push_date)));
 
   const data = {
-    today: todayPush,
-    tomorrow: tomorrowPush,
+    today: {push : convertSnakeToCamel.keysToCamel(rows)},
+    tomorrow: {push : convertSnakeToCamel.keysToCamel(pushTomorrow)},
     todayTomorrowCount,
     lastCount: +last[0].count,
     comingCount: +come[0].count,
