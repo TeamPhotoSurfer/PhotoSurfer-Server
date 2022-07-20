@@ -35,9 +35,11 @@ const createPush = async (req: Request, res: Response) => {
     if (error == 403) {
       return res.status(statusCode.FORBIDDEN).send(util.fail(statusCode.FORBIDDEN, message.PUSH_DATE_ERROR));
     } else if (error == 404) {
-      return res.status(statusCode.NOT_FOUND).send(util.fail(statusCode.NOT_FOUND, message.NOT_FOUND));
+      return res.status(statusCode.NOT_FOUND).send(util.fail(statusCode.NOT_FOUND, message.NOT_FOUND_PHOTO));
     } else if (error == 400) {
       return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.PUSH_TAG_ERROR));
+    } else if (error == 409){
+      return res.status(statusCode.CONFLICT).send(util.fail(statusCode.CONFLICT, message.CONFLICT_PUSH));
     } else {
       return res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
     }

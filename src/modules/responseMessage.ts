@@ -1,6 +1,7 @@
 const message = {
   NULL_VALUE: "필요한 값이 없습니다.",
   NOT_FOUND: "존재하지 않는 자원",
+  NOT_FOUND_PHOTO: "사진이 존재하지 않습니다.",
   BAD_REQUEST: "잘못된 요청",
   INTERNAL_SERVER_ERROR: "서버 내부 오류",
   SUCCESS: "성공",
@@ -20,6 +21,8 @@ const message = {
 
   PUSH_DATE_ERROR: "푸시알림 설정 날짜는 오늘 날짜 이후여야 합니다.",
   PUSH_TAG_ERROR: "푸시알림 대표 태그는 1개 이상 3개 이하여야 합니다.",
+  CONFLICT_PUSH: "사진에 해당하는 푸시알림이 이미 존재합니다.",
+  
   BAD_REQUEST_UPDATE_TAG:
     "태그 업데이트는 일반 태그만 가능합니다. (플랫폼 태그 불가)",
   INVALID_TOKEN: "유효하지 않은 토큰",
@@ -34,6 +37,7 @@ const message = {
   ERROR_GET_OFTEN_TAG: "자주 검색한 태그 조회 실패",
   ERROR_GET_TAGS: "태그앨범 조회 실패",
   ERROR_CHANGE_TAG: "태그앨범 수정 실패",
+  
 
 };
 
