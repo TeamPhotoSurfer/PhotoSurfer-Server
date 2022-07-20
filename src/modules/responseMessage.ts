@@ -22,6 +22,7 @@ const message = {
   PUSH_TAG_ERROR: "푸시알림 대표 태그는 1개 이상 3개 이하여야 합니다.",
   BAD_REQUEST_UPDATE_TAG:
     "태그 업데이트는 일반 태그만 가능합니다. (플랫폼 태그 불가)",
+  INVALID_TOKEN: "유효하지 않은 토큰",
 };
 
 export default message;

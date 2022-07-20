@@ -1,16 +1,16 @@
-import express, { Request, Response } from "express";
-import { PushCreateRequest } from "../interfaces/push/request/PushCreateRequest";
-import message from "../modules/responseMessage";
-import statusCode from "../modules/statusCode";
-import util from "../modules/util";
-import pushService from "../services/PushService";
-const db = require("../loaders/db");
-const admin = require("firebase-admin");
-const pm = require("../modules/pushMessage");
-const pushAlarm = require("../modules/pushAlarm");
-import dayjs from "dayjs";
-import { validationResult } from "express-validator";
-import PushService from "../services/PushService";
+import express, { Request, Response } from 'express';
+import { PushCreateRequest } from '../interfaces/push/request/PushCreateRequest';
+import message from '../modules/responseMessage';
+import statusCode from '../modules/statusCode';
+import util from '../modules/util';
+import pushService from '../services/PushService';
+const db = require('../loaders/db');
+const admin = require('firebase-admin');
+const pm = require('../modules/pushMessage');
+const pushAlarm = require('../modules/pushAlarm');
+import dayjs from 'dayjs';
+import { validationResult } from 'express-validator';
+import PushService from '../services/PushService';
 
 /**
  * @route POST /push
@@ -18,7 +18,7 @@ import PushService from "../services/PushService";
  * @Access public
  */
 const createPush = async (req: Request, res: Response) => {
-  const userId = 2; //TODO :  변경하기 (임시로 해둠)
+  const userId = req.body.user.id;
   const photoId: number = req.params.photoId as unknown as number;
 
   const pushCreateRequest: PushCreateRequest = req.body;
@@ -28,39 +28,21 @@ const createPush = async (req: Request, res: Response) => {
   let client;
   try {
     client = await db.connect(req);
-    const result = await pushService.createPush(
-      client,
-      userId,
-      photoId,
-      pushCreateRequest
-    );
-    res
-      .status(statusCode.OK)
-      .send(util.success(statusCode.OK, message.SUCCESS, result));
+    const result = await pushService.createPush(client, userId, photoId, pushCreateRequest);
+    res.status(statusCode.OK).send(util.success(statusCode.OK, message.SUCCESS, result));
   } catch (error) {
     console.log(error);
     if (error == 403) {
-      res
-        .status(statusCode.FORBIDDEN)
-        .send(util.fail(statusCode.FORBIDDEN, message.PUSH_DATE_ERROR));
+      res.status(statusCode.FORBIDDEN).send(util.fail(statusCode.FORBIDDEN, message.PUSH_DATE_ERROR));
     } else if (error == 404) {
-      res
-        .status(statusCode.NOT_FOUND)
-        .send(util.fail(statusCode.NOT_FOUND, message.NOT_FOUND));
+      res.status(statusCode.NOT_FOUND).send(util.fail(statusCode.NOT_FOUND, message.NOT_FOUND));
     } else if (error == 400) {
-      res
-        .status(statusCode.BAD_REQUEST)
-        .send(util.fail(statusCode.BAD_REQUEST, message.PUSH_TAG_ERROR));
+      res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.PUSH_TAG_ERROR));
     } else {
-      res
-        .status(statusCode.INTERNAL_SERVER_ERROR)
-        .send(
-          util.fail(
-            statusCode.INTERNAL_SERVER_ERROR,
-            message.INTERNAL_SERVER_ERROR
-          )
-        );
+      res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
     }
+  } finally {
+    client.release();
   }
 };
 
@@ -70,48 +52,32 @@ const createPush = async (req: Request, res: Response) => {
  * @Access public
  */
 const getPushDetail = async (req: Request, res: Response) => {
-  const userId = 2; //TODO :  변경하기 (임시로 해둠)
+  const userId = req.body.user.id;
   const pushId: number = req.params.pushId as unknown as number;
 
   let client;
   try {
     client = await db.connect(req);
     const result = await pushService.getPushDetail(client, userId, pushId);
-    res
-      .status(statusCode.OK)
-      .send(util.success(statusCode.OK, message.SUCCESS, result));
+    res.status(statusCode.OK).send(util.success(statusCode.OK, message.SUCCESS, result));
   } catch (error) {
     console.log(error);
     if (error == 404) {
-      res
-        .status(statusCode.NOT_FOUND)
-        .send(util.fail(statusCode.NOT_FOUND, message.NOT_FOUND));
+      res.status(statusCode.NOT_FOUND).send(util.fail(statusCode.NOT_FOUND, message.NOT_FOUND));
     } else {
-      res
-        .status(statusCode.INTERNAL_SERVER_ERROR)
-        .send(
-          util.fail(
-            statusCode.INTERNAL_SERVER_ERROR,
-            message.INTERNAL_SERVER_ERROR
-          )
-        );
+      res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
     }
+  } finally {
+    client.release();
   }
 };
 
 //푸시알림 테스트
 const pushTest = async (req: Request, res: Response) => {
   //디바이스의 토큰 값
-  let target_token = [
-    `fngkHv04WEBem5K0SvxQLt:APA91bHSjh67rJqT_L3sr8eDNWcTed0NB-Dl59sPEC3ZzGKI8dJtosBfx2s07aTRJRk7rLCe85XUZI0uWrUXdQg53B-ivU7GC56ZlEUYgsIEAc50X5s3U4pEEg4d0TnHFXm_YG08sLWj`,
-  ];
+  let target_token = [`fngkHv04WEBem5K0SvxQLt:APA91bHSjh67rJqT_L3sr8eDNWcTed0NB-Dl59sPEC3ZzGKI8dJtosBfx2s07aTRJRk7rLCe85XUZI0uWrUXdQg53B-ivU7GC56ZlEUYgsIEAc50X5s3U4pEEg4d0TnHFXm_YG08sLWj`];
 
-  pushAlarm.sendPushAlarm(
-    pm.push9title,
-    pm.push9Desc,
-    "https://foo.bar.pizza-monster.png",
-    target_token
-  );
+  pushAlarm.sendPushAlarm(pm.push9title, pm.push9Desc, 'https://foo.bar.pizza-monster.png', target_token);
 };
 
 const pushPlan = async (req: Request, res: Response) => {
@@ -130,9 +96,9 @@ const pushPlan = async (req: Request, res: Response) => {
     const plan = await pushService.pushPlan(client, date1, date2);
     console.log(plan);
 
-    let token = plan.map((a) => a.fcm_token);
+    let token = plan.map(a => a.fcm_token);
     token = token.filter(function (item) {
-      return item !== null && item !== undefined && item !== "";
+      return item !== null && item !== undefined && item !== '';
     });
 
     //const testToken = `dr232n68QDWFQ1BY1fGEdh:APA91bGLSZmnD7EAjdseO68fjHXjy9ti2wM7_E6TiruyfgUnqjc5vnhcAeugoetFBGIvEf6QiuXH9KmwcZ2RznuoaEZm9MXHVHG2HtL3OeogyFR1JuBPxPnhjPrPe8wXRR9CtspjE8b8`;
@@ -172,27 +138,23 @@ const pushPlan = async (req: Request, res: Response) => {
 const getLastPush = async (req: Request, res: Response) => {
   const error = validationResult(req);
   if (!error.isEmpty()) {
-    return res
-      .status(statusCode.BAD_REQUEST)
-      .send(util.fail(statusCode.BAD_REQUEST, message.NULL_VALUE));
+    return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.NULL_VALUE));
   }
-  const userId = 1;
+  const userId = req.body.user.id;
 
   let client;
   try {
     client = await db.connect(req);
     const data = await PushService.getLastPush(client, userId);
     if (!data) {
-      return res
-        .status(statusCode.NOT_FOUND)
-        .send(util.fail(statusCode.NOT_FOUND, message.NOT_FOUND));
+      return res.status(statusCode.NOT_FOUND).send(util.fail(statusCode.NOT_FOUND, message.NOT_FOUND));
     }
-    res
-      .status(statusCode.OK)
-      .send(util.success(statusCode.OK, message.GET_LAST_PUSH, data));
+    res.status(statusCode.OK).send(util.success(statusCode.OK, message.GET_LAST_PUSH, data));
   } catch (error) {
     console.log(error);
     throw error;
+  } finally {
+    client.release();
   }
 };
 
@@ -205,27 +167,23 @@ const getLastPush = async (req: Request, res: Response) => {
 const getComePush = async (req: Request, res: Response) => {
   const error = validationResult(req);
   if (!error.isEmpty()) {
-    return res
-      .status(statusCode.BAD_REQUEST)
-      .send(util.fail(statusCode.BAD_REQUEST, message.NULL_VALUE));
+    return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.NULL_VALUE));
   }
-  const userId = 1;
+  const userId = req.body.user.id;
 
   let client;
   try {
     client = await db.connect(req);
     const data = await PushService.getComePush(client, userId);
     if (!data) {
-      return res
-        .status(statusCode.NOT_FOUND)
-        .send(util.fail(statusCode.NOT_FOUND, message.NOT_FOUND));
+      return res.status(statusCode.NOT_FOUND).send(util.fail(statusCode.NOT_FOUND, message.NOT_FOUND));
     }
-    res
-      .status(statusCode.OK)
-      .send(util.success(statusCode.OK, message.GET_COME_PUSH, data));
+    res.status(statusCode.OK).send(util.success(statusCode.OK, message.GET_COME_PUSH, data));
   } catch (error) {
     console.log(error);
     throw error;
+  } finally {
+    client.release();
   }
 };
 
@@ -238,27 +196,23 @@ const getComePush = async (req: Request, res: Response) => {
 const getTodayPush = async (req: Request, res: Response) => {
   const error = validationResult(req);
   if (!error.isEmpty()) {
-    return res
-      .status(statusCode.BAD_REQUEST)
-      .send(util.fail(statusCode.BAD_REQUEST, message.NULL_VALUE));
+    return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.NULL_VALUE));
   }
-  const userId = 1;
+  const userId = req.body.user.id;
 
   let client;
   try {
     client = await db.connect(req);
     const data = await PushService.getTodayPush(client, userId);
     if (!data) {
-      return res
-        .status(statusCode.NOT_FOUND)
-        .send(util.fail(statusCode.NOT_FOUND, message.NOT_FOUND));
+      return res.status(statusCode.NOT_FOUND).send(util.fail(statusCode.NOT_FOUND, message.NOT_FOUND));
     }
-    res
-      .status(statusCode.OK)
-      .send(util.success(statusCode.OK, message.GET_TODAY_PUSH, data));
+    res.status(statusCode.OK).send(util.success(statusCode.OK, message.GET_TODAY_PUSH, data));
   } catch (error) {
     console.log(error);
     throw error;
+  } finally {
+    client.release();
   }
 };
 

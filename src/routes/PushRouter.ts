@@ -1,14 +1,14 @@
-import { Router } from "express";
-import upload from "../config/multer";
-import PushController from "../controllers/PushController";
+import { Router } from 'express';
+import upload from '../config/multer';
+import PushController from '../controllers/PushController';
+import auth from '../middleware/auth';
 
 const router: Router = Router();
 
-router.post("/:photoId", PushController.createPush);
-router.get("/:pushId", PushController.getPushDetail);
-router.get("/test/p",PushController.pushPlan);
-router.get("/come", PushController.getComePush);
-router.get("/today", PushController.getTodayPush);
-router.get("/last", PushController.getLastPush);
-
+router.get('/test/p', PushController.pushPlan);
+router.get('/list/come', auth, PushController.getComePush);
+router.get('/list/today', auth, PushController.getTodayPush);
+router.get('/list/last', auth, PushController.getLastPush);
+router.post('/:photoId', auth, PushController.createPush);
+router.get('/:pushId', auth, PushController.getPushDetail);
 export default router;
