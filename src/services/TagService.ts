@@ -3,6 +3,7 @@ import { ConfigurationServicePlaceholders } from "aws-sdk/lib/config_service_pla
 import { PhotoPostDTO, PhotoReturnDTO } from "../DTO/photoDTO";
 import dayjs from "dayjs";
 import { TagnameUpdateRequest } from "../interfaces/tag/TagnameUpdateRequest";
+import { check } from "express-validator";
 
 const convertSnakeToCamel = require("../modules/convertSnakeToCamel");
 
@@ -118,16 +119,6 @@ const updateTag = async (
     console.log(newTagId);
   }
 
-  //수정 전 태그 Tag테이블에서 is_deleted = true로 변경하기 (태그 앨범에서는 한번에 다 변경되기 때문에 갯수를 체크할 필요 없음)
-  const { rows: updateLastTag } = await client.query(
-    `
-    UPDATE tag
-    SET is_deleted = true
-    WHERE id = $1
-    `,
-    [tagId]
-  );
-
   //이미 해당 태그에 존재하는 사진들을 모두 다 새로 생성된 태그로 이동해야 함 -> photo_tag tag_id를 이전 tagId에서 -> 새로 생성한 태그id로 update하기
   if (tagId !== newTagId) {
     const { rows: updateAllTag } = await client.query(
@@ -140,6 +131,16 @@ const updateTag = async (
     );
     console.log(updateAllTag[0]);
   }
+
+  //수정 전 태그 Tag테이블에서 is_deleted = true로 변경하기 (태그 앨범에서는 한번에 다 변경되기 때문에 갯수를 체크할 필요 없음)
+  const { rows: updateLastTag } = await client.query(
+    `
+    UPDATE tag
+    SET is_deleted = true
+    WHERE id = $1
+    `,
+    [tagId]
+  );
 
   //중복 데이터 처리
   //다 바꾸고 중복이면 하나 날리고, is_represent가 true인 것만 남기기
@@ -154,7 +155,7 @@ const updateTag = async (
   );
   console.log(checkDuplicate);
 
-  if(checkDuplicate){
+  if(checkDuplicate.length > 0){
     const { rows: duplicateData } = await client.query(
       `
       SELECT *
@@ -214,6 +215,18 @@ const deleteTag = async (
   userId: number,
   tagId: number
 ) => {
+  const { rows: checkExist } = await client.query(
+    `
+    SELECT *
+    FROM tag
+    WHERE tag.user_id = $1 AND tag.id = $2 AND tag.is_deleted = false
+    `,
+    [userId, tagId]
+  );
+  if(!checkExist[0]){
+    throw 404;
+  }
+
   const { rows: deletePhoto } = await client.query(
     `
     UPDATE photo
@@ -273,19 +286,42 @@ const getMainTags = async (client: any, userId: number) => {
     `,
     [userId, GENERAL]
   );
-  var platformTagArr = [{"id" : 0, "name" : "블로그"}, {"id" : 0, "name" : "카카오톡"}, {"id" : 0, "name" : "유튜브"}];
-  //TODO : 블로그, 카카오톡, 유튜브 태그 넣어두고 이거 id 각각 변경하기
+
+  const platFormTagMap = new Map<string, number>();
+  platFormTagMap.set("카카오톡",0);
+  platFormTagMap.set("유튜브",1);
+  platFormTagMap.set("인스타그램",2);
+  platFormTagMap.set("쇼핑몰",3);
+  platFormTagMap.set("커뮤니티",4);
+  platFormTagMap.set("기타",5);
+
   const { rows : platformTags } = await client.query(
     `
     SELECT *
     FROM tag
     WHERE user_id = $1 AND tag_type = $2
-    ORDER BY add_count DESC, name ASC
-    LIMIT 3
     `,
     [userId, PLATFORM]
   );
-  platformTags.map(x => platformTagArr.push({"id" : x.id, "name" : x.name}));
+
+  var platformObject = [];
+  platformTags.map(x => {
+    platformObject.push({
+      order : platFormTagMap.get(x.name),
+      tag : x
+    })
+  });
+  platformObject.sort(function(a,b){
+    return a.order - b.order;
+  });
+
+  var returnPlatform = [];
+
+  console.log(platformObject);
+  platformObject.map(x => {
+    returnPlatform.push({"id" : x.tag.id, "name" : x.tag.name});
+  })
+  //platformTags.map(x => platformTagArr.push({"id" : x.id, "name" : x.name}));
 
   const data = {
     "recent" : {
@@ -298,9 +334,9 @@ const getMainTags = async (client: any, userId: number) => {
         return {"id" : x.id, "name" : x.name}
       })
     },
-    // "platform" : {
-    //   "tags" : platformTagArr
-    // }
+    "platform" : {
+      "tags" : returnPlatform
+    }
   };
 
   return data;

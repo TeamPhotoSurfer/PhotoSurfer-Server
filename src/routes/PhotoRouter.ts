@@ -7,7 +7,7 @@ import auth from '../middleware/auth';
 const router: Router = Router();
 
 router.post('/', upload.single('file'), auth, PhotoController.createPhotoTag);
-
+router.put("/", auth, PhotoController.deletePhoto);
 router.get('/search', auth, PhotoController.findPhotoByTag);
 router.post('/menu/tag', auth, PhotoController.addPhotoTag);
 router.get('/tag', auth, PhotoController.getTag);

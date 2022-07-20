@@ -26,9 +26,9 @@ admin.initializeApp({
 
 const rule = new schedule.RecurrenceRule();
 rule.dayOfWeek = [0, new schedule.Range(0, 6)];
-rule.hour = 13;
-rule.minute = 54;
-rule.tz = 'Asia/Seoul';
+rule.hour = 8;
+rule.minute = 0;
+rule.tz = "Asia/Seoul";
 const job = schedule.scheduleJob(rule, PushController.pushPlan);
 
 app.use(function (err: ErrorType, req: Request, res: Response, next: NextFunction) {

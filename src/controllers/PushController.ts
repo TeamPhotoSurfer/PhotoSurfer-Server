@@ -33,13 +33,15 @@ const createPush = async (req: Request, res: Response) => {
   } catch (error) {
     console.log(error);
     if (error == 403) {
-      res.status(statusCode.FORBIDDEN).send(util.fail(statusCode.FORBIDDEN, message.PUSH_DATE_ERROR));
+      return res.status(statusCode.FORBIDDEN).send(util.fail(statusCode.FORBIDDEN, message.PUSH_DATE_ERROR));
     } else if (error == 404) {
-      res.status(statusCode.NOT_FOUND).send(util.fail(statusCode.NOT_FOUND, message.NOT_FOUND));
+      return res.status(statusCode.NOT_FOUND).send(util.fail(statusCode.NOT_FOUND, message.NOT_FOUND_PHOTO));
     } else if (error == 400) {
-      res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.PUSH_TAG_ERROR));
+      return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.PUSH_TAG_ERROR));
+    } else if (error == 409){
+      return res.status(statusCode.CONFLICT).send(util.fail(statusCode.CONFLICT, message.CONFLICT_PUSH));
     } else {
-      res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
+      return res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
     }
   } finally {
     client.release();
@@ -63,9 +65,9 @@ const getPushDetail = async (req: Request, res: Response) => {
   } catch (error) {
     console.log(error);
     if (error == 404) {
-      res.status(statusCode.NOT_FOUND).send(util.fail(statusCode.NOT_FOUND, message.NOT_FOUND));
+      return res.status(statusCode.NOT_FOUND).send(util.fail(statusCode.NOT_FOUND, message.NOT_FOUND));
     } else {
-      res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
+      return res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
     }
   } finally {
     client.release();
@@ -101,12 +103,27 @@ const pushPlan = async (req: Request, res: Response) => {
       return item !== null && item !== undefined && item !== '';
     });
 
-    plan.map(x => {
-      pushAlarm.sendPushAlarm('서퍼님, 잊지마세요!', pm.push9Desc, 'https://foo.bar.pizza-monster.png', testToken);
+    //const testToken = `dr232n68QDWFQ1BY1fGEdh:APA91bGLSZmnD7EAjdseO68fjHXjy9ti2wM7_E6TiruyfgUnqjc5vnhcAeugoetFBGIvEf6QiuXH9KmwcZ2RznuoaEZm9MXHVHG2HtL3OeogyFR1JuBPxPnhjPrPe8wXRR9CtspjE8b8`;
+
+    plan.map((x) => {
+      
+      if((x.fcm_token !== null && x.fcm_token !== undefined && x.fcm_token !== "")){
+        const testToken = [];
+        testToken.push(x.fcm_token);
+        pushAlarm.sendPushAlarm(
+          "서퍼님, 잊지마세요!",
+          x.photo_tag,
+          x.memo,
+          x.image_url,
+          testToken,
+          x.pushId
+        );
+      }
     });
-    const testToken = [`fngkHv04WEBem5K0SvxQLt:APA91bHSjh67rJqT_L3sr8eDNWcTed0NB-Dl59sPEC3ZzGKI8dJtosBfx2s07aTRJRk7rLCe85XUZI0uWrUXdQg53B-ivU7GC56ZlEUYgsIEAc50X5s3U4pEEg4d0TnHFXm_YG08sLWj`];
-    pushAlarm.sendPushAlarm(pm.push9title, pm.push9Desc, 'https://foo.bar.pizza-monster.png', testToken);
-    res.status(statusCode.OK).send(util.success(statusCode.OK, message.SUCCESS, plan));
+
+    res
+      .status(statusCode.OK)
+      .send(util.success(statusCode.OK, message.SUCCESS, plan));
   } catch (error) {
     console.log(error);
   } finally {

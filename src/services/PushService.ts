@@ -21,6 +21,19 @@ const createPush = async (
     throw 403;
   }
 
+  //사진에 대한 푸시가 존재하는지 에러처리
+  const { rows: checkPushExist } = await client.query(
+    `
+      SELECT *
+      FROM push
+      WHERE user_id = $1 AND photo_id = $2 AND is_deleted = false
+    `,
+    [userId, photoId]
+  );
+  if(checkPushExist[0]){
+    throw 409;
+  }
+
   //사진 존재하는지 에러처리
   const { rows: checkPhotoExist } = await client.query(
     `
@@ -122,14 +135,14 @@ const getPushDetail = async (client: any, userId: number, pushId: number) => {
     );
     tagReturn = tagsNotRepresent.map((x) => {
       return {
-        tagId: x.tag_id,
+        id: x.tag_id,
         tagName: x.name,
       };
     });
   } else {
     tagReturn = tags.map((x) => {
       return {
-        tagId: x.tag_id,
+        id: x.tag_id,
         tagName: x.name,
       };
     });
@@ -152,7 +165,7 @@ const getPushDetail = async (client: any, userId: number, pushId: number) => {
 const pushPlan = async (client, date1, date2) => {
   const { rows: tokenAndImage } = await client.query(
     ` 
-          SELECT u.fcm_token, photo.id, photo.image_url, push.id as pushId
+          SELECT u.fcm_token, photo.id, photo.image_url, push.id as pushId, push.memo
           FROM push, "user" u, photo
           WHERE $1 <= push.push_date AND push.push_date < $2 AND push.is_deleted = false
           AND push.user_id = u.id AND photo.user_id = u.id 
@@ -173,8 +186,6 @@ const pushPlan = async (client, date1, date2) => {
           AND photo_tag.tag_id = tag.id AND tag.is_deleted = false
           `
   );
-  //console.log(tags);
-  //이 태그들 중에서 is_represent가 true인거 넣기
 
   const tagMap = new Map<number, Array<string>>();
   tags.map((x) => {
@@ -182,20 +193,51 @@ const pushPlan = async (client, date1, date2) => {
       var arr = [];
       arr.push(x.name);
       tagMap.set(x.photo_id, arr);
-    } else {
+    } else if (tagMap.get(x.photo_id).length < 3) {
       var arr: any[] = tagMap.get(x.photo_id);
       arr.push(x.name);
       tagMap.set(x.photo_id, arr);
     }
   });
-  //console.log(tagMap);
+  console.log("+++" + tagMap);
+
+  //photo의 태그 갯수가 0개면 orderby created_at, limit 3하기
+  for (let i = 0; i < photoIds.length; i++) {
+    if (typeof tagMap.get(photoIds[i]) === "undefined") {
+      console.log("대표태그없음");
+      const { rows: tagsNotRepresent } = await client.query(
+        `
+          SELECT photo_tag.tag_id, tag.name
+          FROM photo_tag, tag
+          where photo_tag.is_deleted = false 
+          AND photo_tag.photo_id = $1
+          AND photo_tag.tag_id = tag.id
+          ORDER BY photo_tag.created_at
+          LIMIT 3;
+        `,
+        [photoIds[i]]
+      );
+
+      var arr = [];
+      tagsNotRepresent.map((x) => {
+        arr.push(x.name);
+      });
+      tagMap.set(photoIds[i], arr);
+    }
+  }
 
   const data = tokenAndImage.map((x) => {
+    var tagString: string = "";
+    tagMap.get(x.id).map((y) => {
+      tagString += "#" + y;
+      tagString += " ";
+    });
     return {
       push_id: x.pushid,
       fcm_token: x.fcm_token,
-      photo_id: x.id,
-      photo_tag: tagMap.get(x.id),
+      photo_tag: tagString,
+      image_url: x.image_url,
+      memo: x.memo,
     };
   });
 
@@ -285,7 +327,6 @@ const getComePush = async (client: any, userId: number) => {
     totalCount,
   };
 
-
   return convertSnakeToCamel.keysToCamel(data);
 };
 
@@ -303,6 +344,8 @@ const getTodayPush = async (client: any, userId: number) => {
   dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
   dayAfterTomorrow.setHours(0, 0, 0, 0);
 
+  let todayPush = [];
+  let tomorrowPush = [];
   //다가오는 알림 "오늘"
   const { rows } = await client.query(
     `SELECT push.id, push.push_date, photo.image_url, push.memo, push.photo_id
@@ -326,6 +369,10 @@ const getTodayPush = async (client: any, userId: number) => {
     );
     const result = tags.map((x) => x.name);
     i.tags = result;
+    const data = {
+      push: i,
+    };
+    todayPush.push(data);
   }
   //다가오는 알림 "내일"
   const { rows: pushTomorrow } = await client.query(
@@ -351,6 +398,10 @@ const getTodayPush = async (client: any, userId: number) => {
     );
     const result = tags.map((x) => x.name);
     i.tags = result;
+    const data = {
+      push: i,
+    };
+    tomorrowPush.push(data);
   }
 
   //지난 알림목록 개수
@@ -387,14 +438,14 @@ const getTodayPush = async (client: any, userId: number) => {
   pushTomorrow.map((x) => (x.push_date = convertDateForm(x.push_date)));
 
   const data = {
-    today: convertSnakeToCamel.keysToCamel(rows),
-    tomorrow: convertSnakeToCamel.keysToCamel(pushTomorrow),
+    today: todayPush,
+    tomorrow: tomorrowPush,
     todayTomorrowCount,
     lastCount: +last[0].count,
     comingCount: +come[0].count,
   };
   console.log(data);
-  
+
   return convertSnakeToCamel.keysToCamel(data);
 };
 

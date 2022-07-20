@@ -24,7 +24,7 @@ const getTagNames = async (req: Request, res: Response) => {
     res.status(statusCode.OK).send(util.success(statusCode.OK, message.SUCCESS, result));
   } catch (error) {
     console.log(error);
-    res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
+    return res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
   } finally {
     client.release();
   }
@@ -49,11 +49,11 @@ const updateTag = async (req: Request, res: Response) => {
   } catch (error) {
     console.log(error);
     if (error == 400) {
-      res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.BAD_REQUEST_UPDATE_TAG));
+      return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.BAD_REQUEST_UPDATE_TAG));
     } else if (error == 404) {
-      res.status(statusCode.NOT_FOUND).send(util.fail(statusCode.NOT_FOUND, message.NOT_FOUND));
+      return res.status(statusCode.NOT_FOUND).send(util.fail(statusCode.NOT_FOUND, message.NOT_FOUND));
     } else {
-      res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
+      return res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
     }
   } finally {
     client.release();
@@ -77,7 +77,12 @@ const deleteTag = async (req: Request, res: Response) => {
     res.status(statusCode.OK).send(util.success(statusCode.OK, message.SUCCESS, result));
   } catch (error) {
     console.log(error);
-    res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
+    if(error == 404){
+      return res.status(statusCode.NOT_FOUND).send(util.fail(statusCode.NOT_FOUND, message.NOT_FOUND));
+    }
+    else{
+      return res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
+    }
   } finally {
     client.release();
   }
@@ -95,10 +100,10 @@ const getMainTags = async (req: Request, res: Response) => {
   try {
     client = await db.connect(req);
     const result = await tagService.getMainTags(client, userId);
-    res.status(statusCode.OK).send(util.success(statusCode.OK, message.SUCCESS, result));
+    res.status(statusCode.OK).send(util.success(statusCode.OK, message.SUCCESS_GET_MAIN_TAG, result));
   } catch (error) {
     console.log(error);
-    res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
+    return res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.ERROR_GET_MAIN_TAG));
   } finally {
     client.release();
   }
@@ -111,15 +116,16 @@ const getMainTags = async (req: Request, res: Response) => {
  */
 const getOftenSearchTags = async (req: Request, res: Response) => {
   const userId = req.body.user.id;
-
+  console.log(userId);
+  
   let client;
   try {
     client = await db.connect(req);
     const result = await tagService.getOftenSearchTags(client, userId);
-    res.status(statusCode.OK).send(util.success(statusCode.OK, message.SUCCESS, result));
+    res.status(statusCode.OK).send(util.success(statusCode.OK, message.SUCCESS_GET_OFTEN_TAG, result));
   } catch (error) {
     console.log(error);
-    res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
+    return res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.ERROR_GET_OFTEN_TAG));
   } finally {
     client.release();
   }
@@ -180,7 +186,9 @@ const deleteBookmark = async (req: Request, res: Response) => {
     if (error == 400) {
       return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.BOOKMARK_DELETE_ERROR));
     }
-    res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
+    else{
+      res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
+    }
   } finally {
     client.release();
   }
