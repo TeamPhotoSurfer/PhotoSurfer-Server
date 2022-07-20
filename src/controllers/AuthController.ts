@@ -14,7 +14,7 @@ import jwtHandler from '../modules/jwtHandler';
  *  @access Private
  */
 const getKakaoUser = async (req: Request, res: Response) => {
-  const { socialToken, socialType } = req.body;
+  const { socialToken, socialType, fcm } = req.body;
 
   let client;
 
@@ -32,40 +32,25 @@ const getKakaoUser = async (req: Request, res: Response) => {
       name: user.data.kakao_account.name,
       email,
       socialType: socialType,
-      fcmToken: user.data.kakao_account.fcmToken,
-      push: user.data.kakao_account.push,
+      fcmToken: fcm,
     };
     if (!checkUser) {
       //DB에 없는 유저 새로 생성 후 토큰 발급
       const newUser = await AuthService.createUser(client, data);
-      console.log(newUser.id + '!!!');
       const jwtToken = jwtHandler.getToken(newUser.id);
-
-      return res.status(statusCode.OK).json({
-        status: statusCode.OK,
-        success: true,
-        message: '유저 생성 성공',
-        data: {
-          user: newUser,
-          token: jwtToken,
-          socialToken: socialToken,
-        },
-      });
+      return res.status(statusCode.OK).send(util.success(statusCode.OK, message.SUCCESS, { newUser, accesstoken: jwtToken }));
     }
+    const checkFcm = checkUser.fcmToken;
+    console.log(checkFcm);
+    console.log(fcm);
     // DB에 존재하는 유저는 토큰 발급 후 전달
+    if (checkFcm !== fcm) {
+      const newFcm = await AuthService.updateFcm(client, fcm, checkUser.id);
+      checkUser.fcmToken = newFcm.fcmToken;
+    }
     const jwtToken = jwtHandler.getToken(checkUser.id);
-    console.log(checkUser.id + '!!');
 
-    return res.status(statusCode.OK).json({
-      status: statusCode.OK,
-      success: true,
-      message: '유저 로그인 성공',
-      data: {
-        user: checkUser,
-        token: jwtToken,
-        accessToken: socialToken,
-      },
-    });
+    return res.status(statusCode.OK).send(util.success(statusCode.OK, message.SUCCESS, { checkUser, accesstoken: jwtToken }));
   } catch (error) {
     console.log(error);
     res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));

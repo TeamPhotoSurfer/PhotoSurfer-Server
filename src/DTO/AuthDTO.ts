@@ -11,7 +11,6 @@ export interface IUserInputDTO {
 export interface userInputDTO {
   name: String;
   email: String;
-  socialType?: string;
+  socialType: string;
   fcmToken?: string;
-  push?: boolean;
 }
