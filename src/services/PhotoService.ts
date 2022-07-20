@@ -4,6 +4,7 @@ import { ConfigurationServicePlaceholders } from 'aws-sdk/lib/config_service_pla
 import { EventListenerTypes } from 'typeorm/metadata/types/EventListenerTypes';
 import { PhotoPostDTO, PhotoReturnDTO } from '../DTO/photoDTO';
 import dayjs from 'dayjs';
+import { count } from 'console';
 
 const convertSnakeToCamel = require('../modules/convertSnakeToCamel');
 
@@ -155,7 +156,28 @@ const addPhotoTag = async (client: any, userId: number, photoId: string[] | stri
     [name, userId],
   );
   let tagId;
+  let photoIdArr = [];
+
+  if (typeof photoId === 'string') {
+    photoIdArr.push(photoId);
+  } else {
+    photoIdArr = photoId;
+  }
+
+  const { rows: checkPhoto } = await client.query(
+    `
+    SELECT *
+    FROM photo
+    WHERE id in (${photoIdArr}) AND user_id = $1
+    `,
+    [userId],
+  );
+
+  if (!checkPhoto[0]) {
+    throw 404;
+  }
   const photoCount = photoId.length;
+  console.log(photoCount);
   if (!checkedTag[0]) {
     const { rows: newTag } = await client.query(
       `
@@ -204,7 +226,7 @@ const addPhotoTag = async (client: any, userId: number, photoId: string[] | stri
     throw 400;
   }
 
-  for (let i of photoId) {
+  for (let i of photoIdArr) {
     const { rows } = await client.query(
       `
         INSERT INTO photo_tag(tag_id, photo_id)

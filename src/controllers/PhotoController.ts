@@ -45,7 +45,7 @@ const findPhotoByTag = async (req: Request, res: Response) => {
   const tagId = req.query.id as string;
 
   if (!tagId) {
-    return res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
+    return res.status(statusCode.NO_CONTENT).send(util.fail(statusCode.NO_CONTENT, message.NULL_VALUE));
   }
   try {
     client = await db.connect(req);
@@ -99,8 +99,10 @@ const addPhotoTag = async (req: Request, res: Response) => {
     res.status(statusCode.OK).send(util.success(statusCode.OK, message.SUCCESS, tag));
   } catch (error) {
     console.log(error);
-    if (error == 400) {
+    if (error === 400) {
       return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.BAD_REQUEST));
+    } else if (error === 404) {
+      return res.status(statusCode.NOT_FOUND).send(util.fail(statusCode.NOT_FOUND, message.NOT_FOUND));
     }
     res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
   } finally {
