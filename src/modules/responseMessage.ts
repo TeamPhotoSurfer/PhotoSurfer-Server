@@ -39,6 +39,9 @@ const message = {
   ERROR_CHANGE_TAG: "태그앨범 수정 실패",
   
 
+
+  DELETE_PHOTO_SUCCESS: '사진 삭제 성공',
+  PHOTO_DELETE_ERROR: '사진 삭제 실패',
 };
 
 export default message;
