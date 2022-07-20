@@ -23,6 +23,18 @@ const message = {
   BAD_REQUEST_UPDATE_TAG:
     "태그 업데이트는 일반 태그만 가능합니다. (플랫폼 태그 불가)",
   INVALID_TOKEN: "유효하지 않은 토큰",
+
+  SUCCESS_GET_MAIN_TAG: "최근 추가한 태그, 자주 추가한 태그, 플랫폼 유형 태그 조회 성공",
+  SUCCESS_GET_OFTEN_TAG: "자주 검색한 태그 조회 성공",
+  SUCCESS_GET_TAGS: "태그앨범 조회 성공",
+  SUCCESS_CHANGE_TAG: "태그명 수정 성공",
+
+
+  ERROR_GET_MAIN_TAG: "최근 추가한 태그, 자주 추가한 태그, 플랫폼 유형 태그 조회 실패",
+  ERROR_GET_OFTEN_TAG: "자주 검색한 태그 조회 실패",
+  ERROR_GET_TAGS: "태그앨범 조회 실패",
+  ERROR_CHANGE_TAG: "태그앨범 수정 실패",
+
 };
 
 export default message;

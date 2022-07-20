@@ -33,13 +33,13 @@ const createPush = async (req: Request, res: Response) => {
   } catch (error) {
     console.log(error);
     if (error == 403) {
-      res.status(statusCode.FORBIDDEN).send(util.fail(statusCode.FORBIDDEN, message.PUSH_DATE_ERROR));
+      return res.status(statusCode.FORBIDDEN).send(util.fail(statusCode.FORBIDDEN, message.PUSH_DATE_ERROR));
     } else if (error == 404) {
-      res.status(statusCode.NOT_FOUND).send(util.fail(statusCode.NOT_FOUND, message.NOT_FOUND));
+      return res.status(statusCode.NOT_FOUND).send(util.fail(statusCode.NOT_FOUND, message.NOT_FOUND));
     } else if (error == 400) {
-      res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.PUSH_TAG_ERROR));
+      return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.PUSH_TAG_ERROR));
     } else {
-      res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
+      return res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
     }
   } finally {
     client.release();
@@ -63,9 +63,9 @@ const getPushDetail = async (req: Request, res: Response) => {
   } catch (error) {
     console.log(error);
     if (error == 404) {
-      res.status(statusCode.NOT_FOUND).send(util.fail(statusCode.NOT_FOUND, message.NOT_FOUND));
+      return res.status(statusCode.NOT_FOUND).send(util.fail(statusCode.NOT_FOUND, message.NOT_FOUND));
     } else {
-      res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
+      return res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
     }
   } finally {
     client.release();
