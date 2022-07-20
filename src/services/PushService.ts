@@ -21,6 +21,19 @@ const createPush = async (
     throw 403;
   }
 
+  //사진에 대한 푸시가 존재하는지 에러처리
+  const { rows: checkPushExist } = await client.query(
+    `
+      SELECT *
+      FROM push
+      WHERE user_id = $1 AND photo_id = $2 AND is_deleted = false
+    `,
+    [userId, photoId]
+  );
+  if(checkPushExist[0]){
+    throw 409;
+  }
+
   //사진 존재하는지 에러처리
   const { rows: checkPhotoExist } = await client.query(
     `
@@ -122,14 +135,14 @@ const getPushDetail = async (client: any, userId: number, pushId: number) => {
     );
     tagReturn = tagsNotRepresent.map((x) => {
       return {
-        tagId: x.tag_id,
+        id: x.tag_id,
         tagName: x.name,
       };
     });
   } else {
     tagReturn = tags.map((x) => {
       return {
-        tagId: x.tag_id,
+        id: x.tag_id,
         tagName: x.name,
       };
     });
