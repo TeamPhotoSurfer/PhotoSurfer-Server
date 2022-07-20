@@ -180,17 +180,17 @@ const pushPlan = async (client, date1, date2) => {
       var arr = [];
       arr.push(x.name);
       tagMap.set(x.photo_id, arr);
-    } else if(tagMap.get(x.photo_id).length < 3 ){
+    } else if (tagMap.get(x.photo_id).length < 3) {
       var arr: any[] = tagMap.get(x.photo_id);
       arr.push(x.name);
       tagMap.set(x.photo_id, arr);
     }
   });
-  console.log("+++"+tagMap);
+  console.log("+++" + tagMap);
 
   //photo의 태그 갯수가 0개면 orderby created_at, limit 3하기
-  for(let i = 0; i < photoIds.length ; i++){
-    if(typeof tagMap.get(photoIds[i]) === "undefined"){
+  for (let i = 0; i < photoIds.length; i++) {
+    if (typeof tagMap.get(photoIds[i]) === "undefined") {
       console.log("대표태그없음");
       const { rows: tagsNotRepresent } = await client.query(
         `
@@ -206,26 +206,25 @@ const pushPlan = async (client, date1, date2) => {
       );
 
       var arr = [];
-      tagsNotRepresent.map(x => {
+      tagsNotRepresent.map((x) => {
         arr.push(x.name);
-      })
-      tagMap.set(photoIds[i],arr);
+      });
+      tagMap.set(photoIds[i], arr);
     }
   }
-  
 
   const data = tokenAndImage.map((x) => {
     var tagString: string = "";
-    tagMap.get(x.id).map(y => {
+    tagMap.get(x.id).map((y) => {
       tagString += "#" + y;
       tagString += " ";
-    })
+    });
     return {
       push_id: x.pushid,
       fcm_token: x.fcm_token,
       photo_tag: tagString,
       image_url: x.image_url,
-      memo: x.memo
+      memo: x.memo,
     };
   });
 
@@ -315,7 +314,6 @@ const getComePush = async (client: any, userId: number) => {
     totalCount,
   };
 
-
   return convertSnakeToCamel.keysToCamel(data);
 };
 
@@ -333,6 +331,8 @@ const getTodayPush = async (client: any, userId: number) => {
   dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
   dayAfterTomorrow.setHours(0, 0, 0, 0);
 
+  let todayPush = [];
+  let tomorrowPush = [];
   //다가오는 알림 "오늘"
   const { rows } = await client.query(
     `SELECT push.id, push.push_date, photo.image_url, push.memo, push.photo_id
@@ -356,6 +356,10 @@ const getTodayPush = async (client: any, userId: number) => {
     );
     const result = tags.map((x) => x.name);
     i.tags = result;
+    const data = {
+      push: i,
+    };
+    todayPush.push(data);
   }
   //다가오는 알림 "내일"
   const { rows: pushTomorrow } = await client.query(
@@ -381,6 +385,10 @@ const getTodayPush = async (client: any, userId: number) => {
     );
     const result = tags.map((x) => x.name);
     i.tags = result;
+    const data = {
+      push: i,
+    };
+    tomorrowPush.push(data);
   }
 
   //지난 알림목록 개수
@@ -417,14 +425,14 @@ const getTodayPush = async (client: any, userId: number) => {
   pushTomorrow.map((x) => (x.push_date = convertDateForm(x.push_date)));
 
   const data = {
-    today: convertSnakeToCamel.keysToCamel(rows),
-    tomorrow: convertSnakeToCamel.keysToCamel(pushTomorrow),
+    today: todayPush,
+    tomorrow: tomorrowPush,
     todayTomorrowCount,
     lastCount: +last[0].count,
     comingCount: +come[0].count,
   };
   console.log(data);
-  
+
   return convertSnakeToCamel.keysToCamel(data);
 };
 
