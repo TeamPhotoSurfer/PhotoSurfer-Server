@@ -16,7 +16,9 @@ const db = require('../loaders/db');
 //태그 조회하기 ->
 const getTagNames = async (req: Request, res: Response) => {
   const userId = req.body.user.id;
-
+  if (!userId) {
+    return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.BAD_REQUEST));
+  }
   let client;
   try {
     client = await db.connect(req);
@@ -37,7 +39,9 @@ const getTagNames = async (req: Request, res: Response) => {
  */
 const updateTag = async (req: Request, res: Response) => {
   const userId = req.body.user.id;
-
+  if (!userId) {
+    return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.BAD_REQUEST));
+  }
   let client;
   try {
     client = await db.connect(req);
@@ -67,7 +71,9 @@ const updateTag = async (req: Request, res: Response) => {
  */
 const deleteTag = async (req: Request, res: Response) => {
   const userId = req.body.user.id;
-
+  if (!userId) {
+    return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.BAD_REQUEST));
+  }
   let client;
   try {
     client = await db.connect(req);
@@ -77,10 +83,9 @@ const deleteTag = async (req: Request, res: Response) => {
     res.status(statusCode.OK).send(util.success(statusCode.OK, message.SUCCESS, result));
   } catch (error) {
     console.log(error);
-    if(error == 404){
+    if (error == 404) {
       return res.status(statusCode.NOT_FOUND).send(util.fail(statusCode.NOT_FOUND, message.NOT_FOUND));
-    }
-    else{
+    } else {
       return res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
     }
   } finally {
@@ -95,7 +100,9 @@ const deleteTag = async (req: Request, res: Response) => {
  */
 const getMainTags = async (req: Request, res: Response) => {
   const userId = req.body.user.id;
-
+  if (!userId) {
+    return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.BAD_REQUEST));
+  }
   let client;
   try {
     client = await db.connect(req);
@@ -117,7 +124,10 @@ const getMainTags = async (req: Request, res: Response) => {
 const getOftenSearchTags = async (req: Request, res: Response) => {
   const userId = req.body.user.id;
   console.log(userId);
-  
+
+  if (!userId) {
+    return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.BAD_REQUEST));
+  }
   let client;
   try {
     client = await db.connect(req);
@@ -144,7 +154,9 @@ const addBookmark = async (req: Request, res: Response) => {
   let client;
   const userId = req.body.user.id;
   const tagId: number = req.params.tagId as unknown as number;
-
+  if (!tagId || !userId) {
+    return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.BAD_REQUEST));
+  }
   try {
     client = await db.connect(req);
     await TagService.addBookmark(client, userId, tagId);
@@ -175,7 +187,9 @@ const deleteBookmark = async (req: Request, res: Response) => {
   let client;
   const userId = req.body.user.id;
   const tagId: number = req.params.tagId as unknown as number;
-
+  if (!tagId || !userId) {
+    return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.BAD_REQUEST));
+  }
   try {
     client = await db.connect(req);
     await TagService.deleteBookmark(client, userId, tagId);
@@ -185,8 +199,7 @@ const deleteBookmark = async (req: Request, res: Response) => {
     console.log(error);
     if (error == 400) {
       return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.BOOKMARK_DELETE_ERROR));
-    }
-    else{
+    } else {
       res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
     }
   } finally {

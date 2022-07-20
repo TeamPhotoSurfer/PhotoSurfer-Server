@@ -15,8 +15,11 @@ const createPhotoTag = async (req: Request, res: Response) => {
   const { originalname, location } = image;
   const userId = req.body.user.id;
   console.log(userId);
-
-  let tags: PhotoPostDTO[] = JSON.parse(JSON.stringify(req.body.tags));
+  const tag = req.body.tag;
+  if (!tag || !userId || !location) {
+    return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.BAD_REQUEST));
+  }
+  let tags: PhotoPostDTO[] = JSON.parse(JSON.stringify(tag));
   try {
     client = await db.connect(req);
     const photo = await photoService.createPhotoTag(client, userId, location, tags);
@@ -41,11 +44,10 @@ const createPhotoTag = async (req: Request, res: Response) => {
 const findPhotoByTag = async (req: Request, res: Response) => {
   let client;
   const userId = req.body.user.id;
-
   const tagId = req.query.id as string;
 
-  if (!tagId) {
-    return res.status(statusCode.NO_CONTENT).send(util.fail(statusCode.NO_CONTENT, message.NULL_VALUE));
+  if (!tagId || !userId) {
+    return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.BAD_REQUEST));
   }
   try {
     client = await db.connect(req);
@@ -71,6 +73,9 @@ const getPhoto = async (req: Request, res: Response) => {
   let client;
   const userId = req.body.user.id;
   const photoId: number = req.params.photoId as unknown as number;
+  if (!photoId || !userId) {
+    return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.BAD_REQUEST));
+  }
   try {
     client = await db.connect(req);
     const photo = await photoService.getPhotoById(client, photoId, userId);
@@ -92,6 +97,10 @@ const addPhotoTag = async (req: Request, res: Response) => {
   const userId = req.body.user.id;
   const photoId = req.query.id as string;
   const { name, type } = req.body;
+
+  if (!photoId || !userId || !name || !type) {
+    return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.BAD_REQUEST));
+  }
   try {
     client = await db.connect(req);
     const tag = await photoService.addPhotoTag(client, userId, photoId, name, type);
@@ -115,6 +124,10 @@ const deletePhotoTag = async (req: Request, res: Response) => {
   const tagId: number = req.params.tagId as unknown as number;
   const photoIds: number[] = req.body.photoIds;
   const userId = req.body.user.id;
+
+  if (!photoIds || !userId || !tagId) {
+    return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.BAD_REQUEST));
+  }
   try {
     client = await db.connect(req);
     const tag = await photoService.deletedPhotoTag(client, userId, tagId, photoIds);
@@ -135,6 +148,9 @@ const updatePhotoTag = async (req: Request, res: Response) => {
   const { name, tagType } = req.body;
   const photoIds: number[] = req.body.photoIds;
 
+  if (!tagId || !userId || !name || !tagType || !photoIds) {
+    return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.BAD_REQUEST));
+  }
   try {
     client = await db.connect(req);
 
@@ -153,6 +169,9 @@ const updatePhotoTag = async (req: Request, res: Response) => {
 const getTag = async (req: Request, res: Response) => {
   let client;
   const userId = req.body.user.id;
+  if (!userId) {
+    return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.BAD_REQUEST));
+  }
   try {
     client = await db.connect(req);
 
@@ -177,6 +196,9 @@ const deletePhoto = async (req: Request, res: Response) => {
   let client;
   const userId = req.body.user.id;
 
+  if (!photoId || !userId) {
+    return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.BAD_REQUEST));
+  }
   try {
     client = await db.connect(req);
 
