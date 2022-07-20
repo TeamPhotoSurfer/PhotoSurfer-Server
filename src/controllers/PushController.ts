@@ -23,7 +23,9 @@ const createPush = async (req: Request, res: Response) => {
 
   const pushCreateRequest: PushCreateRequest = req.body;
 
-  console.log(photoId);
+  if (!userId || !photoId || !pushCreateRequest) {
+    return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.BAD_REQUEST));
+  }
 
   let client;
   try {
@@ -57,6 +59,9 @@ const getPushDetail = async (req: Request, res: Response) => {
   const userId = req.body.user.id;
   const pushId: number = req.params.pushId as unknown as number;
 
+  if (!userId || !pushId) {
+    return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.BAD_REQUEST));
+  }
   let client;
   try {
     client = await db.connect(req);
@@ -138,12 +143,10 @@ const pushPlan = async (req: Request, res: Response) => {
  */
 //지난 푸시알림
 const getLastPush = async (req: Request, res: Response) => {
-  const error = validationResult(req);
-  if (!error.isEmpty()) {
-    return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.NULL_VALUE));
-  }
   const userId = req.body.user.id;
-
+  if (!userId) {
+    return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.BAD_REQUEST));
+  }
   let client;
   try {
     client = await db.connect(req);
@@ -167,12 +170,10 @@ const getLastPush = async (req: Request, res: Response) => {
  */
 // 다가오는 알림 조회
 const getComePush = async (req: Request, res: Response) => {
-  const error = validationResult(req);
-  if (!error.isEmpty()) {
-    return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.NULL_VALUE));
-  }
   const userId = req.body.user.id;
-
+  if (!userId) {
+    return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.BAD_REQUEST));
+  }
   let client;
   try {
     client = await db.connect(req);
@@ -196,13 +197,12 @@ const getComePush = async (req: Request, res: Response) => {
  */
 // 임박한 목록 조회
 const getTodayPush = async (req: Request, res: Response) => {
-  const error = validationResult(req);
-  if (!error.isEmpty()) {
-    return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.NULL_VALUE));
-  }
   const userId = req.body.user.id;
-
+2
   let client;
+  if (!userId) {
+    return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.BAD_REQUEST));
+  }
   try {
     client = await db.connect(req);
     const data = await PushService.getTodayPush(client, userId);
