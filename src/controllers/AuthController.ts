@@ -40,10 +40,9 @@ const getKakaoUser = async (req: Request, res: Response) => {
       const jwtToken = jwtHandler.getToken(newUser.id);
       return res.status(statusCode.OK).send(util.success(statusCode.OK, message.SUCCESS, { newUser, accesstoken: jwtToken }));
     }
-    const checkFcm = checkUser.fcmToken;
-    console.log(checkFcm);
-    console.log(fcm);
     // DB에 존재하는 유저는 토큰 발급 후 전달
+    //fcm이 갱신됐다면 변경
+    const checkFcm = checkUser.fcmToken;
     if (checkFcm !== fcm) {
       const newFcm = await AuthService.updateFcm(client, fcm, checkUser.id);
       checkUser.fcmToken = newFcm.fcmToken;
@@ -54,6 +53,8 @@ const getKakaoUser = async (req: Request, res: Response) => {
   } catch (error) {
     console.log(error);
     res.status(statusCode.INTERNAL_SERVER_ERROR).send(util.fail(statusCode.INTERNAL_SERVER_ERROR, message.INTERNAL_SERVER_ERROR));
+  } finally {
+    client.release();
   }
 };
 
