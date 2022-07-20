@@ -3,31 +3,7 @@ import message from "../modules/responseMessage";
 import statusCode from "../modules/statusCode";
 import util from "../modules/util";
 import PhotoService from "../services/PhotoService";
-import photoService from "../services/PhotoService";
 const db = require("../loaders/db");
-
-const test = async (req: Request, res: Response) => {
-  let client;
-  try {
-    client = await db.connect(req);
-    const likeResult = await photoService.test(client);
-    res
-      .status(statusCode.OK)
-      .send(util.success(statusCode.OK, message.SUCCESS));
-  } catch (error) {
-    console.log(error);
-    res
-      .status(statusCode.INTERNAL_SERVER_ERROR)
-      .send(
-        util.fail(
-          statusCode.INTERNAL_SERVER_ERROR,
-          message.INTERNAL_SERVER_ERROR
-        )
-      );
-  } finally {
-    client.release();
-  }
-};
 
 /**
  *  @route PUT /photo/?id=12&id=23
@@ -38,7 +14,7 @@ const test = async (req: Request, res: Response) => {
 const deletePhoto = async (req: Request, res: Response) => {
   const photoId: number = req.query.id as unknown as number;
   let client;
-  const userId = 1;
+  const userId = 10;
 
   try {
     client = await db.connect(req);
@@ -49,6 +25,9 @@ const deletePhoto = async (req: Request, res: Response) => {
       .send(util.success(statusCode.OK, message.DELETE_PHOTO_SUCCESS));
   } catch (error) {
     console.log(error);
+    if(error == 400){
+      return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.PHOTO_DELETE_ERROR));
+    }
     res
       .status(statusCode.INTERNAL_SERVER_ERROR)
       .send(
@@ -57,10 +36,11 @@ const deletePhoto = async (req: Request, res: Response) => {
           message.INTERNAL_SERVER_ERROR
         )
       );
+  }finally {
+    client.release();
   }
 };
 
 export default {
-  test,
   deletePhoto,
 };
