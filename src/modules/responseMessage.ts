@@ -23,6 +23,9 @@ const message = {
   BAD_REQUEST_UPDATE_TAG:
     "태그 업데이트는 일반 태그만 가능합니다. (플랫폼 태그 불가)",
   INVALID_TOKEN: "유효하지 않은 토큰",
+
+  DELETE_PHOTO_SUCCESS: '사진 삭제 성공',
+  PHOTO_DELETE_ERROR: '사진 삭제 실패',
 };
 
 export default message;
