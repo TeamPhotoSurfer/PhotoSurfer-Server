@@ -223,7 +223,6 @@ const pushPlan = async (client, date1, date2) => {
     return {
       push_id: x.pushid,
       fcm_token: x.fcm_token,
-      photo_id: x.id,
       photo_tag: tagString,
       image_url: x.image_url,
       memo: x.memo

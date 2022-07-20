@@ -1,6 +1,6 @@
 const admin = require('firebase-admin');
 
-const sendPushAlarm = async (title, photoTag, memo, imageUrl, receiverToken, photoId) => {
+const sendPushAlarm = async (title, photoTag, memo, imageUrl, receiverToken, pushId) => {
   if (!receiverToken.length) {
     return 0;
   }
@@ -11,7 +11,7 @@ const sendPushAlarm = async (title, photoTag, memo, imageUrl, receiverToken, pho
           "title": title,
           "body": photoTag + "\n" + memo,
           "imageUrl": imageUrl,
-          "photoId" : String(photoId)
+          "pushId" : String(pushId)
         },
       },
       apns: {
@@ -22,7 +22,7 @@ const sendPushAlarm = async (title, photoTag, memo, imageUrl, receiverToken, pho
               "title": title,
               "body": photoTag + "\n" + memo,
               "imageUrl": imageUrl,
-              "photoId" : String(photoId)
+              "pushId" : String(pushId)
             },
           },
         },

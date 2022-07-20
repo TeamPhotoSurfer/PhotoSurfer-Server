@@ -114,7 +114,7 @@ const pushPlan = async (req: Request, res: Response) => {
           x.memo,
           x.image_url,
           testToken,
-          x.photo_id
+          x.pushId
         );
       }
     });
