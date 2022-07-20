@@ -286,19 +286,42 @@ const getMainTags = async (client: any, userId: number) => {
     `,
     [userId, GENERAL]
   );
-  var platformTagArr = [{"id" : 0, "name" : "블로그"}, {"id" : 0, "name" : "카카오톡"}, {"id" : 0, "name" : "유튜브"}];
-  //TODO : 블로그, 카카오톡, 유튜브 태그 넣어두고 이거 id 각각 변경하기
+
+  const platFormTagMap = new Map<string, number>();
+  platFormTagMap.set("카카오톡",0);
+  platFormTagMap.set("유튜브",1);
+  platFormTagMap.set("인스타그램",2);
+  platFormTagMap.set("쇼핑몰",3);
+  platFormTagMap.set("커뮤니티",4);
+  platFormTagMap.set("기타",5);
+
   const { rows : platformTags } = await client.query(
     `
     SELECT *
     FROM tag
     WHERE user_id = $1 AND tag_type = $2
-    ORDER BY add_count DESC, name ASC
-    LIMIT 3
     `,
     [userId, PLATFORM]
   );
-  platformTags.map(x => platformTagArr.push({"id" : x.id, "name" : x.name}));
+
+  var platformObject = [];
+  platformTags.map(x => {
+    platformObject.push({
+      order : platFormTagMap.get(x.name),
+      tag : x
+    })
+  });
+  platformObject.sort(function(a,b){
+    return a.order - b.order;
+  });
+
+  var returnPlatform = [];
+
+  console.log(platformObject);
+  platformObject.map(x => {
+    returnPlatform.push({"id" : x.tag.id, "name" : x.tag.name});
+  })
+  //platformTags.map(x => platformTagArr.push({"id" : x.id, "name" : x.name}));
 
   const data = {
     "recent" : {
@@ -311,9 +334,9 @@ const getMainTags = async (client: any, userId: number) => {
         return {"id" : x.id, "name" : x.name}
       })
     },
-    // "platform" : {
-    //   "tags" : platformTagArr
-    // }
+    "platform" : {
+      "tags" : returnPlatform
+    }
   };
 
   return data;
