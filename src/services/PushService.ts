@@ -250,7 +250,6 @@ const getLastPush = async (client: any, userId: number) => {
   date.setDate(date.getDate() - 1);
   date.setHours(0, 0, 0, 0);
 
-  let lastPush = [];
   const { rows } = await client.query(
     `SELECT push.id, push.push_date, photo.image_url, push.memo, push.photo_id
       FROM push, photo
@@ -273,14 +272,13 @@ const getLastPush = async (client: any, userId: number) => {
     );
     const result = tags.map((x) => x.name);
     i.tags = result;
-    lastPush.push(convertSnakeToCamel.keysToCamel(rows));
   }
 
   let totalCount = rows.length;
   rows.map((x) => (x.push_date = convertDateForm(x.push_date)));
 
   const data = {
-    last: {push: convertSnakeToCamel.keysToCamel(rows)},
+    last: convertSnakeToCamel.keysToCamel(rows),
     totalCount,
   };
 
@@ -297,7 +295,6 @@ const getComePush = async (client: any, userId: number) => {
   date2.setDate(date2.getDate() + 5);
   date2.setHours(0, 0, 0, 0);
 
-  let comePush = [];
   const { rows } = await client.query(
     `SELECT push.id, push.push_date, photo.image_url, push.memo, push.photo_id
     FROM push, photo
@@ -320,14 +317,13 @@ const getComePush = async (client: any, userId: number) => {
     );
     const result = tags.map((x) => x.name);
     i.tags = result;
-    comePush.push(convertSnakeToCamel.keysToCamel(rows));
   }
 
   let totalCount = rows.length;
   rows.map((x) => (x.push_date = convertDateForm(x.push_date)));
 
   const data = {
-    come: {push: convertSnakeToCamel.keysToCamel(rows)},
+    push: convertSnakeToCamel.keysToCamel(rows),
     totalCount,
   };
 
