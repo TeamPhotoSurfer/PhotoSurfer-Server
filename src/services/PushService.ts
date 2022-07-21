@@ -280,7 +280,7 @@ const getLastPush = async (client: any, userId: number) => {
   rows.map((x) => (x.push_date = convertDateForm(x.push_date)));
 
   const data = {
-    push: {last: convertSnakeToCamel.keysToCamel(rows)},
+    last: {push: convertSnakeToCamel.keysToCamel(rows)},
     totalCount,
   };
 
@@ -327,7 +327,7 @@ const getComePush = async (client: any, userId: number) => {
   rows.map((x) => (x.push_date = convertDateForm(x.push_date)));
 
   const data = {
-    push: {come: convertSnakeToCamel.keysToCamel(rows)},
+    come: {push: convertSnakeToCamel.keysToCamel(rows)},
     totalCount,
   };
 
