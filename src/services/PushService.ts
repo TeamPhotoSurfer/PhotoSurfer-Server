@@ -274,7 +274,7 @@ const getLastPush = async (client: any, userId: number) => {
     const { rows: tags } = await client.query( //대표태그 찾고
       `SELECT tag.id ,tag.name
           FROM photo_tag, tag
-          WHERE photo_tag.photo_id = $1 AND photo_tag.is_deleted = false
+          WHERE photo_tag.photo_id = $1 AND photo_tag.is_deleted = false AND tag.is_deleted = false
           AND photo_tag.is_represent = true
           AND photo_tag.tag_id = tag.id
           `,
@@ -309,8 +309,6 @@ const getLastPush = async (client: any, userId: number) => {
         };
       });
     }
-    
-    //i.tags = [];
     i.tags = tagReturn;
   }
 
@@ -351,14 +349,42 @@ const getComePush = async (client: any, userId: number) => {
     const { rows: tags } = await client.query(
       `SELECT tag.id ,tag.name
         FROM photo_tag, tag
-        WHERE photo_tag.photo_id = $1
+        WHERE photo_tag.photo_id = $1 AND photo_tag.is_deleted = false AND tag.is_deleted = false
         AND photo_tag.is_represent = true
         AND photo_tag.tag_id = tag.id
         `,
       [photoId]
     );
-    i.tags = [];
-    i.tags = tags;
+    var tagReturn: any;
+    //isRepresent = true 인 것이 0개이면 -> 태그들 중에서 created_at, limit 3으로 세 개 추가하기
+    if (tags.length == 0) {
+      const { rows: tagsNotRepresent } = await client.query(
+        `
+          SELECT photo_tag.tag_id, tag.name
+          FROM photo_tag, tag
+          where photo_tag.is_deleted = false 
+          AND photo_tag.photo_id = $1
+          AND photo_tag.tag_id = tag.id
+          ORDER BY photo_tag.created_at
+          LIMIT 3;
+        `,
+        [photoId]
+      );
+      tagReturn = tagsNotRepresent.map((x) => {
+        return {
+          id: x.tag_id,
+          name: x.name,
+        };
+      });
+    } else {
+      tagReturn = tags.map((x) => {
+        return {
+          id: x.tag_id,
+          name: x.name,
+        };
+      });
+    }
+    i.tags = tagReturn;
   }
 
   let totalCount = rows.length;
@@ -410,8 +436,36 @@ const getTodayPush = async (client: any, userId: number) => {
         `,
       [photoId]
     );
-    i.tags = [];
-    i.tags = tags;
+    var tagReturn: any;
+    //isRepresent = true 인 것이 0개이면 -> 태그들 중에서 created_at, limit 3으로 세 개 추가하기
+    if (tags.length == 0) {
+      const { rows: tagsNotRepresent } = await client.query(
+        `
+          SELECT photo_tag.tag_id, tag.name
+          FROM photo_tag, tag
+          where photo_tag.is_deleted = false 
+          AND photo_tag.photo_id = $1
+          AND photo_tag.tag_id = tag.id
+          ORDER BY photo_tag.created_at
+          LIMIT 3;
+        `,
+        [photoId]
+      );
+      tagReturn = tagsNotRepresent.map((x) => {
+        return {
+          id: x.tag_id,
+          name: x.name,
+        };
+      });
+    } else {
+      tagReturn = tags.map((x) => {
+        return {
+          id: x.tag_id,
+          name: x.name,
+        };
+      });
+    }
+    i.tags = tagReturn;
     todayPush.push(convertSnakeToCamel.keysToCamel(rows));
   }
 
@@ -437,8 +491,36 @@ const getTodayPush = async (client: any, userId: number) => {
         `,
       [photoId]
     );
-    i.tags = [];
-    i.tags = tags;
+    var tagReturn: any;
+    //isRepresent = true 인 것이 0개이면 -> 태그들 중에서 created_at, limit 3으로 세 개 추가하기
+    if (tags.length == 0) {
+      const { rows: tagsNotRepresent } = await client.query(
+        `
+          SELECT photo_tag.tag_id, tag.name
+          FROM photo_tag, tag
+          where photo_tag.is_deleted = false 
+          AND photo_tag.photo_id = $1
+          AND photo_tag.tag_id = tag.id
+          ORDER BY photo_tag.created_at
+          LIMIT 3;
+        `,
+        [photoId]
+      );
+      tagReturn = tagsNotRepresent.map((x) => {
+        return {
+          id: x.tag_id,
+          name: x.name,
+        };
+      });
+    } else {
+      tagReturn = tags.map((x) => {
+        return {
+          id: x.tag_id,
+          name: x.name,
+        };
+      });
+    }
+    i.tags = tagReturn;
     const data = {
       push: i,
     };
@@ -448,6 +530,8 @@ const getTodayPush = async (client: any, userId: number) => {
   //지난 알림목록 개수
   const dateCount = new Date();
   dateCount.setDate(dateCount.getDate() - 1);
+  console.log(dateCount);
+  
 
   const { rows: last } = await client.query(
     `SELECT count(*)
