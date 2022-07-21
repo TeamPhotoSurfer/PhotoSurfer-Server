@@ -211,7 +211,7 @@ const addPhotoTag = async (client: any, userId: number, photoId: string[], name:
     `
       SELECT *
       FROM photo_tag
-      WHERE photo_id in (${photoId}) AND tag_id = $1
+      WHERE photo_id in (${photoId}) AND tag_id = $1 AND is_deleted = false
       `,
     [tagId],
   );
