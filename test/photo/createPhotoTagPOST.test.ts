@@ -1,4 +1,6 @@
-const { app } = require('../../src/index.ts');
+import path from "path";
+
+const app = require('../../src/index.ts');
 const req = require('supertest');
 
 describe('POST /photo', () => {

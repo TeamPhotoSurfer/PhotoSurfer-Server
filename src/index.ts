@@ -52,3 +52,5 @@ app
     console.error(err);
     process.exit(1);
   });
+
+  module.exports = app;
