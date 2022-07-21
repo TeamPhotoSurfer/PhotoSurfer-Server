@@ -255,7 +255,7 @@ const getLastPush = async (client: any, userId: number) => {
   for (let i of rows) {
     const photoId = i.photo_id;
     const { rows: tags } = await client.query(
-      `SELECT tag.name
+      `SELECT tag.id ,tag.name
           FROM photo_tag, tag
           WHERE photo_tag.photo_id = $1
           AND photo_tag.is_represent = true
@@ -263,8 +263,8 @@ const getLastPush = async (client: any, userId: number) => {
           `,
       [photoId],
     );
-    const result = tags.map(x => x.name);
-    i.tags = result;
+    i.tags = [];
+    i.tags = tags;
   }
 
   let totalCount = rows.length;
@@ -297,10 +297,12 @@ const getComePush = async (client: any, userId: number) => {
     `,
     [userId, date, date2],
   );
+  console.log(rows);
+
   for (let i of rows) {
     const photoId = i.photo_id;
     const { rows: tags } = await client.query(
-      `SELECT tag.name
+      `SELECT tag.id ,tag.name
         FROM photo_tag, tag
         WHERE photo_tag.photo_id = $1
         AND photo_tag.is_represent = true
@@ -308,7 +310,7 @@ const getComePush = async (client: any, userId: number) => {
         `,
       [photoId],
     );
-    const result = tags.map(x => x.name);
+    const result = tags.map((x) => x.name);
     i.tags = result;
   }
 
@@ -353,7 +355,7 @@ const getTodayPush = async (client: any, userId: number) => {
   for (let i of rows) {
     const photoId = i.photo_id;
     const { rows: tags } = await client.query(
-      `SELECT tag.name
+      `SELECT tag.id, tag.name
         FROM photo_tag, tag
         WHERE photo_tag.photo_id = $1
         AND photo_tag.is_represent = true
@@ -361,7 +363,7 @@ const getTodayPush = async (client: any, userId: number) => {
         `,
       [photoId],
     );
-    const result = tags.map(x => x.name);
+    const result = tags.map((x) => x.name);
     i.tags = result;
     todayPush.push(convertSnakeToCamel.keysToCamel(rows));
   }
@@ -380,7 +382,7 @@ const getTodayPush = async (client: any, userId: number) => {
   for (let i of pushTomorrow) {
     const photoId = i.photo_id;
     const { rows: tags } = await client.query(
-      `SELECT tag.name
+      `SELECT tag.id, tag.name
         FROM photo_tag, tag
         WHERE photo_tag.photo_id = $1
         AND photo_tag.is_represent = true
@@ -388,14 +390,14 @@ const getTodayPush = async (client: any, userId: number) => {
         `,
       [photoId],
     );
-    const result = tags.map(x => x.name);
+    const result = tags.map((x) => x.name);
     i.tags = result;
     const data = {
       push: i,
     };
     console.log(result);
-
-    const asd = convertSnakeToCamel.keysToCamel(tomorrowPush.push(convertSnakeToCamel.keysToCamel(data)));
+    
+   const asd =convertSnakeToCamel.keysToCamel(tomorrowPush.push(convertSnakeToCamel.keysToCamel(data)));
   }
 
   //지난 알림목록 개수
@@ -414,9 +416,11 @@ const getTodayPush = async (client: any, userId: number) => {
   //다가오는 알림 개수
   const dateCome = new Date();
   dateCome.setDate(dateCome.getDate() + 1);
+  dateCome.setHours(0, 0, 0, 0);
 
   const dateCome2 = new Date();
   dateCome2.setDate(dateCome2.getDate() + 5);
+  dateCome2.setHours(0, 0, 0, 0);
 
   const { rows: come } = await client.query(
     `SELECT count(*)
@@ -426,6 +430,7 @@ const getTodayPush = async (client: any, userId: number) => {
     `,
     [userId, dateCome, dateCome2],
   );
+  console.log(come);
 
   let todayTomorrowCount = rows.length + pushTomorrow.length;
   rows.map(x => (x.push_date = convertDateForm(x.push_date)));
@@ -438,6 +443,8 @@ const getTodayPush = async (client: any, userId: number) => {
     lastCount: +last[0].count,
     comingCount: +come[0].count,
   };
+  console.log(+last[0].count);
+
   console.log(data);
 
   return convertSnakeToCamel.keysToCamel(data);
