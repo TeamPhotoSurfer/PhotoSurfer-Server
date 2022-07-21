@@ -521,10 +521,11 @@ const deletePhoto = async (client: any, photoId: number, userId: number) => {
     [userId],
   );
 
-  const { rows } = await client.query(
+  const { rows: tags } = await client.query(
     `UPDATE photo_tag
     SET is_deleted = true
-    WHERE photo_id in (${photoId});
+    WHERE photo_id in (${photoId})
+    RETURNING *
     `,
   );
 
@@ -536,15 +537,16 @@ const deletePhoto = async (client: any, photoId: number, userId: number) => {
       `,
   );
 
-  for (let i of rows) {
+  //태그에 더이상 사진이 없을 때 태그 삭제
+  for (let i of tags) {
     const { rows: photoTag } = await client.query(
       `SELECT *
     FROM photo_tag
     WHERE tag_id = $1
     AND is_deleted = false;`,
-      [i.tag_id, userId],
+      [i.tag_id],
     );
-    if (photoTag.length == 0) {
+    if (!photoTag[0]) {
       const { rows: tag } = await client.query(
         `UPDATE tag
         SET is_deleted = true
@@ -554,7 +556,7 @@ const deletePhoto = async (client: any, photoId: number, userId: number) => {
     }
   }
 
-  return convertSnakeToCamel.keysToCamel(rows);
+  // return convertSnakeToCamel.keysToCamel(rows);
 };
 export default {
   updatePhotoTag,
