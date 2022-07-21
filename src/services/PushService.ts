@@ -304,6 +304,8 @@ const getComePush = async (client: any, userId: number) => {
     `,
     [userId, date, date2]
   );
+  console.log(rows);
+
   for (let i of rows) {
     const photoId = i.photo_id;
     const { rows: tags } = await client.query(
@@ -346,6 +348,7 @@ const getTodayPush = async (client: any, userId: number) => {
 
   let todayPush = [];
   let tomorrowPush = [];
+  let aa = {};
   //다가오는 알림 "오늘"
   const { rows } = await client.query(
     `SELECT push.id, push.push_date, photo.image_url, push.memo, push.photo_id
@@ -356,11 +359,11 @@ const getTodayPush = async (client: any, userId: number) => {
     `,
     [userId, today, tomorrow]
   );
-  
+
   for (let i of rows) {
     const photoId = i.photo_id;
     const { rows: tags } = await client.query(
-      `SELECT tag.name
+      `SELECT tag.id, tag.name
         FROM photo_tag, tag
         WHERE photo_tag.photo_id = $1
         AND photo_tag.is_represent = true
@@ -368,11 +371,17 @@ const getTodayPush = async (client: any, userId: number) => {
         `,
       [photoId]
     );
-    const result = tags.map((x) => x.name);
-    i.tags = result;
+
+    console.log(tags);
+    // const result = tags.map((x) => x.name);
+    i.tags = [];
+    i.tags = tags;
+    const data = {
+      push: i,
+    };
     todayPush.push(convertSnakeToCamel.keysToCamel(rows));
   }
-  
+
   //다가오는 알림 "내일"
   const { rows: pushTomorrow } = await client.query(
     `SELECT push.id, push.push_date, photo.image_url, push.memo, push.photo_id
@@ -387,7 +396,7 @@ const getTodayPush = async (client: any, userId: number) => {
   for (let i of pushTomorrow) {
     const photoId = i.photo_id;
     const { rows: tags } = await client.query(
-      `SELECT tag.name
+      `SELECT tag.id, tag.name
         FROM photo_tag, tag
         WHERE photo_tag.photo_id = $1
         AND photo_tag.is_represent = true
@@ -395,14 +404,18 @@ const getTodayPush = async (client: any, userId: number) => {
         `,
       [photoId]
     );
-    const result = tags.map((x) => x.name);
-    i.tags = result;
+    console.log(tags);
+    // const result = tags.map((x) => x.name);
+    i.tags = [];
+    i.tags = tags;
     const data = {
-      push: i
+      push: i,
     };
-    console.log(result);
-    
-   const asd =convertSnakeToCamel.keysToCamel(tomorrowPush.push(convertSnakeToCamel.keysToCamel(data)));
+    // console.log(result);
+
+    const asd = convertSnakeToCamel.keysToCamel(
+      tomorrowPush.push(convertSnakeToCamel.keysToCamel(data))
+    );
   }
 
   //지난 알림목록 개수
@@ -421,30 +434,35 @@ const getTodayPush = async (client: any, userId: number) => {
   //다가오는 알림 개수
   const dateCome = new Date();
   dateCome.setDate(dateCome.getDate() + 1);
+  dateCome.setHours(0, 0, 0, 0);
 
   const dateCome2 = new Date();
   dateCome2.setDate(dateCome2.getDate() + 5);
+  dateCome2.setHours(0, 0, 0, 0);
 
   const { rows: come } = await client.query(
-    `SELECT count(*)
+    `SELECT *
     FROM push, photo
     WHERE push.user_id = $1
     AND $2 <= push.push_date AND push.push_date <= $3 AND push.photo_id = photo.id
     `,
     [userId, dateCome, dateCome2]
   );
+  console.log(come);
 
   let todayTomorrowCount = rows.length + pushTomorrow.length;
   rows.map((x) => (x.push_date = convertDateForm(x.push_date)));
   pushTomorrow.map((x) => (x.push_date = convertDateForm(x.push_date)));
 
   const data = {
-    today: {push : convertSnakeToCamel.keysToCamel(rows)},
-    tomorrow: {push : convertSnakeToCamel.keysToCamel(pushTomorrow)},
+    today: { push: convertSnakeToCamel.keysToCamel(rows) },
+    tomorrow: { push: convertSnakeToCamel.keysToCamel(pushTomorrow) },
     todayTomorrowCount,
     lastCount: +last[0].count,
     comingCount: +come[0].count,
   };
+  console.log(+last[0].count);
+
   console.log(data);
 
   return convertSnakeToCamel.keysToCamel(data);
