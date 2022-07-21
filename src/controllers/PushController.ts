@@ -11,6 +11,7 @@ const pushAlarm = require('../modules/pushAlarm');
 import dayjs from 'dayjs';
 import { validationResult } from 'express-validator';
 import PushService from '../services/PushService';
+import errorGenerator from '../error/errorGenerator';
 
 /**
  * @route POST /push
@@ -209,6 +210,10 @@ const getTodayPush = async (req: Request, res: Response) => {
     if (!data) {
       return res.status(statusCode.NOT_FOUND).send(util.fail(statusCode.NOT_FOUND, message.NOT_FOUND));
     }
+    throw errorGenerator({
+      msg: "오류!!",
+      statusCode: statusCode.INTERNAL_SERVER_ERROR
+    })
     res.status(statusCode.OK).send(util.success(statusCode.OK, message.GET_TODAY_PUSH, data));
   } catch (error) {
     console.log(error);

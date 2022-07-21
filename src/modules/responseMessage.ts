@@ -9,6 +9,12 @@ const message = {
   ALREADY_EXIST_TAG: '이미 존재하는 태그입니다',
   NOT_EXIST_TAG: '존재하지 않는 태그입니다',
   NULL_VALUE_TOKEN: '토큰만료',
+  BAD_PATH: '잘못된 경로입니다.',
+  UNAUTHORIZED: '승인되지 않은 유저입니다.',
+  FORBIDDEN: '권한이 없는 유저의 요청입니다.',
+  DUPLICATED: '이미 존재하는 데이터입니다.',
+  TEMPORARY_UNAVAILABLE: '일시적으로 사용할 수 없는 서버입니다.',
+  DB_ERROR: '데이터베이스 오류입니다.',
 
   GET_COME_PUSH: '다가오는 알림 생성 성공',
   GET_TODAY_PUSH: '임박한 알림 조회',
@@ -39,6 +45,7 @@ const message = {
 
   DELETE_PHOTO_SUCCESS: '사진 삭제 성공',
   PHOTO_DELETE_ERROR: '사진 삭제 실패',
+
 };
 
 export default message;
