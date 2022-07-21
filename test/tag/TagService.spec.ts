@@ -74,26 +74,87 @@ dotenv.config();
     });
 });
 
-// /**
-//  * 태그명 수정 성공
-//  * 200 케이스
-//  */
-//  describe('PUT /tag', () => {
-//     it('태그 앨범 조회 - 성공', (done) => {
-//         const tagId = 32;
-//         const res = req(app).put(`/tag/${tagId}`)
-//         .set('Content-Type', 'application/json').set({ Authorization: `Bearer ${process.env.TEST_TOKEN}` })
-//         .set()
-//         .expect(200)
-//         .then(res => {
-//             expect(res.body.data.bookmarked.tags).to.have.lengthOf(7);
-//             expect(res.body.data.notBookmarked.tags).to.have.lengthOf(23);
+/**
+ * 태그명 수정 성공
+ * 200, 400, 404 케이스
+ */
+ describe('PUT /tag/:tagId', () => {
+    it('태그 앨범 수정 성공 - 200', (done) => {
+        const tagId = 18;
+        const res = req(app).put(`/tag/${tagId}`)
+        .set('Content-Type', 'application/json').set({ Authorization: `Bearer ${process.env.TEST_TOKEN}` })
+        .send({ "name" : "모카테스트으으"})
+        .expect(200)
+        .then(res => {
+            done();
+        })
+        .catch(err => {
+            console.error("######Error >>", err);
+            done(err);
+        });
+    });
 
-//             done();
-//         })
-//         .catch(err => {
-//             console.error("######Error >>", err);
-//             done(err);
-//         });
-//     });
-// });
+    it('태그 앨범 수정 실패 - 400 (플랫폼 태그 업데이트 불가)', (done) => {
+        const tagId = 2;
+        const res = req(app).put(`/tag/${tagId}`)
+        .set('Content-Type', 'application/json').set({ Authorization: `Bearer ${process.env.TEST_TOKEN}` })
+        .send({ "name" : "모카테스트으으"})
+        .expect(400)
+        .then(res => {
+            done();
+        })
+        .catch(err => {
+            console.error("######Error >>", err);
+            done(err);
+        });
+    });
+
+    it('태그 앨범 수정 실패 - 404 (태그 없음)', (done) => {
+        const tagId = 32;
+        const res = req(app).put(`/tag/${tagId}`)
+        .set('Content-Type', 'application/json').set({ Authorization: `Bearer ${process.env.TEST_TOKEN}` })
+        .send({ "name" : "모카테스트으으"})
+        .expect(404)
+        .then(res => {
+            done();
+        })
+        .catch(err => {
+            console.error("######Error >>", err);
+            done(err);
+        });
+    });
+});
+
+/**
+ * 태그명 삭제 성공
+ * 200, 404 케이스
+ */
+ describe('DELETE /tag/:tagId', () => {
+    it('태그 앨범 삭제 성공 - 200', (done) => {
+        const tagId = 18;
+        const res = req(app).delete(`/tag/${tagId}`)
+        .set('Content-Type', 'application/json').set({ Authorization: `Bearer ${process.env.TEST_TOKEN}` })
+        .expect(200)
+        .then(res => {
+            done();
+        })
+        .catch(err => {
+            console.error("######Error >>", err);
+            done(err);
+        });
+    });
+
+    it('태그 앨범 삭제 실패 - 404 (존재하지 않는 태그)', (done) => {
+        const tagId = 17;
+        const res = req(app).delete(`/tag/${tagId}`)
+        .set('Content-Type', 'application/json').set({ Authorization: `Bearer ${process.env.TEST_TOKEN}` })
+        .expect(404)
+        .then(res => {
+            done();
+        })
+        .catch(err => {
+            console.error("######Error >>", err);
+            done(err);
+        });
+    });
+});
