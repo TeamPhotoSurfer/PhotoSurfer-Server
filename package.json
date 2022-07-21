@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon",
     "build": "tsc && node dist",
-    "test": "mocha test/*.ts --timeout 10000 -exit -r ts-node/register"
+    "test": "mocha test/*/*.ts --timeout 10000 -exit -r ts-node/register"
   },
   "author": "",
   "license": "ISC",
@@ -48,6 +48,7 @@
     "node-schedule": "^2.1.0",
     "pg": "^8.7.3",
     "reflect-metadata": "^0.1.13",
+    "supertest": "^6.2.4",
     "typeorm": "^0.2",
     "typeorm-naming-strategies": "^2.0.0"
   }

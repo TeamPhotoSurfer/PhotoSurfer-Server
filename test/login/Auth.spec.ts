@@ -2,7 +2,7 @@ import authTest from "../../src/controllers/AuthController";
 import assert from "assert";
 import dotenv from "dotenv";
 const req = require('supertest');
-const { app } = require('../../index');
+const { app } = require('../../src/index.ts');
 
 
 describe('POST /auth/user', () => {

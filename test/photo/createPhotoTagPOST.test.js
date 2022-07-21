@@ -1,4 +1,4 @@
-const { app } = require('../../index');
+const { app } = require('../../src/index.ts');
 const req = require('supertest');
 
 describe('POST /photo', () => {
