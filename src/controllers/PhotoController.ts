@@ -29,7 +29,7 @@ const createPhotoTag = async (req: Request, res: Response) => {
     const data = {
       id: photo,
       imageUrl: location,
-      tags,
+      tag,
     };
     res.status(statusCode.OK).send(util.success(statusCode.OK, message.SUCCESS, data));
   } catch (error) {
