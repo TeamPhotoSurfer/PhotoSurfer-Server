@@ -24,3 +24,5 @@ describe('POST /photo', () => {
       });
   });
 });
+
+module.exports = app;
