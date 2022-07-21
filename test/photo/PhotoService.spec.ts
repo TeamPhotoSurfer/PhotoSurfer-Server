@@ -232,24 +232,24 @@ describe('GET photo/detail/:photoId', () => {
   });
 });
 
-// describe('POST /photo', () => {
-//   it('사진태그 저장 - 성공', done => {
-//     req(app)
-//       .post('/photo')
-//       .set('Content-Type', 'multipart/form-data')
-//       .set({ Authorization: `Bearer ${process.env.TEST_TOKEN}` })
-//       .send({
-//         file: '../image/test.jpg',
-//         tags: [],
-//       })
-//       .expect(200)
-//       .expect('Content-Type', /json/)
-//       .then(res => {
-//         done();
-//       })
-//       .catch(err => {
-//         console.error('######Error >>', err);
-//         done(err);
-//       });
-//   });
-// });
+describe('POST /photo', () => {
+  it('사진태그 저장 - 성공', done => {
+    req(app)
+      .post('/photo')
+      .set('Content-Type', 'multipart/form-data')
+      .set({ Authorization: `Bearer ${process.env.TEST_TOKEN}` })
+      .attach('file', path.resolve(__dirname, '../../image', 'test.png'))
+      .field('tags[0][name]', '포토서퍼')
+      .field('tags[0][type]', 'general')
+      .expect(200)
+      .expect('Content-Type', /json/)
+      .then(res => {
+        expect(res.body.data.tags).to.have.lengthOf(1);
+        done();
+      })
+      .catch(err => {
+        console.error('######Error >>', err);
+        done(err);
+      });
+  });
+});
