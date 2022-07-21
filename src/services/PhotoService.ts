@@ -84,6 +84,7 @@ const getTagByPhotoId = async (client: any, photoId: number, userId: number) => 
     `,
     [photoId, userId],
   );
+  console.log(rows);
   return convertSnakeToCamel.keysToCamel(rows);
 };
 
