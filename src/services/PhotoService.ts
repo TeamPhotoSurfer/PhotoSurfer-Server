@@ -147,7 +147,7 @@ const deletedPhotoTag = async (client: any, userId: number, tagId: number, photo
   return { countDeletedPhoto };
 };
 
-const addPhotoTag = async (client: any, userId: number, photoId: string[] | string, name: string, type: string) => {
+const addPhotoTag = async (client: any, userId: number, photoId: string[], name: string, type: string) => {
   const { rows: checkedTag } = await client.query(
     `
     SELECT id, is_deleted
@@ -157,19 +157,12 @@ const addPhotoTag = async (client: any, userId: number, photoId: string[] | stri
     [name, userId],
   );
   let tagId;
-  let photoIdArr = [];
-
-  if (typeof photoId === 'string') {
-    photoIdArr.push(photoId);
-  } else {
-    photoIdArr = photoId;
-  }
 
   const { rows: checkPhoto } = await client.query(
     `
     SELECT *
     FROM photo
-    WHERE id in (${photoIdArr}) AND user_id = $1
+    WHERE id in (${photoId}) AND user_id = $1
     `,
     [userId],
   );
@@ -227,7 +220,7 @@ const addPhotoTag = async (client: any, userId: number, photoId: string[] | stri
     throw 400;
   }
 
-  for (let i of photoIdArr) {
+  for (let i of photoId) {
     const { rows } = await client.query(
       `
         INSERT INTO photo_tag(tag_id, photo_id)

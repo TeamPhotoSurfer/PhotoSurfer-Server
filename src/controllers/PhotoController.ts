@@ -96,9 +96,8 @@ const getPhoto = async (req: Request, res: Response) => {
 const addPhotoTag = async (req: Request, res: Response) => {
   let client;
   const userId = req.body.user.id;
-  const photoId = req.query.id as string;
-  const { name, type } = req.body;
-
+  const { name, type, photoId } = req.body;
+  console.log(photoId);
   if (!photoId || !userId || !name || !type) {
     return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.BAD_REQUEST));
   }
