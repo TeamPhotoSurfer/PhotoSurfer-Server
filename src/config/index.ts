@@ -58,4 +58,5 @@ export default {
   bucketName: process.env.BUCKET_NAME as string,
   jwtSecret: process.env.JWT_SECRET as string,
   jwtAlgo: process.env.JWT_ALGO as string,
+  slackAlarm: process.env.SLACK_ALARM_URI as string
 };
