@@ -1,6 +1,6 @@
 export interface PhotoPostDTO {
   name: string;
-  tagType: string;
+  type: string;
   userId?: number;
 }
 export interface PhotoReturnDTO {

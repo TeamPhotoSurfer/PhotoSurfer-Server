@@ -37,7 +37,7 @@ const createPhotoTag = async (client: any, userId: number, imageURL: string, tag
         VALUES ($1, $2, $3)
         RETURNING *
         `,
-        [r.name, r.tagType, userId],
+        [r.name, r.type, userId],
       );
       tagId = newTag[0].id;
     } else {
