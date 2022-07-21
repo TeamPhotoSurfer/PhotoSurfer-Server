@@ -261,7 +261,7 @@ const getLastPush = async (client: any, userId: number) => {
   const { rows } = await client.query(
     `SELECT push.id, push.push_date, photo.image_url, push.memo, push.photo_id
       FROM push, photo
-      WHERE push.user_id = $1
+      WHERE push.user_id = $1 AND push.is_deleted = false
       AND push.push_date <= $2 AND push.photo_id = photo.id
       ORDER BY push.push_date ASC
       `,
@@ -306,7 +306,7 @@ const getComePush = async (client: any, userId: number) => {
   const { rows } = await client.query(
     `SELECT push.id, push.push_date, photo.image_url, push.memo, push.photo_id
     FROM push, photo
-    WHERE push.user_id = $1
+    WHERE push.user_id = $1 AND push.is_deleted = false
     AND $2 <= push.push_date AND push.push_date <= $3 AND push.photo_id = photo.id
     ORDER BY push.push_date ASC
     `,
@@ -360,7 +360,7 @@ const getTodayPush = async (client: any, userId: number) => {
   const { rows } = await client.query(
     `SELECT push.id, push.push_date, photo.image_url, push.memo, push.photo_id
     FROM push, photo
-    WHERE push.user_id = $1
+    WHERE push.user_id = $1 AND push.is_deleted = false
     AND $2 <= push.push_date AND push.push_date < $3 AND push.photo_id = photo.id 
     ORDER BY push.push_date ASC
     `,
