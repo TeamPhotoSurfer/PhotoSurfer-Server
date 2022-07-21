@@ -263,23 +263,55 @@ const getLastPush = async (client: any, userId: number) => {
       FROM push, photo
       WHERE push.user_id = $1
       AND push.push_date <= $2 AND push.photo_id = photo.id
+      AND push.is_deleted = false AND photo.is_deleted = false
       ORDER BY push.push_date ASC
       `,
     [userId, date]
   );
+  
   for (let i of rows) {
     const photoId = i.photo_id;
-    const { rows: tags } = await client.query(
+    const { rows: tags } = await client.query( //대표태그 찾고
       `SELECT tag.id ,tag.name
           FROM photo_tag, tag
-          WHERE photo_tag.photo_id = $1
+          WHERE photo_tag.photo_id = $1 AND photo_tag.is_deleted = false
           AND photo_tag.is_represent = true
           AND photo_tag.tag_id = tag.id
           `,
       [photoId]
     );
-    i.tags = [];
-    i.tags = tags;
+    var tagReturn: any;
+    //isRepresent = true 인 것이 0개이면 -> 태그들 중에서 created_at, limit 3으로 세 개 추가하기
+    if (tags.length == 0) {
+      const { rows: tagsNotRepresent } = await client.query(
+        `
+          SELECT photo_tag.tag_id, tag.name
+          FROM photo_tag, tag
+          where photo_tag.is_deleted = false 
+          AND photo_tag.photo_id = $1
+          AND photo_tag.tag_id = tag.id
+          ORDER BY photo_tag.created_at
+          LIMIT 3;
+        `,
+        [photoId]
+      );
+      tagReturn = tagsNotRepresent.map((x) => {
+        return {
+          id: x.tag_id,
+          name: x.name,
+        };
+      });
+    } else {
+      tagReturn = tags.map((x) => {
+        return {
+          id: x.tag_id,
+          name: x.name,
+        };
+      });
+    }
+    
+    //i.tags = [];
+    i.tags = tagReturn;
   }
 
   let totalCount = rows.length;
