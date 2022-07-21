@@ -136,20 +136,20 @@ const getPushDetail = async (client: any, userId: number, pushId: number) => {
     tagReturn = tagsNotRepresent.map((x) => {
       return {
         id: x.tag_id,
-        tagName: x.name,
+        name: x.name,
       };
     });
   } else {
     tagReturn = tags.map((x) => {
       return {
         id: x.tag_id,
-        tagName: x.name,
+        name: x.name,
       };
     });
   }
 
   const data = {
-    pushId: push[0].id,
+    id: push[0].id,
     pushDate: dayjs(push[0].push_date).format("YYYY-MM-DD"),
     tags: tagReturn,
     memo: push[0].memo,
@@ -250,6 +250,7 @@ const getLastPush = async (client: any, userId: number) => {
   date.setDate(date.getDate() - 1);
   date.setHours(0, 0, 0, 0);
 
+  let lastPush = [];
   const { rows } = await client.query(
     `SELECT push.id, push.push_date, photo.image_url, push.memo, push.photo_id
       FROM push, photo
@@ -272,13 +273,14 @@ const getLastPush = async (client: any, userId: number) => {
     );
     const result = tags.map((x) => x.name);
     i.tags = result;
+    lastPush.push(convertSnakeToCamel.keysToCamel(rows));
   }
 
   let totalCount = rows.length;
   rows.map((x) => (x.push_date = convertDateForm(x.push_date)));
 
   const data = {
-    push: convertSnakeToCamel.keysToCamel(rows),
+    push: {last: convertSnakeToCamel.keysToCamel(rows)},
     totalCount,
   };
 
@@ -295,6 +297,7 @@ const getComePush = async (client: any, userId: number) => {
   date2.setDate(date2.getDate() + 5);
   date2.setHours(0, 0, 0, 0);
 
+  let comePush = [];
   const { rows } = await client.query(
     `SELECT push.id, push.push_date, photo.image_url, push.memo, push.photo_id
     FROM push, photo
@@ -317,13 +320,14 @@ const getComePush = async (client: any, userId: number) => {
     );
     const result = tags.map((x) => x.name);
     i.tags = result;
+    comePush.push(convertSnakeToCamel.keysToCamel(rows));
   }
 
   let totalCount = rows.length;
   rows.map((x) => (x.push_date = convertDateForm(x.push_date)));
 
   const data = {
-    push: convertSnakeToCamel.keysToCamel(rows),
+    push: {come: convertSnakeToCamel.keysToCamel(rows)},
     totalCount,
   };
 
