@@ -1,8 +1,12 @@
 # PhotoSurfer-Server
 
+# 서비스 핵심 기능 소개
+
+![KakaoTalk_Photo_2022-07-22-18-43-14](https://user-images.githubusercontent.com/91375028/180412682-11e91ec2-b12b-4094-be14-25b0121313d1.png)
+
 # ERD
 
-<img width="465" alt="스크린샷 2022-07-13 오후 6 12 59" src="https://user-images.githubusercontent.com/49470328/178700118-7c939d67-e917-4918-892e-91c232a4e66b.png">
+<img width="527" alt="스크린샷 2022-07-22 오후 6 51 13" src="https://user-images.githubusercontent.com/91375028/180414095-6eb66ae8-b99b-4820-8586-2fcbbe7c9a86.png">
 
 # 팀 별 역할 분담
 
@@ -166,7 +170,3 @@ https://go-photosurfer.notion.site/API-a4b228282bcb49399413efc03552c1d1
 <img width="563" alt="스크린샷 2022-07-22 오후 6 26 51" src="https://user-images.githubusercontent.com/91375028/180409581-65c2da16-e0a0-4dce-9b2c-9de323354e8e.png">
 
 </br>
- 
-# 서비스 핵심 기능 소개
-
-![KakaoTalk_Photo_2022-07-22-18-43-14](https://user-images.githubusercontent.com/91375028/180412682-11e91ec2-b12b-4094-be14-25b0121313d1.png)
