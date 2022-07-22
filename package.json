@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon",
     "build": "tsc && node dist",
-    "test": "mocha test/*/* --timeout 10000 -exit -r ts-node/register"
+    "test": "mocha test/*/* --timeout 10000 -exit -r ts-node/register",
+    "prepare": "husky install"
   },
   "author": "",
   "license": "ISC",
@@ -27,6 +28,7 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-prettier": "^4.2.1",
+    "husky": "^8.0.1",
     "mocha": "^10.0.0",
     "nodemon": "^2.0.18",
     "supertest": "^6.2.4",
