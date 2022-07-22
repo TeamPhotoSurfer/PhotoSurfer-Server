@@ -6,7 +6,6 @@
   "scripts": {
     "dev": "nodemon",
     "build": "tsc && node dist",
-    "prepare": "husky install",
     "test": "mocha test/*/* --timeout 10000 -exit -r ts-node/register"
   },
   "author": "",
