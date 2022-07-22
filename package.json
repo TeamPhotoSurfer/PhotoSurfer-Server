@@ -57,7 +57,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-push": "yarn run test"
+      "pre-push": "git diff HEAD --quiet && yarn run test"
     }
   }
 }
