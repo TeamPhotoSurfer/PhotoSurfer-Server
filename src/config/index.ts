@@ -15,7 +15,7 @@ export default {
    * Your favorite port
    */
   port: parseInt(process.env.PORT as string, 10) as number,
-
+  env: process.env.NODE_ENV as string,
   /**
    * MongoDB URI
    */
@@ -45,7 +45,6 @@ export default {
   //  * DB database
   //  */
   // database: process.env.DATABASE,
-
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
   database: process.env.DB_DB,

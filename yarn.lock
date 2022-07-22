@@ -704,7 +704,7 @@ aws-sdk@^2.1171.0, aws-sdk@^2.814.0:
 
 axios@^0.27.2:
   version "0.27.2"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-0.27.2.tgz#207658cc8621606e586c85db4b41a750e756d972"
+  resolved "https://registry.npmjs.org/axios/-/axios-0.27.2.tgz"
   integrity sha512-t+yRIyySRTp/wua5xEr+z1q60QmLq8ABsS5O9Me1AsE5dfKqgnCFzwiCZZ/cGNd1lq4/7akDWMxdhVlucjmnOQ==
   dependencies:
     follow-redirects "^1.14.9"
@@ -2147,6 +2147,11 @@ https-proxy-agent@^5.0.0:
     agent-base "6"
     debug "4"
 
+husky@^8.0.0:
+  version "8.0.1"
+  resolved "https://registry.npmjs.org/husky/-/husky-8.0.1.tgz"
+  integrity sha512-xs7/chUH/CKdOCs7Zy0Aev9e/dKOMZf3K1Az1nar3tzlv0jfqnYtu235bstsWTmXOR0EfINrPa97yy4Lz6RiKw==
+
 iconv-lite@0.4.24:
   version "0.4.24"
   resolved "https://registry.npmjs.org/iconv-lite/-/iconv-lite-0.4.24.tgz"
@@ -2675,6 +2680,11 @@ log-symbols@4.1.0:
   dependencies:
     chalk "^4.1.0"
     is-unicode-supported "^0.1.0"
+
+logger@^0.0.1:
+  version "0.0.1"
+  resolved "https://registry.npmjs.org/logger/-/logger-0.0.1.tgz"
+  integrity sha512-UD45f4iZrsj6dQKt5QBN7K+R0hmFwGS8G+Pv8WtHjrnhrMQftIclma8b86mNtg1LKB6HDIOW/ZtjnXELBhr89w==
 
 long-timeout@0.1.1:
   version "0.1.1"
