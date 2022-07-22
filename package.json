@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon",
     "build": "tsc && node dist",
-    "test": "mocha test/*/* --timeout 10000 -exit -r ts-node/register"
+    "test": "NODE_ENV=test mocha test/*/* --timeout 10000 -exit -r ts-node/register"
   },
   "author": "",
   "license": "ISC",
