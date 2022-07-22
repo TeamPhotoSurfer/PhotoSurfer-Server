@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import { PushCreateRequest } from '../interfaces/push/request/PushCreateRequest';
 import message from '../modules/responseMessage';
 import statusCode from '../modules/statusCode';
@@ -170,7 +170,7 @@ const getLastPush = async (req: Request, res: Response) => {
  *  @access Public
  */
 // 다가오는 알림 조회
-const getComePush = async (req: Request, res: Response) => {
+const getComePush = async (req: Request, res: Response, next: NextFunction) => {
   const userId = req.body.user.id;
   if (!userId) {
     return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.BAD_REQUEST));
@@ -185,7 +185,7 @@ const getComePush = async (req: Request, res: Response) => {
     res.status(statusCode.OK).send(util.success(statusCode.OK, message.GET_COME_PUSH, data));
   } catch (error) {
     console.log(error);
-    throw error;
+    next(error);
   } finally {
     client.release();
   }
@@ -197,7 +197,7 @@ const getComePush = async (req: Request, res: Response) => {
  *  @access Public
  */
 // 임박한 목록 조회
-const getTodayPush = async (req: Request, res: Response) => {
+const getTodayPush = async (req: Request, res: Response, next: NextFunction) => {
   const userId = req.body.user.id;
 2
   let client;
@@ -213,7 +213,7 @@ const getTodayPush = async (req: Request, res: Response) => {
     res.status(statusCode.OK).send(util.success(statusCode.OK, message.GET_TODAY_PUSH, data));
   } catch (error) {
     console.log(error);
-    throw error;
+    next(error);
   } finally {
     client.release();
   }
