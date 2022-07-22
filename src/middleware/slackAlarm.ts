@@ -1,8 +1,5 @@
 import axios from "axios";
 import config from "../config/index";
-import dotenv from "dotenv";
-import { env } from "process";
-dotenv.config();
 const API_TOKEN = config.slackAlarm; //env에 달았던 웹 훅 url
 
 // 슬랙 메세지 왼쪽 띠 색상
@@ -38,7 +35,7 @@ export interface SlackMessage {
 
 const getChannels = () => {
   return {
-    production: API_TOKEN,
+    development: API_TOKEN,
   };
 };
 
@@ -63,10 +60,10 @@ const sendMessage = async (message: SlackMessageFormat) => {
 
   message.footer = `From API Server [${config.env}]`;
   data.attachments.push(message);
-
+  
   // 슬랙에 전송
   axios({
-    url: getChannels().production,
+    url: getChannels().development,
     method: "POST",
     headers: {
       "Content-Type": "application/json",
