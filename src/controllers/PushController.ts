@@ -143,7 +143,7 @@ const pushPlan = async (req: Request, res: Response) => {
  *  @access Public
  */
 //지난 푸시알림
-const getLastPush = async (req: Request, res: Response) => {
+const getLastPush = async (req: Request, res: Response, next: NextFunction) => {
   const userId = req.body.user.id;
   if (!userId) {
     return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, message.BAD_REQUEST));
@@ -158,7 +158,7 @@ const getLastPush = async (req: Request, res: Response) => {
     res.status(statusCode.OK).send(util.success(statusCode.OK, message.GET_LAST_PUSH, data));
   } catch (error) {
     console.log(error);
-    throw error;
+    next(error);
   } finally {
     client.release();
   }
