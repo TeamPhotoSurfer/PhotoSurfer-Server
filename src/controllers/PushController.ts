@@ -113,6 +113,7 @@ const pushPlan = async (req: Request, res: Response) => {
     plan.map((x) => {
       
       if((x.fcm_token !== null && x.fcm_token !== undefined && x.fcm_token !== "")){
+        //const testToken = [`fc4uDy5dRBi9C6UaiL2NlS:APA91bGcDd0UhxDPeWKvJwFxygQZJ78HXfHEi5D-gzU8k1NmTV1XytWkLpN_Bum6PDnhSugFUarQdUOFXnbV1_uLJrpQymw3MB9lraA7mi9Bl9AswYD7Ot3Ysgg6DZmXPy2xWLyLokOT`];
         const testToken = [];
         testToken.push(x.fcm_token);
         pushAlarm.sendPushAlarm(
@@ -121,7 +122,7 @@ const pushPlan = async (req: Request, res: Response) => {
           x.memo,
           x.image_url,
           testToken,
-          x.pushId
+          x.push_id
         );
       }
     });
