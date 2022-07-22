@@ -54,5 +54,10 @@
     "reflect-metadata": "^0.1.13",
     "typeorm": "^0.2",
     "typeorm-naming-strategies": "^2.0.0"
+  },
+  "husky" : {
+    "hooks" : {
+      "pre-push": "yarn run test"
+    }
   }
 }
