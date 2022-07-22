@@ -55,8 +55,8 @@
     "typeorm": "^0.2",
     "typeorm-naming-strategies": "^2.0.0"
   },
-  "husky" : {
-    "hooks" : {
+  "husky": {
+    "hooks": {
       "pre-push": "yarn run test"
     }
   }
