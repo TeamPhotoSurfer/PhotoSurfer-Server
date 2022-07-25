@@ -5,12 +5,14 @@ const app = express();
 import routes from './routes';
 const schedule = require('node-schedule');
 import PushController from './controllers/PushController';
+import generalErrorHandler from './error/generalErrorHandler';
 require('dotenv').config();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use(routes);
+app.use(generalErrorHandler);
 
 interface ErrorType {
   message: string;
@@ -52,3 +54,5 @@ app
     console.error(err);
     process.exit(1);
   });
+
+  module.exports = app;

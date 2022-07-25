@@ -1,25 +1,21 @@
-import { PushCreateRequest } from "../interfaces/push/request/PushCreateRequest";
+import { PushCreateRequest } from '../interfaces/push/request/PushCreateRequest';
 import { throws } from 'assert';
 import { ConfigurationServicePlaceholders } from 'aws-sdk/lib/config_service_placeholders';
 import { EventListenerTypes } from 'typeorm/metadata/types/EventListenerTypes';
 import { PhotoPostDTO, PhotoReturnDTO } from '../DTO/photoDTO';
 import dayjs from 'dayjs';
+import { count } from 'console';
 
 const convertSnakeToCamel = require('../modules/convertSnakeToCamel');
 
-const createPhotoTag = async (
-  client: any,
-  userId: number,
-  imageURL: string,
-  tags: PhotoPostDTO[]
-) => {
+const createPhotoTag = async (client: any, userId: number, imageURL: string, tags: PhotoPostDTO[]) => {
   const { rows } = await client.query(
     `
     INSERT INTO photo (user_id, image_url)
     VALUES ($1, $2)
     RETURNING *
     `,
-    [userId, imageURL]
+    [userId, imageURL],
   );
   const photoId: number = rows[0].id;
   let tagId: number;
@@ -32,7 +28,7 @@ const createPhotoTag = async (
         FROM tag
         WHERE name = $1 AND user_id = $2
         `,
-      [r.name, userId]
+      [r.name, userId],
     );
     if (!checkedTag[0]) {
       const { rows: newTag } = await client.query(
@@ -41,7 +37,7 @@ const createPhotoTag = async (
         VALUES ($1, $2, $3)
         RETURNING *
         `,
-        [r.name, r.tagType, userId]
+        [r.name, r.type, userId],
       );
       tagId = newTag[0].id;
     } else {
@@ -72,17 +68,13 @@ const createPhotoTag = async (
       VALUES ($1, $2)
       RETURNING *
       `,
-      [tagId, photoId]
+      [tagId, photoId],
     );
   }
   return convertSnakeToCamel.keysToCamel(photoId);
 };
 
-const getTagByPhotoId = async (
-  client: any,
-  photoId: number,
-  userId: number
-) => {
+const getTagByPhotoId = async (client: any, photoId: number, userId: number) => {
   const { rows } = await client.query(
     `
     SELECT tag.id, tag.name, tag.tag_type
@@ -90,8 +82,9 @@ const getTagByPhotoId = async (
     WHERE photo_tag.photo_id = $1 AND photo_tag.tag_id = tag.id AND tag.user_id = $2 
     AND photo_tag.is_deleted = false AND tag.is_deleted = false
     `,
-    [photoId, userId]
+    [photoId, userId],
   );
+  console.log(rows);
   return convertSnakeToCamel.keysToCamel(rows);
 };
 
@@ -152,9 +145,9 @@ const deletedPhotoTag = async (client: any, userId: number, tagId: number, photo
     );
   }
   return { countDeletedPhoto };
-}
+};
 
-const addPhotoTag = async (client: any, userId: number, photoId: string[] | string, name: string, type: string) => {
+const addPhotoTag = async (client: any, userId: number, photoId: string[], name: string, type: string) => {
   const { rows: checkedTag } = await client.query(
     `
     SELECT id, is_deleted
@@ -164,7 +157,21 @@ const addPhotoTag = async (client: any, userId: number, photoId: string[] | stri
     [name, userId],
   );
   let tagId;
+
+  const { rows: checkPhoto } = await client.query(
+    `
+    SELECT *
+    FROM photo
+    WHERE id in (${photoId}) AND user_id = $1
+    `,
+    [userId],
+  );
+
+  if (!checkPhoto[0]) {
+    throw 404;
+  }
   const photoCount = photoId.length;
+  console.log(photoCount);
   if (!checkedTag[0]) {
     const { rows: newTag } = await client.query(
       `
@@ -204,7 +211,7 @@ const addPhotoTag = async (client: any, userId: number, photoId: string[] | stri
     `
       SELECT *
       FROM photo_tag
-      WHERE photo_id in (${photoId}) AND tag_id = $1
+      WHERE photo_id in (${photoId}) AND tag_id = $1 AND is_deleted = false
       `,
     [tagId],
   );
@@ -229,7 +236,7 @@ const addPhotoTag = async (client: any, userId: number, photoId: string[] | stri
     name,
   };
   return convertSnakeToCamel.keysToCamel(data);
-}
+};
 
 const getPhotoById = async (client: any, photoId: number, userId: number) => {
   const { rows } = await client.query(
@@ -278,7 +285,6 @@ const getPhotoById = async (client: any, photoId: number, userId: number) => {
   };
   return convertSnakeToCamel.keysToCamel(data);
 };
-
 
 const findPhotoByTag = async (client: any, userId: number, tagId: string[] | string) => {
   if (typeof tagId === 'string') {
@@ -358,8 +364,18 @@ const getTagsByIds = async (client: any, tagId: string[] | string, userId: numbe
   return convertSnakeToCamel.keysToCamel(result);
 };
 
-
 const updatePhotoTag = async (client: any, userId: number, name: string, photoIds: number[], tagId: number, tagType: string) => {
+  const { rows: existTag } = await client.query(
+    `
+    SELECT id
+    FROM tag
+    WHERE id = $1 AND user_id = $2
+    `,
+    [tagId, userId],
+  );
+  if (!existTag[0]) {
+    throw 400;
+  }
   const { rows: checkedTag } = await client.query(
     `
     SELECT id, is_deleted
@@ -368,6 +384,7 @@ const updatePhotoTag = async (client: any, userId: number, name: string, photoId
     `,
     [name, userId],
   );
+
   let newTagId;
   const photoCount = photoIds.length;
   if (!checkedTag[0]) {
@@ -405,6 +422,20 @@ const updatePhotoTag = async (client: any, userId: number, name: string, photoId
   }
 
   for (let i of photoIds) {
+    //만약 사진에 새 태그가 이미 있을 때
+    const { rows: existPhotoTag } = await client.query(
+      `
+      SELECT *
+      FROM photo_tag
+      WHERE tag_id = $1 AND is_deleted = false AND photo_id = $2
+      `,
+      [newTagId, i],
+    );
+    if (existPhotoTag[0]) {
+      console.log(existPhotoTag);
+      continue;
+    }
+
     const { rows: representTag } = await client.query(
       `
       SELECT is_represent
@@ -426,6 +457,7 @@ const updatePhotoTag = async (client: any, userId: number, name: string, photoId
     );
   }
 
+  //기존 태그에 사진이 더이상 없을 때
   const { rows: photoTag } = await client.query(
     `
     SELECT *
@@ -445,8 +477,87 @@ const updatePhotoTag = async (client: any, userId: number, name: string, photoId
       [tagId],
     );
   }
+  const data = {
+    id: newTagId,
+    name,
+  };
+  return data;
 };
 
+const getTag = async (client: any, userId: number) => {
+  const { rows } = await client.query(
+    `
+    SELECT id, name
+    FROM tag
+    WHERE is_deleted = false AND user_id = $1
+    `,
+    [userId],
+  );
+  return convertSnakeToCamel.keysToCamel(rows);
+};
+
+const deletePhoto = async (client: any, photoId: number, userId: number) => {
+  const { rows: checkPhotoExist } = await client.query(
+    `SELECT *
+    FROM photo
+    WHERE id in (${photoId})
+    AND user_id = $1
+    AND is_deleted = false;
+    `,
+    [userId],
+  );
+
+  if (!checkPhotoExist[0]) {
+    console.log('사진 삭제 에러');
+    throw 400;
+  }
+
+  const { rows: photo } = await client.query(
+    `UPDATE photo 
+    SET is_deleted = true 
+    WHERE id in (${photoId})
+    AND user_id = $1;
+    `,
+    [userId],
+  );
+
+  const { rows: tags } = await client.query(
+    `UPDATE photo_tag
+    SET is_deleted = true
+    WHERE photo_id in (${photoId})
+    RETURNING *
+    `,
+  );
+
+  // 푸시 알림 삭제
+  const { rows: push } = await client.query(
+    `UPDATE push
+      SET is_deleted = true
+      WHERE photo_id in (${photoId});
+      `,
+  );
+
+  //태그에 더이상 사진이 없을 때 태그 삭제
+  for (let i of tags) {
+    const { rows: photoTag } = await client.query(
+      `SELECT *
+    FROM photo_tag
+    WHERE tag_id = $1
+    AND is_deleted = false;`,
+      [i.tag_id],
+    );
+    if (!photoTag[0]) {
+      const { rows: tag } = await client.query(
+        `UPDATE tag
+        SET is_deleted = true
+        WHERE id = $1;`,
+        [i.tag_id],
+      );
+    }
+  }
+
+  // return convertSnakeToCamel.keysToCamel(rows);
+};
 export default {
   updatePhotoTag,
   deletedPhotoTag,
@@ -456,4 +567,6 @@ export default {
   getPhotoById,
   createPhotoTag,
   getTagByPhotoId,
+  getTag,
+  deletePhoto,
 };

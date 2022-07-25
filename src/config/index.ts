@@ -1,7 +1,7 @@
-import dotenv from "dotenv";
+import dotenv from 'dotenv';
 
 // Set the NODE_ENV to 'development' by default
-process.env.NODE_ENV = process.env.NODE_ENV || "development";
+process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
 const envFound = dotenv.config();
 if (envFound.error) {
@@ -15,7 +15,7 @@ export default {
    * Your favorite port
    */
   port: parseInt(process.env.PORT as string, 10) as number,
-
+  env: process.env.NODE_ENV as string,
   /**
    * MongoDB URI
    */
@@ -45,7 +45,6 @@ export default {
   //  * DB database
   //  */
   // database: process.env.DATABASE,
-
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
   database: process.env.DB_DB,
@@ -56,4 +55,7 @@ export default {
   s3AccessKey: process.env.S3_ACCESS_KEY as string,
   s3SecretKey: process.env.S3_SECRET_KEY as string,
   bucketName: process.env.BUCKET_NAME as string,
+  jwtSecret: process.env.JWT_SECRET as string,
+  jwtAlgo: process.env.JWT_ALGO as string,
+  slackAlarm: process.env.SLACK_ALARM_URI as string
 };
