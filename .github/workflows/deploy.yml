@@ -54,13 +54,6 @@ jobs:
           echo BUCKET_NAME=${{ secrets.BUCKET_NAME }} >> .env
           echo AWSAccessKeyId=${{ secrets.AWSAccessKeyId }} >> .env
           echo AWSSecretKey=${{ secrets.AWSSecretKey }} >> .env
-          
-      - name: create fcm json file
-        working-directory: ./
-        run: |
-          pwd
-          touch .photosurfer-firebase-adminsdk-j0t18-cfad93f7a2.json
-          echo ${{ secrets.FCM_JSON }} >> .photosurfer-firebase-adminsdk-j0t18-cfad93f7a2.json
 
       #       - name: test
       #         working-directory: ./
