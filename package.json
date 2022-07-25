@@ -36,12 +36,8 @@
     "typescript": "^4.6.3"
   },
   "dependencies": {
-<<<<<<< HEAD
-    "aws-sdk": "^2.1177.0",
-=======
     "aws-sdk": "^2.1171.0",
     "axios": "^0.27.2",
->>>>>>> c04964df6a3d19de60d7b986d83932d525879e07
     "dayjs": "^1.11.3",
     "dotenv": "^16.0.1",
     "express": "^4.18.1",
