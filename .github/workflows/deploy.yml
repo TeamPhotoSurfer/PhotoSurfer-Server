@@ -7,7 +7,7 @@ on:
   #   workflow_dispatch:
 
   push:
-    branches: [develop, deploy-test]
+    branches: [deploy-test]
 
 jobs:
   build:
