@@ -111,8 +111,7 @@ https://go-photosurfer.notion.site/API-a4b228282bcb49399413efc03552c1d1
   "scripts": {
     "dev": "nodemon",
     "build": "tsc && node dist",
-    "test": "mocha test/*/* --timeout 10000 -exit -r ts-node/register",
-    "prepare": "husky install"
+    "test": "mocha test/*/* --timeout 10000 -exit -r ts-node/register"
   },
   "author": "",
   "license": "ISC",
@@ -133,7 +132,6 @@ https://go-photosurfer.notion.site/API-a4b228282bcb49399413efc03552c1d1
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-prettier": "^4.2.1",
-    "husky": "^8.0.1",
     "mocha": "^10.0.0",
     "nodemon": "^2.0.18",
     "supertest": "^6.2.4",
