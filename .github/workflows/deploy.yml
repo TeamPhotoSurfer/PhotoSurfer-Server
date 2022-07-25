@@ -79,7 +79,6 @@ jobs:
         #  echo BUCKET_NAME=${{ secrets.BUCKET_NAME }} >> .env
         #  echo AWSAccessKeyId=${{ secrets.AWSAccessKeyId }} >> .env
         #  echo AWSSecretKey=${{ secrets.AWSSecretKey }} >> .env
-
         # yarn run build
 
       - name: zip file
