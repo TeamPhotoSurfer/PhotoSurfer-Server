@@ -29,6 +29,13 @@ jobs:
 
       - name: Check Npm -v
         run: npm -v
+      
+      - name: name: create-json
+        id: create-json
+        uses: jsdaniell/create-json@1.1.2
+        with:
+          name: "photosurfer-firebase-adminsdk-j0t18-cfad93f7a2.json"
+          json: ${{ secrets.FIREBASE_JSON }}
 
       - name: create test env file
         working-directory: ./
